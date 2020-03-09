@@ -17,6 +17,7 @@ Main functions :
 ## Usage
 
 ### DotNet run
+![.NET Core](https://github.com/smf33/InstagramFollowerBot/workflows/.NET%20Core/badge.svg)
 
 Download the sources and run donet sdk command in the folder of your Windows, Linux or Mac.
 
@@ -31,6 +32,7 @@ dotnet run BotTasks=DetectContactsUnfollowBack,DoContactsUnfollow BotUserEmail=y
 ```
 
 ### Docker run
+![Docker](https://github.com/smf33/InstagramFollowerBot/workflows/Docker/badge.svg)
 
 - Build and Run default BotTasks with Docker with a remote Selenium Hub (here another docker) :
 Exemple with Z:\InstagramFollowerBot as the source path, on a Windows system
@@ -41,6 +43,7 @@ docker run --link seleniumContainer:seleniumhost instagramfollowerbot BotUserEma
 ```
 
 ### Docker Compose run
+![Docker Compose](https://github.com/smf33/InstagramFollowerBot/workflows/Docker%20Compose/badge.svg)
 
 - Build and Run default BotTasks with Docker and an standalone Selenium
 
