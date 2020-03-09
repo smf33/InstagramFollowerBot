@@ -10,7 +10,7 @@ services:
     
     bot:
         # use the image or use the source with this line # build: .
-        image: docker.pkg.github.com/smf33/instagramfollowerbot/buster-slim:latest
+        image: docker.pkg.github.com/smf33/instagramfollowerbot/instagramfollowerbot:latest
         depends_on:
             - hub
         volumes:
