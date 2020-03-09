@@ -1,0 +1,29 @@
+name: Docker
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: 
+    - .github/**
+    - .gitignore
+    - README.md
+    - LICENSE
+    - docker-compose.yml
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag docker.pkg.github.com/smf33/instagramfollowerbot/buster-slim:latest
+      
+    - name: log on github repo
+      run: docker login -u $GITHUB_ACTOR -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
+    
+    - name: Push the Docker image
+      run: docker push docker.pkg.github.com/smf33/instagramfollowerbot/buster-slim:latest
