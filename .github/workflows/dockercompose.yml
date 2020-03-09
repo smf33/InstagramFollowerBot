@@ -1,0 +1,19 @@
+name: Docker Compose
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+    - docker-compose.yml
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      
+    - name: Validate docker-compose config
+      run: docker-compose config --quiet
