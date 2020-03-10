@@ -138,7 +138,7 @@ namespace InstagramFollowerBot
 					Config.BotCacheMyContacts = int.Parse(config["BotCacheMyContacts"], CultureInfo.InvariantCulture) != 0;
 					Config.BotSaveAfterEachAction = int.Parse(config["BotSaveAfterEachAction"], CultureInfo.InvariantCulture) != 0;
 					Config.BotSaveOnLoop = int.Parse(config["BotSaveOnLoop"], CultureInfo.InvariantCulture) != 0;
-					Config.BotSaveOnEnd = !Config.BotSaveOnLoop && int.Parse(config["BotSaveOnEnd"], CultureInfo.InvariantCulture) != 0;
+					Config.BotSaveOnEnd = int.Parse(config["BotSaveOnEnd"], CultureInfo.InvariantCulture) != 0;
 					// float
 					Config.BotSeleniumTimeoutSec = float.Parse(config["BotSeleniumTimeoutSec"], CultureInfo.InvariantCulture);
 					// int

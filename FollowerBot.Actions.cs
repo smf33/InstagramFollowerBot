@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -113,8 +113,6 @@ namespace InstagramFollowerBot
 
 		private void PostAuthInit()
 		{
-			Selenium.ClickIfPresent(Config.CssLoginWarning);
-
 			if (!Data.MyContactsUpdate.HasValue
 				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
 			{
@@ -162,6 +160,9 @@ namespace InstagramFollowerBot
 
 				WaitUrlStartsWith(Config.UrlRoot); // loading may take some time
 				WaitHumanizer(); // after WaitUrlStartsWith because 1st loading may take extra time
+
+				// Ignore the notification modal popup
+				Selenium.ClickIfPresent(Config.CssLoginWarning);
 
 				// who am i ?
 				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
