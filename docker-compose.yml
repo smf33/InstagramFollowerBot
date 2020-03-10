@@ -9,7 +9,8 @@ services:
             - "4444:4444"
     
     bot:
-        # use the image or use the source with this line # build: .
+        # comment next line if you want to use the officiel github repo (a "docker login" will be required by github)
+        build: .
         image: docker.pkg.github.com/smf33/instagramfollowerbot/instagramfollowerbot:latest
         depends_on:
             - hub
