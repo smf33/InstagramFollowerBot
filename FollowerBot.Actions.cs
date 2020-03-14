@@ -177,7 +177,7 @@ namespace InstagramFollowerBot
 				throw new FormatException("BotUserEmail required !");
 			}
 		}
-		
+
 		private void LoadCookies()
 		{
 			if (!MoveTo(Config.UrlRoot))
@@ -193,7 +193,7 @@ namespace InstagramFollowerBot
 				throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
 			}
 		}
-		
+
 		private IEnumerable<object> GetCookies()
 		{
 			return Selenium.Cookies;
@@ -226,7 +226,7 @@ namespace InstagramFollowerBot
 			{
 				Data.ContactsToFollow.Enqueue(needToFollow);
 			}
-			Log.LogDebug("ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
+			Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
 
 			c = Data.ContactsToFav.Count;
 			foreach (string needToFollow in list
@@ -235,7 +235,7 @@ namespace InstagramFollowerBot
 			{
 				Data.ContactsToFav.Enqueue(needToFollow);
 			}
-			Log.LogDebug("ContactsToFav +{0}", Data.ContactsToFav.Count - c);
+			Log.LogDebug("$ContactsToFav +{0}", Data.ContactsToFav.Count - c);
 		}
 
 		private void DetectPeopleSuggested()
@@ -256,7 +256,7 @@ namespace InstagramFollowerBot
 			{
 				Data.ContactsToFollow.Enqueue(needToFollow);
 			}
-			Log.LogDebug("ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
+			Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
 		}
 
 		private void DetectContactsUnfollowBack()
@@ -295,12 +295,13 @@ namespace InstagramFollowerBot
 					Data.ContactsToUnfollow.Enqueue(needToUnfollow);
 				}
 			}
-			Log.LogDebug("ContactsToUnfollow ={0}", Data.ContactsToUnfollow.Count);
+			Log.LogDebug("$ContactsToUnfollow ={0}", Data.ContactsToUnfollow.Count);
 		}
 
 		private void DoContactsFollow()
 		{
 			int todo = Rand.Next(Config.BotFollowTaskBatchMinLimit, Config.BotFollowTaskBatchMaxLimit);
+			int c = Data.ContactsToFollow.Count;
 			while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
 			{
 				if (!MoveTo(uri))
@@ -333,15 +334,16 @@ namespace InstagramFollowerBot
 				catch (Exception ex)
 				{
 					Log.LogWarning(default, ex, "ACTION STOPED : {0}", ex.GetBaseException().Message);
-					Data.ContactsToFollow.Enqueue(uri); // try later ?
 					break; // stop this action
 				}
 			}
+			Log.LogDebug("$ContactsToFollow -{0}", c - Data.ContactsToFollow.Count);
 		}
 
 		private void DoContactsUnfollow()
 		{
 			int todo = Rand.Next(Config.BotUnfollowTaskBatchMinLimit, Config.BotUnfollowTaskBatchMaxLimit);
+			int c = Data.ContactsToUnfollow.Count;
 			while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
 			{
 				if (!MoveTo(uri))
@@ -379,6 +381,7 @@ namespace InstagramFollowerBot
 					break; // stop this action
 				}
 			}
+			Log.LogDebug("$ContactsToUnfollow -{0}", c - Data.ContactsToUnfollow.Count);
 		}
 
 	}

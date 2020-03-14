@@ -150,7 +150,7 @@ namespace InstagramFollowerBot
 		{
 			return JsDriver.ExecuteScript("let containerEl=document.getElementsByClassName('" + divId + "')[0];containerEl.scrollTop=containerEl.scrollTop==0?200:(containerEl.scrollHeight-containerEl.offsetHeight>containerEl.scrollTop+200?containerEl.scrollTop+200:containerEl.scrollHeight-containerEl.offsetHeight);return containerEl.scrollTop;").ToString();
 		}
-		
+
 		private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
 		internal IDictionary<string, string> LocalStorage
@@ -192,7 +192,7 @@ namespace InstagramFollowerBot
 				JsDriver.ExecuteScript(s.ToString());
 			}
 		}
-		
+
 		internal IEnumerable<object> Cookies
 		{
 			get => WebDriver.Manage().Cookies.AllCookies;

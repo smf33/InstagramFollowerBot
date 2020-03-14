@@ -38,7 +38,7 @@ namespace InstagramFollowerBot
 			public IEnumerable<object> Cookies = new List<object>();
 			public IDictionary<string, string> SessionStorage = new Dictionary<string, string>();
 			public IDictionary<string, string> LocalStorage = new Dictionary<string, string>();
-			
+
 			/// <summary>
 			/// Last refresh date
 			/// </summary>   
