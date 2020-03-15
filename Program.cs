@@ -9,11 +9,18 @@ namespace InstagramFollowerBot
 		private static int Main(string[] args)
 		{
 			ConsoleLogger logger = new ConsoleLogger();
+
 			try
 			{
-				using (FollowerBot bot = new FollowerBot(args, logger))
+				using FollowerBot bot = new FollowerBot(args, logger);
+				try
 				{
 					bot.Run();
+				}
+				catch
+				{
+					bot.DebugDump();
+					throw;
 				}
 			}
 			catch (Exception ex)

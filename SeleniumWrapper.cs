@@ -80,6 +80,16 @@ namespace InstagramFollowerBot
 			get => WebDriver.Url;
 			set => WebDriver.Url = value;
 		}
+		
+		public string Title
+		{
+			get => WebDriver.Title;
+		}
+		
+		internal string CurrentPageSource
+		{
+			get => JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString();
+		}
 
 		public IEnumerable<IWebElement> GetElements(string cssSelector, bool displayedOnly = true, bool noImplicitWait = false)
 		{
@@ -142,7 +152,7 @@ namespace InstagramFollowerBot
 		{
 			JsDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight)");
 		}
-
+		
 		/// <summary>
 		/// Scrool half is 1st time
 		/// </summary>

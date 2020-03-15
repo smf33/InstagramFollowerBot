@@ -132,6 +132,39 @@ namespace InstagramFollowerBot
 			Log.LogInformation("## ENDED OK");
 		}
 
+		internal void DebugDump()
+		{
+			Log.LogDebug("## DUMPING...");
+
+			try
+			{
+				Log.LogDebug("# Url : {0}", Selenium.Url);
+			}
+			catch (Exception ex)
+			{
+				Log.LogDebug("# Unknow Url : {0}", ex.GetBaseException().Message);
+			}
+
+			try
+			{
+				Log.LogDebug("# Title : {0}", Selenium.Title);
+			}
+			catch (Exception ex)
+			{
+				Log.LogDebug("# Unknow Title : {0}", ex.GetBaseException().Message);
+			}
+			
+			try
+			{
+				Log.LogDebug("# Current page source :\r\n{0}", Selenium.CurrentPageSource);
+			}
+			catch (Exception ex)
+			{
+				Log.LogDebug("# Unknow page source : {0}", ex.GetBaseException().Message);
+			}
+
+		}
+
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 		private SeleniumWrapper Selenium;
