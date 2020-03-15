@@ -84,7 +84,7 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - Don't be evil, else Instagram will delete your spamming account
 - The solution is micro-service oriented, but Instagram will detected the spamming account if the bot is too fast
 - If you want to publish without remote Selenium, add _PUBLISH_CHROMEDRIVER in the DefineConstants of the .csproj
-
+- The account should follow at last one account, else the bot will fail to detect this.
 ## TODO :
 - Init config json
 - Enable all function already working on Flickr version of this bot

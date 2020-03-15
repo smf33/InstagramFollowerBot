@@ -129,6 +129,19 @@ namespace InstagramFollowerBot
 			}
 			WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
 		}
+		
+		public void CrashIfPresent(string cssSelector, string crashMessage)
+		{
+			WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
+			if (WebDriver.FindElements(By.CssSelector(cssSelector)).Count == 0)
+			{
+				WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
+			}
+			else
+			{
+				throw new ElementNotInteractableException(crashMessage);
+			}
+		}
 
 		public void Click(string cssSelector)
 		{

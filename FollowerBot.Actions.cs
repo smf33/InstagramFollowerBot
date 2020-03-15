@@ -111,32 +111,6 @@ namespace InstagramFollowerBot
 			}
 		}
 
-		private void PostAuthInit()
-		{
-			if (!Data.MyContactsUpdate.HasValue
-				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
-			{
-				MoveTo(Data.UserContactUrl);
-				WaitHumanizer();
-
-				Selenium.Click(Config.CssContactFollowed);
-				WaitHumanizer();
-
-				// ScroolDown
-				SchroolDownLoop("isgrP");
-
-				Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
-					.ToHashSet();
-				Log.LogDebug("MyContacts ={0}", Data.MyContacts.Count);
-
-				Data.MyContactsUpdate = DateTime.UtcNow;
-			}
-
-			AddForced("AddPhotosToFav", Config.AddContactsToFollow, Data.PhotosToFav);
-			AddForced("AddContactsToFav", Config.AddContactsToFav, Data.ContactsToFav);
-			AddForced("AddPhotosToFav", Config.AddPhotosToFav, Data.PhotosToFav);
-		}
-
 		private void AuthLogin()
 		{
 			if (!MoveTo(Config.UrlLogin))
@@ -163,9 +137,12 @@ namespace InstagramFollowerBot
 
 				// Ignore the notification modal popup
 				Selenium.ClickIfPresent(Config.CssLoginWarning);
-
+				
+				// Ignore the notification modal popup
+				Selenium.CrashIfPresent(".jIbKX", "Unusual Login Attempt Detected");
+				
 				// who am i ?
-				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
+				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", true, true)
 					.First(); // not single to be safe
 				if (Data.UserContactUrl.EndsWith('/')) // standardize
 				{
@@ -176,6 +153,33 @@ namespace InstagramFollowerBot
 			{
 				throw new FormatException("BotUserEmail required !");
 			}
+		}
+		
+		private void PostAuthInit()
+		{
+			if (!Data.MyContactsUpdate.HasValue
+				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
+			{
+				MoveTo(Data.UserContactUrl);
+				WaitHumanizer();
+
+				Selenium.Click(Config.CssContactFollowed);
+				WaitHumanizer();
+
+				// ScroolDown
+				SchroolDownLoop("isgrP");	// TOFIX : will crash if no contact at all
+
+				Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
+					.ToHashSet();
+				
+				Log.LogDebug("MyContacts ={0}", Data.MyContacts.Count);
+
+				Data.MyContactsUpdate = DateTime.UtcNow;
+			}
+
+			AddForced("AddPhotosToFav", Config.AddContactsToFollow, Data.PhotosToFav);
+			AddForced("AddContactsToFav", Config.AddContactsToFav, Data.ContactsToFav);
+			AddForced("AddPhotosToFav", Config.AddPhotosToFav, Data.PhotosToFav);
 		}
 
 		private void LoadCookies()

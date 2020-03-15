@@ -27,7 +27,7 @@
 	"CssContactFollow": "button._5f5mN._6VtSN:not(.-fzfL)",
 	"CssContactFollowed": "a[href*=\"/following/\"]",
 	"CssLoginEmail": "input[name=\"username\"]",
-	"CssLoginMyself": "a.gmFkV",
+	"CssLoginMyself": ".Fifk5>a.qNELH.kIKUG",
 	"CssLoginPassword": "input[name=\"password\"]",
 	"CssLoginWarning": "button.aOOlW.HoLwm",
 	"SeleniumBrowserArguments": "--no-sandbox;--disable-background-networking;-disable-default-apps;--disable-gpu;--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0",
