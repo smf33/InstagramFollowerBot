@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -73,12 +73,13 @@ namespace InstagramFollowerBot
 				if (!string.IsNullOrWhiteSpace(Config.BotUserSaveFolder))
 				{
 					JsonPath = Config.BotUserSaveFolder;
-					if (!JsonPath.EndsWith('\\'))
+					if (!JsonPath.EndsWith(Path.DirectorySeparatorChar))
 					{
-						JsonPath += '\\';
+						JsonPath += Path.DirectorySeparatorChar;
 					}
 					if (!Directory.Exists(Config.BotUserSaveFolder))
 					{
+						Log.LogDebug("Create session directory {0}", JsonPath);
 						try
 						{
 							Directory.CreateDirectory(JsonPath);
@@ -86,19 +87,20 @@ namespace InstagramFollowerBot
 						catch (Exception ex)
 						{
 							Log.LogError(default, ex, "Coundn't create {0} directory, using current.", JsonPath);
-							JsonPath = ExecPath + "\\PersistenceData_";
+							JsonPath = ExecPath + Path.DirectorySeparatorChar + "PersistenceData_";
 						}
 					}
 				}
 				else
 				{
-					JsonPath = ExecPath + "\\PersistenceData_";
+					JsonPath = ExecPath + Path.DirectorySeparatorChar + "PersistenceData_";
 				}
 
-				if (File.Exists(JsonPath + Config.BotUserEmail + ".json"))
+				string fn = JsonPath + Config.BotUserEmail + ".json";
+				if (File.Exists(fn))
 				{
 					Log.LogDebug("LOADING USER JSON");
-					PersistenceData tmp = JsonConvert.DeserializeObject<PersistenceData>(File.ReadAllText(JsonPath + Config.BotUserEmail + ".json", Encoding.UTF8));
+					PersistenceData tmp = JsonConvert.DeserializeObject<PersistenceData>(File.ReadAllText(fn, Encoding.UTF8));
 					Data.UserContactUrl = tmp.UserContactUrl;
 					if (Config.BotCacheMyContacts)
 					{
