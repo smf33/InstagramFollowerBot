@@ -55,10 +55,12 @@ namespace InstagramFollowerBot
 		public void Run()
 		{
 			Log.LogInformation("## LOGGING...");
-
-			LoadCookies();
-			AuthLogin();
-
+			
+			if (Data.UserContactUrl == null
+				|| !TryAuthCookies())
+			{
+				AuthLogin();
+			}
 			Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
 			PostAuthInit();
 			SaveData(); // save cookies at last

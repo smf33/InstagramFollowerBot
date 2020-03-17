@@ -110,6 +110,49 @@ namespace InstagramFollowerBot
 				}
 			}
 		}
+		
+		private bool TryAuthCookies()
+		{
+			if (Data.Cookies != null && Data.Cookies.Any())
+			{
+				if (!MoveTo(Config.UrlRoot))
+				{
+					throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
+				}
+
+				Selenium.Cookies = Data.Cookies; // need to have loaded the page 1st
+				Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
+				Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
+
+				if (!MoveTo(Config.UrlRoot))
+				{
+					throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
+				}
+
+				//check cookie auth OK
+				// who am i ?
+				string curUserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
+					.FirstOrDefault(); // not single to be safe
+				if (curUserContactUrl != null && curUserContactUrl.EndsWith('/')) // standardize
+				{
+					curUserContactUrl = curUserContactUrl.Remove(curUserContactUrl.Length - 1);
+				}
+
+				if (Data.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
+				{
+					return true;
+				}
+				else
+				{
+					Log.LogWarning("Couldn't log user from cookie. Try normal auth");
+					return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
 
 		private void AuthLogin()
 		{
@@ -136,13 +179,10 @@ namespace InstagramFollowerBot
 				WaitHumanizer(); // after WaitUrlStartsWith because 1st loading may take extra time
 
 				// Ignore the notification modal popup
-				Selenium.ClickIfPresent(Config.CssLoginWarning);
-
-				// Ignore the notification modal popup
 				Selenium.CrashIfPresent(".jIbKX", "Unusual Login Attempt Detected");
 
 				// who am i ?
-				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", true, true)
+				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
 					.First(); // not single to be safe
 				if (Data.UserContactUrl.EndsWith('/')) // standardize
 				{
@@ -157,6 +197,9 @@ namespace InstagramFollowerBot
 
 		private void PostAuthInit()
 		{
+			// Ignore the notification modal popup
+			Selenium.ClickIfPresent(Config.CssLoginWarning);
+
 			if (!Data.MyContactsUpdate.HasValue
 				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
 			{
@@ -180,18 +223,6 @@ namespace InstagramFollowerBot
 			AddForced("AddPhotosToFav", Config.AddContactsToFollow, Data.PhotosToFav);
 			AddForced("AddContactsToFav", Config.AddContactsToFav, Data.ContactsToFav);
 			AddForced("AddPhotosToFav", Config.AddPhotosToFav, Data.PhotosToFav);
-		}
-
-		private void LoadCookies()
-		{
-			if (!MoveTo(Config.UrlRoot)) // 
-			{
-				throw new NotSupportedException("INSTAGRAM RETURN ERROR ON " + Config.UrlRoot);
-			}
-
-			Selenium.Cookies = Data.Cookies; // need to have loaded the page 1st
-			Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
-			Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
 		}
 
 		private void DetectContactsFollowBack()

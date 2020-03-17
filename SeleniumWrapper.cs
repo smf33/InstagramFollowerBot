@@ -168,8 +168,6 @@ namespace InstagramFollowerBot
 			return JsDriver.ExecuteScript("let containerEl=document.getElementsByClassName('" + divId + "')[0];containerEl.scrollTop=containerEl.scrollTop==0?200:(containerEl.scrollHeight-containerEl.offsetHeight>containerEl.scrollTop+200?containerEl.scrollTop+200:containerEl.scrollHeight-containerEl.offsetHeight);return containerEl.scrollTop;").ToString();
 		}
 
-		private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-
 		internal IEnumerable<object> Cookies
 		{
 			get => WebDriver.Manage().Cookies.AllCookies;
@@ -178,15 +176,8 @@ namespace InstagramFollowerBot
 				WebDriver.Manage().Cookies.DeleteAllCookies();
 				foreach (JObject cookie in value.OfType<JObject>())
 				{
-					WebDriver.Manage().Cookies.AddCookie(
-						new Cookie(
-							cookie["name"].ToString(),
-							cookie["value"].ToString(),
-							cookie["domain"].ToString(),
-							cookie["path"].ToString(),
-							cookie["expiry"] != null ? Epoch.AddMilliseconds(cookie["expiry"].Value<long>()) : null as DateTime?
-						)
-					);
+					Cookie c = Cookie.FromDictionary(cookie.ToObject<Dictionary<string, object>>());
+					WebDriver.Manage().Cookies.AddCookie(c);
 				}
 			}
 		}

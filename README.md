@@ -87,5 +87,4 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - The account should follow at last one account, else the bot will fail to detect this
 - About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
 ## TODO :
-- Init config json
 - Enable all function already working on Flickr version of this bot
