@@ -153,7 +153,7 @@ namespace InstagramFollowerBot
 			{
 				Log.LogDebug("# Unknow Title : {0}", ex.GetBaseException().Message);
 			}
-			
+
 			try
 			{
 				Log.LogDebug("# Current page source :\r\n{0}", Selenium.CurrentPageSource);

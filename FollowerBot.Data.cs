@@ -167,9 +167,9 @@ namespace InstagramFollowerBot
 					ContactsToFav = Data.ContactsToFav,
 					ContactsToUnfollow = Data.ContactsToUnfollow,
 					PhotosToFav = Data.PhotosToFav,
-					Cookies = GetCookies(),
-					SessionStorage = GetSessionStorage(),
-					LocalStorage = GetLocalStorage()
+					Cookies = Selenium.Cookies,
+					SessionStorage = Selenium.SessionStorage,
+					LocalStorage = Selenium.LocalStorage
 				};
 				if (Config.BotCacheMyContacts)
 				{

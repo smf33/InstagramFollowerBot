@@ -80,16 +80,10 @@ namespace InstagramFollowerBot
 			get => WebDriver.Url;
 			set => WebDriver.Url = value;
 		}
-		
-		public string Title
-		{
-			get => WebDriver.Title;
-		}
-		
-		internal string CurrentPageSource
-		{
-			get => JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString();
-		}
+
+		public string Title => WebDriver.Title;
+
+		internal string CurrentPageSource => JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString();
 
 		public IEnumerable<IWebElement> GetElements(string cssSelector, bool displayedOnly = true, bool noImplicitWait = false)
 		{
@@ -129,7 +123,7 @@ namespace InstagramFollowerBot
 			}
 			WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
 		}
-		
+
 		public void CrashIfPresent(string cssSelector, string crashMessage)
 		{
 			WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
@@ -165,7 +159,7 @@ namespace InstagramFollowerBot
 		{
 			JsDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight)");
 		}
-		
+
 		/// <summary>
 		/// Scrool half is 1st time
 		/// </summary>
@@ -175,6 +169,27 @@ namespace InstagramFollowerBot
 		}
 
 		private static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+		internal IEnumerable<object> Cookies
+		{
+			get => WebDriver.Manage().Cookies.AllCookies;
+			set
+			{
+				WebDriver.Manage().Cookies.DeleteAllCookies();
+				foreach (JObject cookie in value.OfType<JObject>())
+				{
+					WebDriver.Manage().Cookies.AddCookie(
+						new Cookie(
+							cookie["name"].ToString(),
+							cookie["value"].ToString(),
+							cookie["domain"].ToString(),
+							cookie["path"].ToString(),
+							cookie["expiry"] != null ? Epoch.AddMilliseconds(cookie["expiry"].Value<long>()) : null as DateTime?
+						)
+					);
+				}
+			}
+		}
 
 		internal IDictionary<string, string> LocalStorage
 		{
@@ -187,7 +202,7 @@ namespace InstagramFollowerBot
 			}
 			set
 			{
-				StringBuilder s = new StringBuilder();
+				StringBuilder s = new StringBuilder("localStorage.clear();");
 				foreach (KeyValuePair<string, string> kv in value)
 				{
 					s.AppendFormat("localStorage.setItem('{0}', '{1}');", kv.Key, kv.Value);
@@ -207,32 +222,12 @@ namespace InstagramFollowerBot
 			}
 			set
 			{
-				StringBuilder s = new StringBuilder();
+				StringBuilder s = new StringBuilder("sessionStorage.clear();");
 				foreach (KeyValuePair<string, string> kv in value)
 				{
 					s.AppendFormat("sessionStorage.setItem('{0}', '{1}');", kv.Key, kv.Value);
 				}
 				JsDriver.ExecuteScript(s.ToString());
-			}
-		}
-
-		internal IEnumerable<object> Cookies
-		{
-			get => WebDriver.Manage().Cookies.AllCookies;
-			set
-			{
-				foreach (JObject cookie in value.OfType<JObject>())
-				{
-					WebDriver.Manage().Cookies.AddCookie(
-						new Cookie(
-							cookie["name"].ToString(),
-							cookie["value"].ToString(),
-							cookie["domain"].ToString(),
-							cookie["path"].ToString(),
-							cookie["expiry"] != null ? Epoch.AddMilliseconds(cookie["expiry"].Value<long>()) : null as DateTime?
-						)
-					);
-				}
 			}
 		}
 

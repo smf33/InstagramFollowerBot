@@ -137,10 +137,10 @@ namespace InstagramFollowerBot
 
 				// Ignore the notification modal popup
 				Selenium.ClickIfPresent(Config.CssLoginWarning);
-				
+
 				// Ignore the notification modal popup
 				Selenium.CrashIfPresent(".jIbKX", "Unusual Login Attempt Detected");
-				
+
 				// who am i ?
 				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", true, true)
 					.First(); // not single to be safe
@@ -154,7 +154,7 @@ namespace InstagramFollowerBot
 				throw new FormatException("BotUserEmail required !");
 			}
 		}
-		
+
 		private void PostAuthInit()
 		{
 			if (!Data.MyContactsUpdate.HasValue
@@ -167,11 +167,11 @@ namespace InstagramFollowerBot
 				WaitHumanizer();
 
 				// ScroolDown
-				SchroolDownLoop("isgrP");	// TOFIX : will crash if no contact at all
+				SchroolDownLoop("isgrP");   // TOFIX : will crash if no contact at all
 
 				Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
 					.ToHashSet();
-				
+
 				Log.LogDebug("MyContacts ={0}", Data.MyContacts.Count);
 
 				Data.MyContactsUpdate = DateTime.UtcNow;
@@ -184,7 +184,7 @@ namespace InstagramFollowerBot
 
 		private void LoadCookies()
 		{
-			if (!MoveTo(Config.UrlRoot))
+			if (!MoveTo(Config.UrlRoot)) // 
 			{
 				throw new NotSupportedException("INSTAGRAM RETURN ERROR ON " + Config.UrlRoot);
 			}
@@ -192,23 +192,6 @@ namespace InstagramFollowerBot
 			Selenium.Cookies = Data.Cookies; // need to have loaded the page 1st
 			Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
 			Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
-			if (!MoveTo(Config.UrlRoot))
-			{
-				throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
-			}
-		}
-
-		private IEnumerable<object> GetCookies()
-		{
-			return Selenium.Cookies;
-		}
-		private IDictionary<string, string> GetLocalStorage()
-		{
-			return Selenium.LocalStorage;
-		}
-		private IDictionary<string, string> GetSessionStorage()
-		{
-			return Selenium.SessionStorage;
 		}
 
 		private void DetectContactsFollowBack()
