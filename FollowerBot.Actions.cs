@@ -263,8 +263,8 @@ namespace InstagramFollowerBot
 
 			SchroolDownLoop(Config.BotPeopleSuggestedScrools);
 
-			IEnumerable<string> list = Selenium.GetAttributes("._7UhW9>a")
-				.ToList();
+			IEnumerable<string> list = Selenium.GetAttributes(Config.CssSuggestedContact)
+				.ToList(); // Solve the request
 
 			int c = Data.ContactsToFollow.Count;
 			foreach (string needToFollow in list
@@ -375,27 +375,31 @@ namespace InstagramFollowerBot
 				}
 				try
 				{
+					bool process = false;
 					// avec le triangle
 					if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
 					{
 						Selenium.Click(Config.CssContactUnfollowButton);
-						Data.MyContacts.Remove(uri);
-						MyContactsInTryout.Remove(uri);
-						Selenium.Click(Config.CssContactUnfollowConfirm);
-						WaitHumanizer();// the url relad may break a waiting ball
-						todo--;
+						process = true;
 					}
 					// sans le triangle
 					else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
 					{
 						Selenium.Click(Config.CssContactUnfollowButtonAlt);
-						Data.MyContacts.Remove(uri);
-						MyContactsInTryout.Remove(uri);
+						process = true;
+					}
+					if (process)
+					{
+						WaitHumanizer();
+
 						Selenium.Click(Config.CssContactUnfollowConfirm);
 						WaitHumanizer();// the url relad may break a waiting ball
+
+						Data.MyContacts.Remove(uri);
+						MyContactsInTryout.Remove(uri);
+						Data.MyContactsBanned.Add(uri);
 						todo--;
 					}
-
 				}
 				catch (Exception ex)
 				{

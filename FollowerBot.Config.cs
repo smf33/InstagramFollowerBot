@@ -41,13 +41,13 @@ namespace InstagramFollowerBot
 			internal string CssContactUnfollowConfirm;
 			internal string CssContactsFollowing;
 			internal string CssContactsFollowers;
-			internal string CssContactUnfollow;
 			internal string CssContactsListScrollable;
 			internal string CssLoginEmail;
 			internal string CssLoginMyself;
 			internal string CssLoginPassword;
 			internal string CssLoginWarning;
 			internal string CssLoginUnusual;
+			internal string CssSuggestedContact;
 			internal string SeleniumRemoteServer;
 			internal int SeleniumRemoteServerWarmUpWaitMs;
 			internal int SeleniumWindowMaxH;
@@ -100,9 +100,9 @@ namespace InstagramFollowerBot
 					CssContactUnfollowConfirm = config["CssContactUnfollowConfirm"],
 					CssContactsFollowing = config["CssContactsFollowing"],
 					CssContactsFollowers = config["CssContactsFollowers"],
-					CssContactUnfollow = config["CssContactUnfollow"],
 					CssContactsListScrollable = config["CssContactsListScrollable"],
 					CssLoginUnusual = config["CssLoginUnusual"],
+					CssSuggestedContact = config["CssSuggestedContact"]
 				};
 
 				try
