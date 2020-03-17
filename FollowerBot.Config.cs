@@ -35,26 +35,19 @@ namespace InstagramFollowerBot
 			internal string BotTasks;
 			internal string BotUserEmail;
 			internal string BotUserPassword;
-			internal string BotSearchKeywords;
 			internal string CssContactFollow;
-			internal string CssContactFollowed;
-			internal string CssContactPhotos;
+			internal string CssContactUnfollowButton;
+			internal string CssContactUnfollowButtonAlt;
+			internal string CssContactUnfollowConfirm;
+			internal string CssContactsFollowing;
+			internal string CssContactsFollowers;
 			internal string CssContactUnfollow;
-			internal string CssError500;
-			internal string CssPhotosError404;
-			internal string CssExploreContact;
+			internal string CssContactsListScrollable;
 			internal string CssLoginEmail;
 			internal string CssLoginMyself;
 			internal string CssLoginPassword;
 			internal string CssLoginWarning;
-			internal string CssModalWaiterBalls;
-			internal string CssPhotoFave;
-			internal string CssPhotoFaved;
-			internal string CssPhotos;
-			internal string CssPhotosFaved;
-			internal string CssRecentContactPost;
-			internal string CssSearch;
-			internal string CssWaiterBalls;
+			internal string CssLoginUnusual;
 			internal string SeleniumRemoteServer;
 			internal int SeleniumRemoteServerWarmUpWaitMs;
 			internal int SeleniumWindowMaxH;
@@ -65,13 +58,7 @@ namespace InstagramFollowerBot
 			internal int BotLoopTaskLimited;
 			internal int BotPeopleSuggestedScrools;
 			internal string UrlContacts;
-			internal string UrlContactsBlocked;
-			internal string UrlContactsMutual;
-			internal string UrlContactsNotFriendAndFamily;
-			internal string UrlContactsOneWay;
-			internal string UrlExplore;
 			internal string UrlLogin;
-			internal string UrlRecentContactPost;
 			internal string UrlRoot;
 			internal string UrlExplorePeopleSuggested;
 		}
@@ -94,41 +81,28 @@ namespace InstagramFollowerBot
 					BotUserEmail = config["BotUserEmail"],
 					BotUserPassword = config["BotUserPassword"],
 					BotTasks = config["BotTasks"],
-					BotSearchKeywords = config["BotSearchKeywords"],
 					AddPhotosToFav = config["AddPhotosToFav"],
 					AddContactsToFav = config["AddContactsToFav"],
 					AddContactsToFollow = config["AddContactsToFollow"],
 					BotUserSaveFolder = config["BotUserSaveFolder"],
 					SeleniumRemoteServer = config["SeleniumRemoteServer"],
 					UrlRoot = config["UrlRoot"],
-					UrlRecentContactPost = config["UrlRecentContactPost"],
 					UrlLogin = config["UrlLogin"],
-					UrlExplore = config["UrlExplore"],
 					UrlContacts = config["UrlContacts"],
-					UrlContactsOneWay = config["UrlContactsOneWay"],
-					UrlContactsMutual = config["UrlContactsMutual"],
-					UrlContactsBlocked = config["UrlContactsBlocked"],
-					UrlContactsNotFriendAndFamily = config["UrlContactsNotFriendAndFamily"],
 					UrlExplorePeopleSuggested = config["UrlExplorePeopleSuggested"],
-					CssRecentContactPost = config["CssRecentContactPost"],
-					CssError500 = config["CssError500"],
-					CssPhotosError404 = config["CssPhotosError404"],
 					CssLoginEmail = config["CssLoginEmail"],
 					CssLoginPassword = config["CssLoginPassword"],
 					CssLoginMyself = config["CssLoginMyself"],
 					CssLoginWarning = config["CssLoginWarning"],
-					CssContactPhotos = config["CssContactPhotos"],
-					CssExploreContact = config["CssExploreContact"],
-					CssModalWaiterBalls = config["CssModalWaiterBalls"],
-					CssWaiterBalls = config["CssWaiterBalls"],
 					CssContactFollow = config["CssContactFollow"],
-					CssContactFollowed = config["CssContactFollowed"],
+					CssContactUnfollowButton = config["CssContactUnfollowButton"],
+					CssContactUnfollowButtonAlt = config["CssContactUnfollowButtonAlt"],
+					CssContactUnfollowConfirm = config["CssContactUnfollowConfirm"],
+					CssContactsFollowing = config["CssContactsFollowing"],
+					CssContactsFollowers = config["CssContactsFollowers"],
 					CssContactUnfollow = config["CssContactUnfollow"],
-					CssPhotosFaved = config["CssPhotosFaved"],
-					CssPhotos = config["CssPhotos"],
-					CssPhotoFave = config["CssPhotoFave"],
-					CssPhotoFaved = config["CssPhotoFaved"],
-					CssSearch = config["CssSearch"]
+					CssContactsListScrollable = config["CssContactsListScrollable"],
+					CssLoginUnusual = config["CssLoginUnusual"],
 				};
 
 				try

@@ -3,6 +3,7 @@
 Bot for Instagram, in .Net Core, using a Chrome client and Selenium for command it.
 
 Main functions :
+- Follow users whose follow you
 - Unfollow users whose doesn't follow you
 - Can work with a remote Selenium grid and/or in docker
 

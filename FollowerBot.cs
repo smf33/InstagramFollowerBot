@@ -55,7 +55,7 @@ namespace InstagramFollowerBot
 		public void Run()
 		{
 			Log.LogInformation("## LOGGING...");
-			
+
 			if (Data.UserContactUrl == null
 				|| !TryAuthCookies())
 			{

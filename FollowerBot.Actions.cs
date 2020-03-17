@@ -110,7 +110,7 @@ namespace InstagramFollowerBot
 				}
 			}
 		}
-		
+
 		private bool TryAuthCookies()
 		{
 			if (Data.Cookies != null && Data.Cookies.Any())
@@ -179,7 +179,7 @@ namespace InstagramFollowerBot
 				WaitHumanizer(); // after WaitUrlStartsWith because 1st loading may take extra time
 
 				// Ignore the notification modal popup
-				Selenium.CrashIfPresent(".jIbKX", "Unusual Login Attempt Detected");
+				Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
 
 				// who am i ?
 				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
@@ -206,11 +206,11 @@ namespace InstagramFollowerBot
 				MoveTo(Data.UserContactUrl);
 				WaitHumanizer();
 
-				Selenium.Click(Config.CssContactFollowed);
+				Selenium.Click(Config.CssContactsFollowing);
 				WaitHumanizer();
 
 				// ScroolDown
-				SchroolDownLoop("isgrP");   // TOFIX : will crash if no contact at all
+				SchroolDownLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
 
 				Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
 					.ToHashSet();
@@ -230,16 +230,17 @@ namespace InstagramFollowerBot
 			MoveTo(Data.UserContactUrl);
 			WaitHumanizer();
 
-			Selenium.Click("a[href*=\"/followers/\"]");
+			Selenium.Click(Config.CssContactsFollowers);
 			WaitHumanizer();
 
-			SchroolDownLoop("isgrP");
-			IEnumerable<string> list = Selenium.GetAttributes(".d7ByH>a")
-				.ToList();
+			SchroolDownLoop(Config.CssContactsListScrollable);
+			IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
+									  .Except(Data.MyContacts)
+									  .Except(Data.MyContactsBanned)
+									  .ToList(); // Solve
 
 			int c = Data.ContactsToFollow.Count;
 			foreach (string needToFollow in list
-				.Except(Data.MyContacts)
 				.Except(Data.ContactsToFollow))
 			{
 				Data.ContactsToFollow.Enqueue(needToFollow);
@@ -248,7 +249,6 @@ namespace InstagramFollowerBot
 
 			c = Data.ContactsToFav.Count;
 			foreach (string needToFollow in list
-				.Except(Data.MyContacts)
 				.Except(Data.ContactsToFav))
 			{
 				Data.ContactsToFav.Enqueue(needToFollow);
@@ -282,11 +282,11 @@ namespace InstagramFollowerBot
 			MoveTo(Data.UserContactUrl);
 			WaitHumanizer();
 
-			Selenium.Click("a.-nal3");
+			Selenium.Click(Config.CssContactsFollowers);
 			WaitHumanizer();
 
 			// ScroolDown
-			SchroolDownLoop("isgrP");
+			SchroolDownLoop(Config.CssContactsListScrollable);
 
 			HashSet<string> contactsFollowing = Selenium.GetAttributes(Config.UrlContacts)
 				.ToHashSet();
@@ -348,6 +348,10 @@ namespace InstagramFollowerBot
 						}
 						todo--;
 					}
+					else
+					{
+						Data.MyContactsBanned.Add(uri); // avoid going back each time to a "requested" account
+					}
 				}
 				catch (Exception ex)
 				{
@@ -372,22 +376,22 @@ namespace InstagramFollowerBot
 				try
 				{
 					// avec le triangle
-					if (Selenium.GetElements("button.-fzfL._6VtSN").Any()) // manage the already unfollowed like this
+					if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
 					{
-						Selenium.Click("button.-fzfL._6VtSN");
+						Selenium.Click(Config.CssContactUnfollowButton);
 						Data.MyContacts.Remove(uri);
 						MyContactsInTryout.Remove(uri);
-						Selenium.Click("button.-Cab_");
+						Selenium.Click(Config.CssContactUnfollowConfirm);
 						WaitHumanizer();// the url relad may break a waiting ball
 						todo--;
 					}
 					// sans le triangle
-					else if (Selenium.GetElements("button._8A5w5").Any()) // manage the already unfollowed like this
+					else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
 					{
-						Selenium.Click("button._8A5w5");
+						Selenium.Click(Config.CssContactUnfollowButtonAlt);
 						Data.MyContacts.Remove(uri);
 						MyContactsInTryout.Remove(uri);
-						Selenium.Click("button.-Cab_");
+						Selenium.Click(Config.CssContactUnfollowConfirm);
 						WaitHumanizer();// the url relad may break a waiting ball
 						todo--;
 					}
