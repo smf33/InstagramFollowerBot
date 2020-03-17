@@ -30,7 +30,7 @@
 	"CssLoginMyself": ".Fifk5>a.qNELH.kIKUG",
 	"CssLoginPassword": "input[name=\"password\"]",
 	"CssLoginWarning": "button.aOOlW.HoLwm",
-	"SeleniumBrowserArguments": "--no-sandbox|--disable-background-networking|--disable-default-apps|--incognito|--incognito|--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36|--disable-gpu|--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0",
+	"SeleniumBrowserArguments": "--no-sandbox|--disable-background-networking|--disable-default-apps|--incognito|--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36|--disable-gpu|--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0",
 	"SeleniumRemoteServer": null,
 	"SeleniumRemoteServerWarmUpWaitMs": 30000,
 	"SeleniumWindowMaxH": 1200,
