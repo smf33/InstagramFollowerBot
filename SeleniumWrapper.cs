@@ -133,7 +133,7 @@ namespace InstagramFollowerBot
 			}
 			else
 			{
-				throw new ElementNotInteractableException(crashMessage);
+				throw new NotSupportedException(crashMessage);
 			}
 		}
 

@@ -336,16 +336,9 @@ namespace InstagramFollowerBot
 						Data.MyContacts.Add(uri);
 						WaitHumanizer();// the url relad may break a waiting ball
 
-						// issue detection : Manage limit to 20 follow on a new account : https://www.flickr.com/help/forum/en-us/72157651299881165/  Then there seem to be another limit
-						if (Selenium.GetElements(Config.CssContactFollow).Any()) // may be slow so will wait if required
-						{
-							WaitHumanizer();// give a last chance
-							if (Selenium.GetElements(Config.CssContactFollow, true, true).Any())
-							{
-								Log.LogWarning("ACTION STOPED : SEEMS USER CAN'T FOLLOW ({0}) ANYMORE", uri);
-								break; // no retry
-							}
-						}
+						// issue detection : too many actions lately ? should stop for 24-48h...
+						Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+
 						todo--;
 					}
 					else
@@ -394,6 +387,9 @@ namespace InstagramFollowerBot
 
 						Selenium.Click(Config.CssContactUnfollowConfirm);
 						WaitHumanizer();// the url relad may break a waiting ball
+
+						// issue detection : too many actions lately ? should stop for 24-48h...
+						Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 
 						Data.MyContacts.Remove(uri);
 						MyContactsInTryout.Remove(uri);
