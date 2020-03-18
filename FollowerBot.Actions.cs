@@ -327,29 +327,21 @@ namespace InstagramFollowerBot
 					Log.LogWarning("ACTION STOPED : INSTAGRAM RETURN ERROR ON ({0})", uri);
 					break; // no retry
 				}
-				try
+				MyContactsInTryout.Add(uri);
+				if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
 				{
-					MyContactsInTryout.Add(uri);
-					if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
-					{
-						Selenium.Click(Config.CssContactFollow);
-						Data.MyContacts.Add(uri);
-						WaitHumanizer();// the url relad may break a waiting ball
+					Selenium.Click(Config.CssContactFollow);
+					Data.MyContacts.Add(uri);
+					WaitHumanizer();// the url relad may break a waiting ball
 
-						// issue detection : too many actions lately ? should stop for 24-48h...
-						Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+					// issue detection : too many actions lately ? should stop for 24-48h...
+					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 
-						todo--;
-					}
-					else
-					{
-						Data.MyContactsBanned.Add(uri); // avoid going back each time to a "requested" account
-					}
+					todo--;
 				}
-				catch (Exception ex)
+				else
 				{
-					Log.LogWarning(default, ex, "ACTION STOPED : {0}", ex.GetBaseException().Message);
-					break; // stop this action
+					Data.MyContactsBanned.Add(uri); // avoid going back each time to a "requested" account
 				}
 			}
 			Log.LogDebug("$ContactsToFollow -{0}", c - Data.ContactsToFollow.Count);
@@ -366,41 +358,34 @@ namespace InstagramFollowerBot
 					Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
 					break; // no retry
 				}
-				try
+
+				bool process = false;
+				// avec le triangle
+				if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
 				{
-					bool process = false;
-					// avec le triangle
-					if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
-					{
-						Selenium.Click(Config.CssContactUnfollowButton);
-						process = true;
-					}
-					// sans le triangle
-					else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
-					{
-						Selenium.Click(Config.CssContactUnfollowButtonAlt);
-						process = true;
-					}
-					if (process)
-					{
-						WaitHumanizer();
-
-						Selenium.Click(Config.CssContactUnfollowConfirm);
-						WaitHumanizer();// the url relad may break a waiting ball
-
-						// issue detection : too many actions lately ? should stop for 24-48h...
-						Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
-
-						Data.MyContacts.Remove(uri);
-						MyContactsInTryout.Remove(uri);
-						Data.MyContactsBanned.Add(uri);
-						todo--;
-					}
+					Selenium.Click(Config.CssContactUnfollowButton);
+					process = true;
 				}
-				catch (Exception ex)
+				// sans le triangle
+				else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
 				{
-					Log.LogWarning(default, ex, "ACTION STOPED : {0}", ex.GetBaseException().Message);
-					break; // stop this action
+					Selenium.Click(Config.CssContactUnfollowButtonAlt);
+					process = true;
+				}
+				if (process)
+				{
+					WaitHumanizer();
+
+					Selenium.Click(Config.CssContactUnfollowConfirm);
+					WaitHumanizer();// the url relad may break a waiting ball
+
+					// issue detection : too many actions lately ? should stop for 24-48h...
+					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+
+					Data.MyContacts.Remove(uri);
+					MyContactsInTryout.Remove(uri);
+					Data.MyContactsBanned.Add(uri);
+					todo--;
 				}
 			}
 			Log.LogDebug("$ContactsToUnfollow -{0}", c - Data.ContactsToUnfollow.Count);
