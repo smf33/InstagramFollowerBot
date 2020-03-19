@@ -51,6 +51,7 @@ namespace InstagramFollowerBot
 			internal string CssContactsFollowers;
 			internal string CssContactsFollowing;
 			internal string CssContactsListScrollable;
+			internal string CssCookiesWarning;
 			internal string CssLoginEmail;
 			internal string CssLoginMyself;
 			internal string CssLoginPassword;
@@ -94,6 +95,7 @@ namespace InstagramFollowerBot
 					CssContactsFollowers = config["CssContactsFollowers"],
 					CssContactsFollowing = config["CssContactsFollowing"],
 					CssContactsListScrollable = config["CssContactsListScrollable"],
+					CssCookiesWarning = config["CssCookiesWarning"],
 					CssLoginEmail = config["CssLoginEmail"],
 					CssLoginMyself = config["CssLoginMyself"],
 					CssLoginPassword = config["CssLoginPassword"],

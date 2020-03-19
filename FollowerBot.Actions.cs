@@ -197,8 +197,11 @@ namespace InstagramFollowerBot
 
 		private void PostAuthInit()
 		{
-			// Ignore the notification modal popup
+			// Ignore the enable notification on your browser modal popup
 			Selenium.ClickIfPresent(Config.CssLoginWarning);
+
+			// Ignore the message bar : To help personalize content, tailor and measure ads, and provide a safer experience, we use cookies. By clicking or navigating the site, you agree to allow our collection of information on and off Instagram through cookies.
+			Selenium.ClickIfPresent(Config.CssCookiesWarning);
 
 			if (!Data.MyContactsUpdate.HasValue
 				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))

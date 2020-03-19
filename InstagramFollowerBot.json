@@ -31,6 +31,7 @@
 	"CssContactUnfollowButton": "button.-fzfL._6VtSN",
 	"CssContactUnfollowButtonAlt": "button._8A5w5",
 	"CssContactUnfollowConfirm": "button.-Cab_",
+	"CssCookiesWarning": ".lOPC8>button.KPZNL",
 	"CssLoginEmail": "input[name=\"username\"]",
 	"CssLoginMyself": ".Fifk5>a.qNELH.kIKUG",
 	"CssLoginPassword": "input[name=\"password\"]",
