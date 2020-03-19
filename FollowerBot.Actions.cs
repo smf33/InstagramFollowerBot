@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Extensions.Logging;
 
 namespace InstagramFollowerBot
@@ -223,9 +224,8 @@ namespace InstagramFollowerBot
 				Data.MyContactsUpdate = DateTime.UtcNow;
 			}
 
-			AddForced("AddPhotosToFav", Config.AddContactsToFollow, Data.PhotosToFav);
-			AddForced("AddContactsToFav", Config.AddContactsToFav, Data.ContactsToFav);
-			AddForced("AddPhotosToFav", Config.AddPhotosToFav, Data.PhotosToFav);
+			AddForced("AddContactsToFollow", Config.AddContactsToFollow, Data.ContactsToFollow);
+			AddForced("AddPhotosToLike", Config.AddPhotosToLike, Data.PhotosToLike);
 		}
 
 		private void DetectContactsFollowBack()
@@ -238,33 +238,25 @@ namespace InstagramFollowerBot
 
 			SchroolDownLoop(Config.CssContactsListScrollable);
 			IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
-									  .Except(Data.MyContacts)
-									  .Except(Data.MyContactsBanned)
 									  .ToList(); // Solve
 
 			int c = Data.ContactsToFollow.Count;
 			foreach (string needToFollow in list
+				.Except(Data.MyContacts)
+				.Except(Data.MyContactsBanned)
 				.Except(Data.ContactsToFollow))
 			{
 				Data.ContactsToFollow.Enqueue(needToFollow);
 			}
 			Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
-
-			c = Data.ContactsToFav.Count;
-			foreach (string needToFollow in list
-				.Except(Data.ContactsToFav))
-			{
-				Data.ContactsToFav.Enqueue(needToFollow);
-			}
-			Log.LogDebug("$ContactsToFav +{0}", Data.ContactsToFav.Count - c);
 		}
 
-		private void DetectPeopleSuggested()
+		private void ExplorePeopleSuggested()
 		{
 			MoveTo(Config.UrlExplorePeopleSuggested);
 			WaitHumanizer();
 
-			SchroolDownLoop(Config.BotPeopleSuggestedScrools);
+			SchroolDownLoop(Config.BotExplorePeopleSuggestedScrools);
 
 			IEnumerable<string> list = Selenium.GetAttributes(Config.CssSuggestedContact)
 				.ToList(); // Solve the request
@@ -278,6 +270,25 @@ namespace InstagramFollowerBot
 				Data.ContactsToFollow.Enqueue(needToFollow);
 			}
 			Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
+		}
+		
+		private void ExplorePhotos()
+		{
+			MoveTo(Config.UrlExplore);
+			WaitHumanizer();
+
+			SchroolDownLoop(Config.BotExplorePhotosScrools);
+
+			IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos)
+				.ToList(); // Solve the request
+
+			int c = Data.ContactsToFollow.Count;
+			foreach (string url in list
+				.Except(Data.PhotosToLike))
+			{
+				Data.PhotosToLike.Enqueue(url);
+			}
+			Log.LogDebug("PhotosToLike +{0}", Data.ContactsToFollow.Count - c);
 		}
 
 		private void DetectContactsUnfollowBack()
@@ -317,6 +328,31 @@ namespace InstagramFollowerBot
 				}
 			}
 			Log.LogDebug("$ContactsToUnfollow ={0}", Data.ContactsToUnfollow.Count);
+		}
+
+		private void SearchKeywords()
+		{
+			IEnumerable<string> keywords = Config.BotSearchKeywords?.Split(',', StringSplitOptions.RemoveEmptyEntries) ?? Enumerable.Empty<string>();
+			foreach (string keyword in keywords)
+			{
+				Log.LogDebug("Searching {0}", keyword);
+
+				MoveTo(string.Format(Config.UrlSearch, HttpUtility.UrlEncode(keyword)));
+				WaitHumanizer();
+
+				SchroolDownLoop(Config.BotSearchScrools);
+
+				string[] list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false)
+					.ToArray();// solve
+
+				int c = Data.PhotosToLike.Count;
+				foreach (string url in list
+					.Except(Data.PhotosToLike))
+				{
+					Data.PhotosToLike.Enqueue(url);
+				}
+				Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
+			}
 		}
 
 		private void DoContactsFollow()

@@ -17,18 +17,13 @@ namespace InstagramFollowerBot
 
 			/// <summary>
 			/// List of URL of the contact'photos
-			/// </summary>
-			public Queue<string> ContactsToFav = new Queue<string>();
-
-			/// <summary>
-			/// List of URL of the contact'photos
 			/// </summary>        
 			public Queue<string> ContactsToFollow = new Queue<string>();
 
 			/// <summary>
 			/// List of URL of the contact'photos
 			/// </summary>
-			public Queue<string> PhotosToFav = new Queue<string>();
+			public Queue<string> PhotosToLike = new Queue<string>();
 
 			/// <summary>
 			/// List of URL of the contact'photos
@@ -122,21 +117,15 @@ namespace InstagramFollowerBot
 							.Except(Data.MyContacts).Except(Data.MyContactsBanned)); // some contacts may have been already added manualy
 						Log.LogDebug("ContactsToFollow :  {0}", Data.ContactsToFollow.Count);
 					}
-					if (tmp.ContactsToFav != null)
-					{
-						Data.ContactsToFav = new Queue<string>(tmp.ContactsToFav
-							.Except(Data.MyContacts).Except(Data.MyContactsBanned)); // some contacts may have been already added manualy
-						Log.LogDebug("ContactsToFav :  {0}", Data.ContactsToFav.Count);
-					}
 					if (tmp.ContactsToUnfollow != null)
 					{
 						Data.ContactsToUnfollow = tmp.ContactsToUnfollow;
 						Log.LogDebug("ContactsToUnfollow :  {0}", Data.ContactsToUnfollow.Count);
 					}
-					if (tmp.PhotosToFav != null)
+					if (tmp.PhotosToLike != null)
 					{
-						Data.PhotosToFav = tmp.PhotosToFav;
-						Log.LogDebug("PhotosToFav :  {0}", Data.PhotosToFav.Count);
+						Data.PhotosToLike = tmp.PhotosToLike;
+						Log.LogDebug("PhotosToLike :  {0}", Data.PhotosToLike.Count);
 					}
 					if (tmp.Cookies != null)
 					{
@@ -166,9 +155,8 @@ namespace InstagramFollowerBot
 				{
 					UserContactUrl = Data.UserContactUrl,
 					ContactsToFollow = Data.ContactsToFollow,
-					ContactsToFav = Data.ContactsToFav,
 					ContactsToUnfollow = Data.ContactsToUnfollow,
-					PhotosToFav = Data.PhotosToFav,
+					PhotosToLike = Data.PhotosToLike,
 					Cookies = Selenium.Cookies,
 					SessionStorage = Selenium.SessionStorage,
 					LocalStorage = Selenium.LocalStorage

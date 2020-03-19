@@ -3,9 +3,10 @@
 Bot for Instagram, in .Net Core, using a Chrome client and Selenium for command it.
 
 Main functions :
-- Follow users which are following you
-- Follow based on Insta Suggestions
 - Unfollow users whose doesn't follow you
+- Follow users which are following you
+- Follow based on Insta Explore Suggestions
+- Search or Explore Photos to Like
 - Can work with a remote Selenium grid and/or in docker
 
 *Tags	: Instagram, Chrome, Selenium, C#, .Net, Core, bot, robot*
@@ -89,4 +90,6 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - The account should follow at last one account, else the bot will fail to detect this
 - About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
 ## TODO :
-- Enable all function already working on Flickr version of this bot
+- Update this readme for all function now working :-)
+- Enable more functions already working on the Flickr version of this bot
+- Like pict found and add follow the account by default

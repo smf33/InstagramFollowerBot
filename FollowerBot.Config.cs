@@ -24,7 +24,9 @@ namespace InstagramFollowerBot
 			internal int BotFollowTaskBatchMinLimit;
 			internal int BotKeepSomeUnfollowerContacts;
 			internal int BotLoopTaskLimited;
-			internal int BotPeopleSuggestedScrools;
+			internal int BotExplorePhotosScrools;
+			internal int BotExplorePeopleSuggestedScrools;
+			internal int BotSearchScrools;
 			internal int BotStepMaxWaitMs;
 			internal int BotStepMinWaitMs;
 			internal int BotUnfollowTaskBatchMaxLimit;
@@ -36,9 +38,9 @@ namespace InstagramFollowerBot
 			internal int SeleniumWindowMaxW;
 			internal int SeleniumWindowMinH;
 			internal int SeleniumWindowMinW;
-			internal string AddContactsToFav;
 			internal string AddContactsToFollow;
-			internal string AddPhotosToFav;
+			internal string AddPhotosToLike;
+			internal string BotSearchKeywords;
 			internal string BotTasks;
 			internal string BotUserEmail;
 			internal string BotUserPassword;
@@ -57,12 +59,15 @@ namespace InstagramFollowerBot
 			internal string CssLoginPassword;
 			internal string CssLoginUnusual;
 			internal string CssLoginWarning;
+			internal string CssExplorePhotos;
 			internal string CssSuggestedContact;
 			internal string SeleniumRemoteServer;
 			internal string UrlContacts;
+			internal string UrlExplore;
 			internal string UrlExplorePeopleSuggested;
 			internal string UrlLogin;
 			internal string UrlRoot;
+			internal string UrlSearch;
 		}
 
 		private Configuration Config;
@@ -80,9 +85,9 @@ namespace InstagramFollowerBot
 
 				Config = new Configuration
 				{
-					AddContactsToFav = config["AddContactsToFav"],
 					AddContactsToFollow = config["AddContactsToFollow"],
-					AddPhotosToFav = config["AddPhotosToFav"],
+					AddPhotosToLike = config["AddPhotosToLike"],
+					BotSearchKeywords = config["BotSearchKeywords"],
 					BotTasks = config["BotTasks"],
 					BotUserEmail = config["BotUserEmail"],
 					BotUserPassword = config["BotUserPassword"],
@@ -101,12 +106,15 @@ namespace InstagramFollowerBot
 					CssLoginPassword = config["CssLoginPassword"],
 					CssLoginUnusual = config["CssLoginUnusual"],
 					CssLoginWarning = config["CssLoginWarning"],
+					CssExplorePhotos = config["CssExplorePhotos"],
 					CssSuggestedContact = config["CssSuggestedContact"],
 					SeleniumRemoteServer = config["SeleniumRemoteServer"],
 					UrlContacts = config["UrlContacts"],
+					UrlExplore = config["UrlExplore"],
 					UrlExplorePeopleSuggested = config["UrlExplorePeopleSuggested"],
 					UrlLogin = config["UrlLogin"],
-					UrlRoot = config["UrlRoot"]
+					UrlRoot = config["UrlRoot"],
+					UrlSearch = config["UrlSearch"]
 				};
 
 				try
@@ -124,7 +132,9 @@ namespace InstagramFollowerBot
 					Config.BotFollowTaskBatchMaxLimit = int.Parse(config["BotFollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
 					Config.BotFollowTaskBatchMinLimit = int.Parse(config["BotFollowTaskBatchMinLimit"], CultureInfo.InvariantCulture);
 					Config.BotKeepSomeUnfollowerContacts = int.Parse(config["BotKeepSomeUnfollowerContacts"], CultureInfo.InvariantCulture);
-					Config.BotPeopleSuggestedScrools = int.Parse(config["BotPeopleSuggestedScrools"], CultureInfo.InvariantCulture);
+					Config.BotExplorePhotosScrools = int.Parse(config["BotExplorePhotosScrools"], CultureInfo.InvariantCulture);
+					Config.BotExplorePeopleSuggestedScrools = int.Parse(config["BotExplorePeopleSuggestedScrools"], CultureInfo.InvariantCulture);
+					Config.BotSearchScrools = int.Parse(config["BotSearchScrools"], CultureInfo.InvariantCulture);
 					Config.BotStepMaxWaitMs = int.Parse(config["BotStepMaxWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotStepMinWaitMs = int.Parse(config["BotStepMinWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMaxLimit = int.Parse(config["BotUnfollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
