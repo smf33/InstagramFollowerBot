@@ -103,44 +103,41 @@ namespace InstagramFollowerBot
 						if (tmp.MyContacts != null)
 						{
 							Data.MyContacts = tmp.MyContacts;
-							Log.LogDebug("MyContacts : {0}", Data.MyContacts.Count);
+							Log.LogDebug("$MyContacts #{0}", Data.MyContacts.Count);
 						}
 						if (tmp.MyContactsBanned != null)
 						{
 							Data.MyContactsBanned = tmp.MyContactsBanned;
-							Log.LogDebug("MyContactsBanned : {0}", Data.MyContactsBanned.Count);
+							Log.LogDebug("$MyContactsBanned #{0}", Data.MyContactsBanned.Count);
 						}
 					}
 					if (tmp.ContactsToFollow != null)
 					{
 						Data.ContactsToFollow = new Queue<string>(tmp.ContactsToFollow
 							.Except(Data.MyContacts).Except(Data.MyContactsBanned)); // some contacts may have been already added manualy
-						Log.LogDebug("ContactsToFollow :  {0}", Data.ContactsToFollow.Count);
+						Log.LogDebug("$ContactsToFollow #{0}", Data.ContactsToFollow.Count);
 					}
 					if (tmp.ContactsToUnfollow != null)
 					{
 						Data.ContactsToUnfollow = tmp.ContactsToUnfollow;
-						Log.LogDebug("ContactsToUnfollow :  {0}", Data.ContactsToUnfollow.Count);
+						Log.LogDebug("$ContactsToUnfollow #{0}", Data.ContactsToUnfollow.Count);
 					}
 					if (tmp.PhotosToLike != null)
 					{
 						Data.PhotosToLike = tmp.PhotosToLike;
-						Log.LogDebug("PhotosToLike :  {0}", Data.PhotosToLike.Count);
+						Log.LogDebug("$PhotosToLike #{0}", Data.PhotosToLike.Count);
 					}
 					if (tmp.Cookies != null)
 					{
 						Data.Cookies = tmp.Cookies;
-						Log.LogDebug("Cookies : {0}", Data.Cookies.Count());
 					}
 					if (tmp.SessionStorage != null)
 					{
 						Data.SessionStorage = tmp.SessionStorage;
-						Log.LogDebug("SessionStorage : {0}", Data.SessionStorage.Count);
 					}
 					if (tmp.LocalStorage != null)
 					{
 						Data.LocalStorage = tmp.LocalStorage;
-						Log.LogDebug("LocalStorage : {0}", Data.LocalStorage.Count);
 					}
 				}
 			}
