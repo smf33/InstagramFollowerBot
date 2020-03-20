@@ -6,7 +6,7 @@ Main functions :
 - Unfollow users whose doesn't follow you
 - Follow users which are following you
 - Follow based on Insta Explore Suggestions
-- Search or Explore Photos to Like
+- Search or Explore Photos to Like and/or follow
 - Can work with a remote Selenium grid and/or in docker
 
 *Tags	: Instagram, Chrome, Selenium, C#, .Net, Core, bot, robot*

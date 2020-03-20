@@ -271,7 +271,7 @@ namespace InstagramFollowerBot
 			}
 			Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
 		}
-		
+
 		private void ExplorePhotos()
 		{
 			MoveTo(Config.UrlExplore);
@@ -288,7 +288,7 @@ namespace InstagramFollowerBot
 			{
 				Data.PhotosToLike.Enqueue(url);
 			}
-			Log.LogDebug("PhotosToLike +{0}", Data.ContactsToFollow.Count - c);
+			Log.LogDebug("$PhotosToLike +{0}", Data.ContactsToFollow.Count - c);
 		}
 
 		private void DetectContactsUnfollowBack()
@@ -428,6 +428,37 @@ namespace InstagramFollowerBot
 				}
 			}
 			Log.LogDebug("$ContactsToUnfollow -{0}", c - Data.ContactsToUnfollow.Count);
+		}
+
+
+		private void DoPhotosLike(bool doFollow = true, bool doLike = true)
+		{
+			int todo = Rand.Next(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
+			int c = Data.PhotosToLike.Count;
+			while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
+			{
+				if (!MoveTo(uri))
+				{
+					Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
+					break; // no retry
+				}
+
+				if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
+				{
+					Selenium.Click(Config.CssPhotoLike);
+					WaitHumanizer();
+					// TODO Add in the folowed list, else will be detected in 48h
+				}
+
+				if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
+				{
+					Selenium.Click(Config.CssPhotoFollow);
+					WaitHumanizer();
+				}
+
+				todo--;
+			}
+			Log.LogDebug("$PhotosToLike -{0}", c - Data.PhotosToLike.Count);
 		}
 
 	}

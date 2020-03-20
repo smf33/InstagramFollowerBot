@@ -31,6 +31,8 @@ namespace InstagramFollowerBot
 			internal int BotStepMinWaitMs;
 			internal int BotUnfollowTaskBatchMaxLimit;
 			internal int BotUnfollowTaskBatchMinLimit;
+			internal int BotLikeTaskBatchMaxLimit;
+			internal int BotLikeTaskBatchMinLimit;
 			internal int BotWaitTaskMaxWaitSec;
 			internal int BotWaitTaskMinWaitSec;
 			internal int SeleniumRemoteServerWarmUpWaitMs;
@@ -60,6 +62,8 @@ namespace InstagramFollowerBot
 			internal string CssLoginUnusual;
 			internal string CssLoginWarning;
 			internal string CssExplorePhotos;
+			internal string CssPhotoFollow;
+			internal string CssPhotoLike;
 			internal string CssSuggestedContact;
 			internal string SeleniumRemoteServer;
 			internal string UrlContacts;
@@ -107,6 +111,8 @@ namespace InstagramFollowerBot
 					CssLoginUnusual = config["CssLoginUnusual"],
 					CssLoginWarning = config["CssLoginWarning"],
 					CssExplorePhotos = config["CssExplorePhotos"],
+					CssPhotoFollow = config["CssPhotoFollow"],
+					CssPhotoLike = config["CssPhotoLike"],
 					CssSuggestedContact = config["CssSuggestedContact"],
 					SeleniumRemoteServer = config["SeleniumRemoteServer"],
 					UrlContacts = config["UrlContacts"],
@@ -139,6 +145,8 @@ namespace InstagramFollowerBot
 					Config.BotStepMinWaitMs = int.Parse(config["BotStepMinWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMaxLimit = int.Parse(config["BotUnfollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMinLimit = int.Parse(config["BotUnfollowTaskBatchMinLimit"], CultureInfo.InvariantCulture);
+					Config.BotLikeTaskBatchMaxLimit = int.Parse(config["BotLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
+					Config.BotLikeTaskBatchMinLimit = int.Parse(config["BotLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
 					Config.BotWaitTaskMaxWaitSec = int.Parse(config["BotWaitTaskMaxWaitSec"], CultureInfo.InvariantCulture);
 					Config.BotWaitTaskMinWaitSec = int.Parse(config["BotWaitTaskMinWaitSec"], CultureInfo.InvariantCulture);
 					Config.SeleniumRemoteServerWarmUpWaitMs = int.Parse(config["SeleniumRemoteServerWarmUpWaitMs"], CultureInfo.InvariantCulture);

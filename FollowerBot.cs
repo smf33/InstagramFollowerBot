@@ -14,6 +14,9 @@ namespace InstagramFollowerBot
 		private const string DetectContactsUnfollowBackStr = "DETECTCONTACTSUNFOLLOWBACK";
 		private const string DoContactsFollowStr = "DOCONTACTSFOLLOW";
 		private const string DoContactsUnfollowStr = "DOCONTACTSUNFOLLOW";
+		private const string DoPhotosLikeStr = "DOPHOTOSLIKE";
+		private const string DoPhotosLikeJustFollowStr = "DOPHOTOSLIKE_FOLLOWONLY";
+		private const string DoPhotosLikeJustLikeStr = "DOPHOTOSLIKE_LIKEONLY";
 		private const string ExplorePhotosStr = "EXPLOREPHOTOS";
 		private const string ExplorePeopleSuggestedStr = "EXPLOREPEOPLESUGGESTED";
 		private const string LoopStartStr = "LOOPSTART";
@@ -92,6 +95,15 @@ namespace InstagramFollowerBot
 						break;
 					case DoContactsUnfollowStr:
 						DoContactsUnfollow();
+						break;
+					case DoPhotosLikeStr:
+						DoPhotosLike();
+						break;
+					case DoPhotosLikeJustFollowStr:
+						DoPhotosLike(true, false);
+						break;
+					case DoPhotosLikeJustLikeStr:
+						DoPhotosLike(false, true);
 						break;
 					case ExplorePhotosStr:
 						ExplorePhotos();
