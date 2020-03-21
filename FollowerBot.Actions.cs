@@ -448,12 +448,18 @@ namespace InstagramFollowerBot
 					Selenium.Click(Config.CssPhotoLike);
 					WaitHumanizer();
 					// TODO Add in the folowed list, else will be detected in 48h
+					
+					// issue detection : too many actions lately ? should stop for 24-48h...
+					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 				}
 
 				if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
 				{
 					Selenium.Click(Config.CssPhotoFollow);
 					WaitHumanizer();
+					
+					// issue detection : too many actions lately ? should stop for 24-48h...
+					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 				}
 
 				todo--;
