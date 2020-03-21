@@ -305,27 +305,39 @@ namespace InstagramFollowerBot
 			HashSet<string> contactsFollowing = Selenium.GetAttributes(Config.UrlContacts)
 				.ToHashSet();
 
-			if (Data.ContactsToUnfollow.Any())    // all data will be retried, so clear cache if required
-			{
-				Data.ContactsToUnfollow.Clear();
-			}
-
-			string[] result = Data.MyContacts
+			IEnumerable<string> result = Data.MyContacts
 				.Except(contactsFollowing)
 				.Except(MyContactsInTryout)
 				.ToArray(); // solve
-			int r = result.Length;
-			if (r > 0)    // all data will be retried, so clear cache if required
+			int r = result.Count();
+			if (r > 0)
 			{
 				if (Config.BotKeepSomeUnfollowerContacts > 0 && r > Config.BotKeepSomeUnfollowerContacts)
 				{
 					r -= Config.BotKeepSomeUnfollowerContacts;
 				}
+
+				// Keep older first
+				if (Data.ContactsToUnfollow.Any())    // all data will be retried, so clear cache if required
+				{
+					Data.ContactsToUnfollow = new Queue<string>(
+						Data.ContactsToUnfollow
+							.Intersect(result)
+							.Take(r)
+						);
+					result = result.Except(Data.ContactsToUnfollow);
+					r -= Data.ContactsToUnfollow.Count;
+				}
+				// fill then
 				foreach (string needToUnfollow in result
 					.Take(r))
 				{
 					Data.ContactsToUnfollow.Enqueue(needToUnfollow);
 				}
+			}
+			else if (Data.ContactsToUnfollow.Any())
+			{
+				Data.ContactsToUnfollow.Clear();
 			}
 			Log.LogDebug("$ContactsToUnfollow ={0}", Data.ContactsToUnfollow.Count);
 		}
