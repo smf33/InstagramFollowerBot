@@ -51,6 +51,16 @@ namespace InstagramFollowerBot
 			Task.Delay(Rand.Next(Config.BotStepMinWaitMs, Config.BotStepMaxWaitMs))
 					.Wait();
 		}
+		private void WaitBeforeFollowHumanizer()
+		{
+			Task.Delay(Rand.Next(Config.BotStepFollowMinWaitMs, Config.BotStepFollowMaxWaitMs))
+					.Wait();
+		}
+		private void WaitBeforeLikeHumanizer()
+		{
+			Task.Delay(Rand.Next(Config.BotStepLikeMinWaitMs, Config.BotStepLikeMaxWaitMs))
+					.Wait();
+		}
 
 		private void WaitUrlStartsWith(string url)
 		{
@@ -381,6 +391,7 @@ namespace InstagramFollowerBot
 				MyContactsInTryout.Add(uri);
 				if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
 				{
+					WaitBeforeFollowHumanizer();
 					Selenium.Click(Config.CssContactFollow);
 					Data.MyContacts.Add(uri);
 					WaitHumanizer();// the url relad may break a waiting ball
@@ -414,12 +425,14 @@ namespace InstagramFollowerBot
 				// avec le triangle
 				if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
 				{
+					WaitBeforeFollowHumanizer();
 					Selenium.Click(Config.CssContactUnfollowButton);
 					process = true;
 				}
 				// sans le triangle
 				else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
 				{
+					WaitBeforeFollowHumanizer();
 					Selenium.Click(Config.CssContactUnfollowButtonAlt);
 					process = true;
 				}
@@ -457,19 +470,21 @@ namespace InstagramFollowerBot
 
 				if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
 				{
+					WaitBeforeLikeHumanizer();
 					Selenium.Click(Config.CssPhotoLike);
 					WaitHumanizer();
 					// TODO Add in the folowed list, else will be detected in 48h
-					
+
 					// issue detection : too many actions lately ? should stop for 24-48h...
 					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 				}
 
 				if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
 				{
+					WaitBeforeFollowHumanizer();
 					Selenium.Click(Config.CssPhotoFollow);
 					WaitHumanizer();
-					
+
 					// issue detection : too many actions lately ? should stop for 24-48h...
 					Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
 				}

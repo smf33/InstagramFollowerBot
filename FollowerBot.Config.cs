@@ -27,6 +27,10 @@ namespace InstagramFollowerBot
 			internal int BotExplorePhotosScrools;
 			internal int BotExplorePeopleSuggestedScrools;
 			internal int BotSearchScrools;
+			internal int BotStepFollowMaxWaitMs;
+			internal int BotStepFollowMinWaitMs;
+			internal int BotStepLikeMaxWaitMs;
+			internal int BotStepLikeMinWaitMs;
 			internal int BotStepMaxWaitMs;
 			internal int BotStepMinWaitMs;
 			internal int BotUnfollowTaskBatchMaxLimit;
@@ -141,6 +145,10 @@ namespace InstagramFollowerBot
 					Config.BotExplorePhotosScrools = int.Parse(config["BotExplorePhotosScrools"], CultureInfo.InvariantCulture);
 					Config.BotExplorePeopleSuggestedScrools = int.Parse(config["BotExplorePeopleSuggestedScrools"], CultureInfo.InvariantCulture);
 					Config.BotSearchScrools = int.Parse(config["BotSearchScrools"], CultureInfo.InvariantCulture);
+					Config.BotStepFollowMaxWaitMs = int.Parse(config["BotStepFollowMaxWaitMs"], CultureInfo.InvariantCulture);
+					Config.BotStepFollowMinWaitMs = int.Parse(config["BotStepFollowMinWaitMs"], CultureInfo.InvariantCulture);
+					Config.BotStepLikeMaxWaitMs = int.Parse(config["BotStepLikeMaxWaitMs"], CultureInfo.InvariantCulture);
+					Config.BotStepLikeMinWaitMs = int.Parse(config["BotStepLikeMinWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotStepMaxWaitMs = int.Parse(config["BotStepMaxWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotStepMinWaitMs = int.Parse(config["BotStepMinWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMaxLimit = int.Parse(config["BotUnfollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
