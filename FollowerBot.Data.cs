@@ -30,6 +30,10 @@ namespace InstagramFollowerBot
 			/// </summary>
 			public Queue<string> ContactsToUnfollow = new Queue<string>();
 
+			/// <summary>
+			/// Logon Cookies date
+			/// </summary>   
+			public Nullable<DateTime> CookiesInitDate = null;
 			public IEnumerable<object> Cookies = new List<object>();
 			public IDictionary<string, string> SessionStorage = new Dictionary<string, string>();
 			public IDictionary<string, string> LocalStorage = new Dictionary<string, string>();
@@ -94,50 +98,61 @@ namespace InstagramFollowerBot
 				string fn = JsonPath + Config.BotUserEmail + ".json";
 				if (File.Exists(fn))
 				{
-					Log.LogDebug("LOADING USER JSON");
 					PersistenceData tmp = JsonConvert.DeserializeObject<PersistenceData>(File.ReadAllText(fn, Encoding.UTF8));
-					Data.UserContactUrl = tmp.UserContactUrl;
-					if (Config.BotCacheMyContacts)
+					if(tmp.CookiesInitDate.HasValue && DateTime.UtcNow < tmp.CookiesInitDate.Value.AddHours(Config.BotUsePersistenceLimitHours))
 					{
-						Data.MyContactsUpdate = tmp.MyContactsUpdate;
-						if (tmp.MyContacts != null)
+						Log.LogDebug("LOADING USER JSON");
+						Data.UserContactUrl = tmp.UserContactUrl;
+						if (Config.BotCacheMyContacts)
 						{
-							Data.MyContacts = tmp.MyContacts;
-							Log.LogDebug("$MyContacts #{0}", Data.MyContacts.Count);
+							Data.MyContactsUpdate = tmp.MyContactsUpdate;
+							if (tmp.MyContacts != null)
+							{
+								Data.MyContacts = tmp.MyContacts;
+								Log.LogDebug("$MyContacts #{0}", Data.MyContacts.Count);
+							}
+							if (tmp.MyContactsBanned != null)
+							{
+								Data.MyContactsBanned = tmp.MyContactsBanned;
+								Log.LogDebug("$MyContactsBanned #{0}", Data.MyContactsBanned.Count);
+							}
 						}
-						if (tmp.MyContactsBanned != null)
+						if (tmp.ContactsToFollow != null)
 						{
-							Data.MyContactsBanned = tmp.MyContactsBanned;
-							Log.LogDebug("$MyContactsBanned #{0}", Data.MyContactsBanned.Count);
+							Data.ContactsToFollow = new Queue<string>(tmp.ContactsToFollow
+								.Except(Data.MyContacts).Except(Data.MyContactsBanned)); // some contacts may have been already added manualy
+							Log.LogDebug("$ContactsToFollow #{0}", Data.ContactsToFollow.Count);
+						}
+						if (tmp.ContactsToUnfollow != null)
+						{
+							Data.ContactsToUnfollow = tmp.ContactsToUnfollow;
+							Log.LogDebug("$ContactsToUnfollow #{0}", Data.ContactsToUnfollow.Count);
+						}
+						if (tmp.PhotosToLike != null)
+						{
+							Data.PhotosToLike = tmp.PhotosToLike;
+							Log.LogDebug("$PhotosToLike #{0}", Data.PhotosToLike.Count);
+						}
+						if (tmp.CookiesInitDate != null)
+						{
+							Data.CookiesInitDate = tmp.CookiesInitDate;
+						}
+						if (tmp.Cookies != null)
+						{
+							Data.Cookies = tmp.Cookies;
+						}
+						if (tmp.SessionStorage != null)
+						{
+							Data.SessionStorage = tmp.SessionStorage;
+						}
+						if (tmp.LocalStorage != null)
+						{
+							Data.LocalStorage = tmp.LocalStorage;
 						}
 					}
-					if (tmp.ContactsToFollow != null)
+					else
 					{
-						Data.ContactsToFollow = new Queue<string>(tmp.ContactsToFollow
-							.Except(Data.MyContacts).Except(Data.MyContactsBanned)); // some contacts may have been already added manualy
-						Log.LogDebug("$ContactsToFollow #{0}", Data.ContactsToFollow.Count);
-					}
-					if (tmp.ContactsToUnfollow != null)
-					{
-						Data.ContactsToUnfollow = tmp.ContactsToUnfollow;
-						Log.LogDebug("$ContactsToUnfollow #{0}", Data.ContactsToUnfollow.Count);
-					}
-					if (tmp.PhotosToLike != null)
-					{
-						Data.PhotosToLike = tmp.PhotosToLike;
-						Log.LogDebug("$PhotosToLike #{0}", Data.PhotosToLike.Count);
-					}
-					if (tmp.Cookies != null)
-					{
-						Data.Cookies = tmp.Cookies;
-					}
-					if (tmp.SessionStorage != null)
-					{
-						Data.SessionStorage = tmp.SessionStorage;
-					}
-					if (tmp.LocalStorage != null)
-					{
-						Data.LocalStorage = tmp.LocalStorage;
+						Log.LogWarning("Persistence limit reached, starting a new session");
 					}
 				}
 			}
@@ -154,6 +169,7 @@ namespace InstagramFollowerBot
 					ContactsToFollow = Data.ContactsToFollow,
 					ContactsToUnfollow = Data.ContactsToUnfollow,
 					PhotosToLike = Data.PhotosToLike,
+					CookiesInitDate = Data.CookiesInitDate,
 					Cookies = Selenium.Cookies,
 					SessionStorage = Selenium.SessionStorage,
 					LocalStorage = Selenium.LocalStorage

@@ -35,6 +35,7 @@ namespace InstagramFollowerBot
 			internal int BotStepMinWaitMs;
 			internal int BotUnfollowTaskBatchMaxLimit;
 			internal int BotUnfollowTaskBatchMinLimit;
+			internal int BotUsePersistenceLimitHours;
 			internal int BotLikeTaskBatchMaxLimit;
 			internal int BotLikeTaskBatchMinLimit;
 			internal int BotWaitTaskMaxWaitSec;
@@ -153,6 +154,7 @@ namespace InstagramFollowerBot
 					Config.BotStepMinWaitMs = int.Parse(config["BotStepMinWaitMs"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMaxLimit = int.Parse(config["BotUnfollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
 					Config.BotUnfollowTaskBatchMinLimit = int.Parse(config["BotUnfollowTaskBatchMinLimit"], CultureInfo.InvariantCulture);
+					Config.BotUsePersistenceLimitHours = int.Parse(config["BotUsePersistenceLimitHours"], CultureInfo.InvariantCulture);
 					Config.BotLikeTaskBatchMaxLimit = int.Parse(config["BotLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
 					Config.BotLikeTaskBatchMinLimit = int.Parse(config["BotLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
 					Config.BotWaitTaskMaxWaitSec = int.Parse(config["BotWaitTaskMaxWaitSec"], CultureInfo.InvariantCulture);

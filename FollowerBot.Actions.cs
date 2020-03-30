@@ -151,16 +151,18 @@ namespace InstagramFollowerBot
 
 				if (Data.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
 				{
+					Log.LogDebug("User authentified from cookie.");
 					return true;
 				}
 				else
 				{
-					Log.LogWarning("Couldn't log user from cookie. Try normal auth");
+					Log.LogWarning("Couldn't authenticate user from saved cookie.");
 					return false;
 				}
 			}
 			else
 			{
+				Log.LogDebug("Cookie authentification not used.");
 				return false;
 			}
 		}
@@ -199,6 +201,7 @@ namespace InstagramFollowerBot
 				{
 					Data.UserContactUrl = Data.UserContactUrl.Remove(Data.UserContactUrl.Length - 1);
 				}
+				Data.CookiesInitDate = DateTime.UtcNow;
 			}
 			else
 			{

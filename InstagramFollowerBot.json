@@ -27,6 +27,7 @@
 	"BotUnfollowTaskBatchMaxLimit": 40,
 	"BotUnfollowTaskBatchMinLimit": 10,
 	"BotUsePersistence": 1,
+	"BotUsePersistenceLimitHours": 150,
 	"BotUserEmail": null,
 	"BotUserPassword": null,
 	"BotUserSaveFolder": null,
