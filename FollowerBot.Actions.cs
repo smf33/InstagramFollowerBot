@@ -139,11 +139,14 @@ namespace InstagramFollowerBot
 				{
 					throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
 				}
+				
+				// Ignore the enable notification on your browser modal popup
+				Selenium.ClickIfPresent(Config.CssLoginWarning);
 
-				//check cookie auth OK
-				// who am i ?
-				string curUserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
-					.FirstOrDefault(); // not single to be safe
+				//check cookie auth OK :  who am i ?
+				Selenium.ClickIfPresent(Config.CssLoginMyself); // if not present, will not fail and next test will detect an error and go for the normal loggin
+				WaitHumanizer();
+				string curUserContactUrl = Selenium.Url;
 				if (curUserContactUrl != null && curUserContactUrl.EndsWith('/')) // standardize
 				{
 					curUserContactUrl = curUserContactUrl.Remove(curUserContactUrl.Length - 1);
@@ -193,10 +196,14 @@ namespace InstagramFollowerBot
 
 				// Ignore the notification modal popup
 				Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
+				
+				// Ignore the enable notification on your browser modal popup
+				Selenium.ClickIfPresent(Config.CssLoginWarning);
 
 				// who am i ?
-				Data.UserContactUrl = Selenium.GetAttributes(Config.CssLoginMyself, "href", false)
-					.First(); // not single to be safe
+				Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
+				WaitHumanizer();
+				Data.UserContactUrl = Selenium.Url;
 				if (Data.UserContactUrl.EndsWith('/')) // standardize
 				{
 					Data.UserContactUrl = Data.UserContactUrl.Remove(Data.UserContactUrl.Length - 1);
@@ -211,9 +218,6 @@ namespace InstagramFollowerBot
 
 		private void PostAuthInit()
 		{
-			// Ignore the enable notification on your browser modal popup
-			Selenium.ClickIfPresent(Config.CssLoginWarning);
-
 			// Ignore the message bar : To help personalize content, tailor and measure ads, and provide a safer experience, we use cookies. By clicking or navigating the site, you agree to allow our collection of information on and off Instagram through cookies.
 			Selenium.ClickIfPresent(Config.CssCookiesWarning);
 
