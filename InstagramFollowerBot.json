@@ -39,7 +39,7 @@
 	"CssContactsFollowing": "a[href*=\"/following/\"]",
 	"CssContactsListScrollable": "isgrP",
 	"CssContactUnfollowButton": "button.-fzfL._6VtSN",
-	"CssContactUnfollowButtonAlt": "button._8A5w5",
+	"CssContactUnfollowButtonAlt": "button._8A5w5:not(.fAR91)",
 	"CssContactUnfollowConfirm": "button.-Cab_",
 	"CssCookiesWarning": ".lOPC8>button.KPZNL",
 	"CssExplorePhotos": ".v1Nh3>a[href*=\"/p/\"]",

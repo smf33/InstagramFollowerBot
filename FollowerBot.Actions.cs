@@ -429,14 +429,14 @@ namespace InstagramFollowerBot
 				}
 
 				bool process = false;
-				// avec le triangle
+				// with triangle
 				if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
 				{
 					WaitBeforeFollowHumanizer();
 					Selenium.Click(Config.CssContactUnfollowButton);
 					process = true;
 				}
-				// sans le triangle
+				// without triangle
 				else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
 				{
 					WaitBeforeFollowHumanizer();
