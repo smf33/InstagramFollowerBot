@@ -99,7 +99,9 @@ namespace InstagramFollowerBot
 				if (File.Exists(fn))
 				{
 					PersistenceData tmp = JsonConvert.DeserializeObject<PersistenceData>(File.ReadAllText(fn, Encoding.UTF8));
-					if(tmp.CookiesInitDate.HasValue && DateTime.UtcNow < tmp.CookiesInitDate.Value.AddHours(Config.BotUsePersistenceLimitHours))
+					Data.CookiesInitDate = tmp.CookiesInitDate ?? tmp.MyContactsUpdate ?? DateTime.UtcNow; // manage cache from previous version
+
+					if (Config.BotUsePersistenceLimitHours > 0 && DateTime.UtcNow < tmp.CookiesInitDate.Value.AddHours(Config.BotUsePersistenceLimitHours))
 					{
 						Log.LogDebug("LOADING USER JSON");
 						Data.UserContactUrl = tmp.UserContactUrl;
@@ -133,10 +135,6 @@ namespace InstagramFollowerBot
 							Data.PhotosToLike = tmp.PhotosToLike;
 							Log.LogDebug("$PhotosToLike #{0}", Data.PhotosToLike.Count);
 						}
-						if (tmp.CookiesInitDate != null)
-						{
-							Data.CookiesInitDate = tmp.CookiesInitDate;
-						}
 						if (tmp.Cookies != null)
 						{
 							Data.Cookies = tmp.Cookies;
@@ -154,6 +152,10 @@ namespace InstagramFollowerBot
 					{
 						Log.LogWarning("Persistence limit reached, starting a new session");
 					}
+				}
+				else
+				{
+					Log.LogDebug("No existing session to load : {0}", fn);
 				}
 			}
 		}
