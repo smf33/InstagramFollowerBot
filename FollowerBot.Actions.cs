@@ -139,7 +139,7 @@ namespace InstagramFollowerBot
 				{
 					throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
 				}
-				
+
 				// Ignore the enable notification on your browser modal popup
 				Selenium.ClickIfPresent(Config.CssLoginWarning);
 
@@ -196,9 +196,12 @@ namespace InstagramFollowerBot
 
 				// Ignore the notification modal popup
 				Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
-				
+
 				// Ignore the enable notification on your browser modal popup
 				Selenium.ClickIfPresent(Config.CssLoginWarning);
+
+				// Confirm save user info
+				Selenium.ClickIfPresent(Config.CssLoginSageInfo);
 
 				// who am i ?
 				Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
