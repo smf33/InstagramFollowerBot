@@ -140,6 +140,9 @@ namespace InstagramFollowerBot
 					throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
 				}
 
+				// Ignore the message bar : Allow Instagram Cookies
+				Selenium.ClickIfPresent(Config.CssCookiesWarning);
+
 				// Ignore the enable notification on your browser modal popup
 				Selenium.ClickIfPresent(Config.CssLoginWarning);
 
@@ -179,6 +182,9 @@ namespace InstagramFollowerBot
 
 			if (!string.IsNullOrWhiteSpace(Config.BotUserEmail))
 			{
+				// Ignore the message bar : Allow Instagram Cookies
+				Selenium.ClickIfPresent(Config.CssCookiesWarning);
+				
 				Selenium.InputWrite(Config.CssLoginEmail, Config.BotUserEmail);
 
 				if (!string.IsNullOrWhiteSpace(Config.BotUserPassword))
@@ -194,7 +200,7 @@ namespace InstagramFollowerBot
 				WaitUrlStartsWith(Config.UrlRoot); // loading may take some time
 				WaitHumanizer(); // after WaitUrlStartsWith because 1st loading may take extra time
 
-				// Ignore the notification modal popup
+				// Humain user need to login with email code check ? In this case, remove password from the config and increase a lot step time (~1min) in order to allow you to pass throu this check process
 				Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
 
 				// Ignore the enable notification on your browser modal popup
@@ -221,8 +227,6 @@ namespace InstagramFollowerBot
 
 		private void PostAuthInit()
 		{
-			// Ignore the message bar : To help personalize content, tailor and measure ads, and provide a safer experience, we use cookies. By clicking or navigating the site, you agree to allow our collection of information on and off Instagram through cookies.
-			Selenium.ClickIfPresent(Config.CssCookiesWarning);
 
 			if (!Data.MyContactsUpdate.HasValue
 				|| DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
