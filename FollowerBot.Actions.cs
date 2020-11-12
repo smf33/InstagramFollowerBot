@@ -306,13 +306,13 @@ namespace InstagramFollowerBot
 			IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos)
 				.ToList(); // Solve the request
 
-			int c = Data.ContactsToFollow.Count;
+			int c = Data.PhotosToLike.Count;
 			foreach (string url in list
 				.Except(Data.PhotosToLike))
 			{
 				Data.PhotosToLike.Enqueue(url);
 			}
-			Log.LogDebug("$PhotosToLike +{0}", Data.ContactsToFollow.Count - c);
+			Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
 		}
 
 		private void DetectContactsUnfollowBack()
