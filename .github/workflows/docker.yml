@@ -9,7 +9,9 @@ on:
     - README.md
     - LICENSE
     - docker-compose.yml
-
+  schedule:
+    - cron: "0 0 * * *"
+      
 jobs:
 
   build:
