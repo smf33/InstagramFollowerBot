@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
+using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.Extensions.Logging;
 
 namespace InstagramFollowerBot
@@ -12,11 +13,13 @@ namespace InstagramFollowerBot
 
         private static int Main(string[] args)
         {
-            int ret;
-            ConsoleLogger logger = new ConsoleLogger();
+            int ret = -1;
 
             TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
             TelemetryClient telemetryClient = new TelemetryClient(configuration);
+            ConsoleLogger logger = new ConsoleLogger(telemetryClient);
+            using PerformanceCollectorModule perfCollectorModule = new PerformanceCollectorModule(); // https://github.com/MicrosoftDocs/azure-docs/blob/master/articles/azure-monitor/app/performance-counters.md
+            perfCollectorModule.Initialize(configuration);
 
             try
             {
@@ -27,28 +30,32 @@ namespace InstagramFollowerBot
                 aiDependencyTrackingTelemetryModule.Initialize(configuration);
                 configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
+                DateTimeOffset dtStart = DateTimeOffset.Now;
                 using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
                 try
                 {
                     bot.Run();
+                    ret = 0;
                 }
                 catch
                 {
                     bot.DebugDump();
                     throw;
                 }
-                ret = 0;
+                finally
+                {
+                    DateTimeOffset dtEnd = DateTimeOffset.Now;
+                    telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), null, (ret == 0));
+                }
             }
             catch (ApplicationException ex)
             {
                 logger.LogCritical(default, ex, "## ENDED IN ERROR : {0}", ex.GetBaseException().Message);
-                ret = -1;
             }
             catch (Exception ex)
             {
                 telemetryClient.TrackException(ex);
                 logger.LogCritical(default, ex, "## ENDED IN ERROR : {0}", ex.GetBaseException().Message);
-                ret = -2;
             }
 
             telemetryClient.Flush();

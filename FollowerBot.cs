@@ -39,13 +39,13 @@ namespace InstagramFollowerBot
         {
             Log = logger;
             telemetryClient = telemetryCli;
+            LoadConfig(configArgs);
+            telemetryClient.Context.User.Id = Config.BotUserEmail;
 
             Log.LogInformation("## LOADING...");
-            var opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = "LOADING" });
+            var opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = "LOADING", Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
             try
             {
-                LoadConfig(configArgs);
-                telemetryClient.Context.User.Id = Config.BotUserEmail;
 
                 LoadData();
 
@@ -66,7 +66,6 @@ namespace InstagramFollowerBot
                     Log.LogDebug("NewRemoteSeleniumWrapper({0}, {1}, {2})", Config.SeleniumRemoteServer, w, h);
                     Selenium = SeleniumWrapper.NewRemoteSeleniumWrapper(Config.SeleniumRemoteServer, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
                 }
-                opLoading.Telemetry.Success = true;
             }
             catch (Exception e)
             {
@@ -93,8 +92,6 @@ namespace InstagramFollowerBot
                 Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
                 PostAuthInit();
                 SaveData(); // save cookies at last
-
-                opLogging.Telemetry.Success = true;
             }
             catch (Exception e)
             {
@@ -186,8 +183,6 @@ namespace InstagramFollowerBot
                                 Log.LogError("Unknown BotTask : {0}", tasks[i]);
                                 break;
                         }
-
-                        opTask.Telemetry.Success = true;
                     }
                     catch (Exception e)
                     {
@@ -209,8 +204,6 @@ namespace InstagramFollowerBot
                 {
                     SaveData();
                 }
-
-                opRunning.Telemetry.Success = true;
             }
             catch (ApplicationException)
             {
