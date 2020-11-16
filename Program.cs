@@ -15,11 +15,11 @@ namespace InstagramFollowerBot
         {
             int ret = -1;
 
-            TelemetryConfiguration configuration = TelemetryConfiguration.CreateDefault();
-            TelemetryClient telemetryClient = new TelemetryClient(configuration);
+            TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+            TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
             ConsoleLogger logger = new ConsoleLogger(telemetryClient);
             using PerformanceCollectorModule perfCollectorModule = new PerformanceCollectorModule(); // https://github.com/MicrosoftDocs/azure-docs/blob/master/articles/azure-monitor/app/performance-counters.md
-            perfCollectorModule.Initialize(configuration);
+            perfCollectorModule.Initialize(telemetryConfiguration);
 
             try
             {
@@ -27,8 +27,8 @@ namespace InstagramFollowerBot
                 aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.windows.net");
                 aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("localhost");
                 aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("127.0.0.1");
-                aiDependencyTrackingTelemetryModule.Initialize(configuration);
-                configuration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
+                aiDependencyTrackingTelemetryModule.Initialize(telemetryConfiguration);
+                telemetryConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
                 DateTimeOffset dtStart = DateTimeOffset.Now;
                 using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
@@ -45,7 +45,7 @@ namespace InstagramFollowerBot
                 finally
                 {
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), null, (ret == 0));
+                    telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), Environment.MachineName, (ret == 0));
                 }
             }
             catch (FollowerBotException ex)
