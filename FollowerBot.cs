@@ -43,7 +43,7 @@ namespace InstagramFollowerBot
             telemetryClient.Context.User.Id = Config.BotUserEmail;
 
             Log.LogInformation("## LOADING...");
-            var opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = "LOADING", Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
+            var opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOADING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
             try
             {
 
@@ -82,7 +82,7 @@ namespace InstagramFollowerBot
         public void Run()
         {
             Log.LogInformation("## LOGGING...");
-            var opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = "LOGGING", Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
+            var opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOGGING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
             try
             {
                 if (Data.UserContactUrl == null || !TryAuthCookies())
@@ -105,120 +105,100 @@ namespace InstagramFollowerBot
             }
 
             Log.LogInformation("## RUNNING...");
-            var opRunning = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("RUNNING ", Config.BotTasks), Url = new Uri(string.Concat(Data.UserContactUrl, "?running=", Config.BotTasks)) });
-            try
+            string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < tasks.Length; i++)
             {
-
-                string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
-                for (int i = 0; i < tasks.Length; i++)
+                tasks[i] = tasks[i].Trim().ToUpperInvariant(); // standardize
+            }
+            int iLoop = Config.BotLoopTaskLimited;
+            for (int i = 0; i < tasks.Length; i++)
+            {
+                string curTask = tasks[i];
+                Log.LogInformation("# {0}...", curTask);
+                var opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
+                try
                 {
-                    tasks[i] = tasks[i].Trim().ToUpperInvariant(); // standardize
-                }
-                int iLoop = Config.BotLoopTaskLimited;
-                for (int i = 0; i < tasks.Length; i++)
-                {
-                    string curTask = tasks[i];
-                    Log.LogInformation("# {0}...", curTask);
-                    var opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("TASK ", curTask), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
-                    try
+                    switch (curTask)
                     {
-                        switch (curTask)
-                        {
-                            case DetectContactsFollowBackStr:
-                                DetectContactsFollowBack();
-                                break;
-                            case DetectContactsUnfollowBackStr:
-                                DetectContactsUnfollowBack();
-                                break;
-                            case DoContactsFollowStr:
-                                DoContactsFollow();
-                                break;
-                            case DoContactsUnfollowStr:
-                                DoContactsUnfollow();
-                                break;
-                            case DoPhotosLikeStr:
-                                DoPhotosLike();
-                                break;
-                            case DoPhotosLikeJustFollowStr:
-                                DoPhotosLike(true, false);
-                                break;
-                            case DoPhotosLikeJustLikeStr:
-                                DoPhotosLike(false, true);
-                                break;
-                            case ExplorePhotosStr:
-                                ExplorePhotos();
-                                break;
-                            case ExplorePeopleSuggestedStr:
-                                ExplorePeopleSuggested();
-                                break;
-                            case SaveStr: // managed in the if after
-                                break;
-                            case SearchKeywordsStr:
-                                SearchKeywords();
-                                break;
-                            case PauseStr:
-                            case WaitStr:
-                                Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitSec, Config.BotWaitTaskMaxWaitSec))
-                                    .Wait();
-                                continue; // no save anyway
-                            case LoopStartStr:
-                                continue; // no save anyway
-                            case LoopStr:
-                                if (Config.BotLoopTaskLimited <= 0)
-                                {
-                                    i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
-                                }
-                                else if (iLoop > 0)
-                                {
-                                    Log.LogDebug("Loop still todo : {0}", iLoop);
-                                    iLoop--;
-                                    i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
-                                }
-                                if (Config.BotSaveOnLoop)
-                                {
-                                    curTask = SaveStr;
-                                }
-                                break;
-                            default:
-                                Log.LogError("Unknown BotTask : {0}", tasks[i]);
-                                break;
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        telemetryClient.TrackException(e);
-                        opTask.Telemetry.Success = false;
-                        throw new ApplicationException(string.Concat(curTask, " Exception"), e);
-                    }
-                    finally
-                    {
-                        telemetryClient.StopOperation(opTask);
-                    }
-
-                    if (Config.BotSaveAfterEachAction || curTask == SaveStr)
-                    {
-                        SaveData();
+                        case DetectContactsFollowBackStr:
+                            DetectContactsFollowBack();
+                            break;
+                        case DetectContactsUnfollowBackStr:
+                            DetectContactsUnfollowBack();
+                            break;
+                        case DoContactsFollowStr:
+                            DoContactsFollow();
+                            break;
+                        case DoContactsUnfollowStr:
+                            DoContactsUnfollow();
+                            break;
+                        case DoPhotosLikeStr:
+                            DoPhotosLike();
+                            break;
+                        case DoPhotosLikeJustFollowStr:
+                            DoPhotosLike(true, false);
+                            break;
+                        case DoPhotosLikeJustLikeStr:
+                            DoPhotosLike(false, true);
+                            break;
+                        case ExplorePhotosStr:
+                            ExplorePhotos();
+                            break;
+                        case ExplorePeopleSuggestedStr:
+                            ExplorePeopleSuggested();
+                            break;
+                        case SaveStr: // managed in the if after
+                            break;
+                        case SearchKeywordsStr:
+                            SearchKeywords();
+                            break;
+                        case PauseStr:
+                        case WaitStr:
+                            Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitSec, Config.BotWaitTaskMaxWaitSec))
+                                .Wait();
+                            continue; // no save anyway
+                        case LoopStartStr:
+                            continue; // no save anyway
+                        case LoopStr:
+                            if (Config.BotLoopTaskLimited <= 0)
+                            {
+                                i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
+                            }
+                            else if (iLoop > 0)
+                            {
+                                Log.LogDebug("Loop still todo : {0}", iLoop);
+                                iLoop--;
+                                i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
+                            }
+                            if (Config.BotSaveOnLoop)
+                            {
+                                curTask = SaveStr;
+                            }
+                            break;
+                        default:
+                            Log.LogError("Unknown BotTask : {0}", tasks[i]);
+                            break;
                     }
                 }
-                if (Config.BotSaveOnEnd)
+                catch (Exception e)
+                {
+                    telemetryClient.TrackException(e);
+                    opTask.Telemetry.Success = false;
+                    throw new ApplicationException(string.Concat(curTask, " Exception"), e);
+                }
+                finally
+                {
+                    telemetryClient.StopOperation(opTask);
+                }
+
+                if (Config.BotSaveAfterEachAction || curTask == SaveStr)
                 {
                     SaveData();
                 }
             }
-            catch (ApplicationException)
+            if (Config.BotSaveOnEnd)
             {
-                opRunning.Telemetry.Success = false;
-                throw;
-            }
-            catch (Exception e)
-            {
-                telemetryClient.TrackException(e);
-                opRunning.Telemetry.Success = false;
-                throw new ApplicationException("RUNNING Exception", e);
-            }
-            finally
-            {
-                telemetryClient.StopOperation(opRunning);
+                SaveData();
             }
 
             Log.LogInformation("## ENDED OK");
