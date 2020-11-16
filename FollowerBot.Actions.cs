@@ -429,7 +429,7 @@ namespace InstagramFollowerBot
                 {
                     telemetryClient.TrackException(e);
                     opAction.Telemetry.Success = false;
-                    throw new ApplicationException("FOLLOW Exception", e);
+                    throw new FollowerBotException("FOLLOW Exception", e);
                 }
                 finally
                 {
@@ -489,7 +489,7 @@ namespace InstagramFollowerBot
                 {
                     telemetryClient.TrackException(e);
                     opAction.Telemetry.Success = false;
-                    throw new ApplicationException("LOGGING Exception", e);
+                    throw new FollowerBotException("LOGGING Exception", e);
                 }
                 finally
                 {
@@ -535,16 +535,14 @@ namespace InstagramFollowerBot
                         // issue detection : too many actions lately ? should stop for 24-48h...
                         Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
                     }
+                    telemetryClient.StopOperation(opAction);
                 }
                 catch (Exception e)
                 {
                     telemetryClient.TrackException(e);
                     opAction.Telemetry.Success = false;
-                    throw new ApplicationException("LIKE Exception", e);
-                }
-                finally
-                {
                     telemetryClient.StopOperation(opAction);
+                    throw new FollowerBotException("LIKE Exception", e);
                 }
                 todo--;
             }

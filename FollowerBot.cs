@@ -66,16 +66,14 @@ namespace InstagramFollowerBot
                     Log.LogDebug("NewRemoteSeleniumWrapper({0}, {1}, {2})", Config.SeleniumRemoteServer, w, h);
                     Selenium = SeleniumWrapper.NewRemoteSeleniumWrapper(Config.SeleniumRemoteServer, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
                 }
+                telemetryClient.StopOperation(opLoading);
             }
             catch (Exception e)
             {
                 telemetryClient.TrackException(e);
                 opLoading.Telemetry.Success = false;
-                throw new ApplicationException("LOADING Exception", e);
-            }
-            finally
-            {
                 telemetryClient.StopOperation(opLoading);
+                throw new FollowerBotException("LOADING Exception", e);
             }
         }
 
@@ -92,16 +90,14 @@ namespace InstagramFollowerBot
                 Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
                 PostAuthInit();
                 SaveData(); // save cookies at last
+                telemetryClient.StopOperation(opLogging);
             }
             catch (Exception e)
             {
                 telemetryClient.TrackException(e);
                 opLogging.Telemetry.Success = false;
-                throw new ApplicationException("LOGGING Exception", e);
-            }
-            finally
-            {
                 telemetryClient.StopOperation(opLogging);
+                throw new FollowerBotException("LOGGING Exception", e);
             }
 
             Log.LogInformation("## RUNNING...");
@@ -179,16 +175,20 @@ namespace InstagramFollowerBot
                             Log.LogError("Unknown BotTask : {0}", tasks[i]);
                             break;
                     }
+                    telemetryClient.StopOperation(opTask);
+                }
+                catch (FollowerBotException)
+                {
+                    telemetryClient.StopOperation(opTask);
+                    opTask.Telemetry.Success = false;
+                    throw;
                 }
                 catch (Exception e)
                 {
                     telemetryClient.TrackException(e);
-                    opTask.Telemetry.Success = false;
-                    throw new ApplicationException(string.Concat(curTask, " Exception"), e);
-                }
-                finally
-                {
                     telemetryClient.StopOperation(opTask);
+                    opTask.Telemetry.Success = false;
+                    throw new FollowerBotException(string.Concat(curTask, " Exception"), e);
                 }
 
                 if (Config.BotSaveAfterEachAction || curTask == SaveStr)

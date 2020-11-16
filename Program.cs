@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
@@ -49,7 +48,7 @@ namespace InstagramFollowerBot
                     telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), null, (ret == 0));
                 }
             }
-            catch (ApplicationException ex)
+            catch (FollowerBotException ex)
             {
                 logger.LogCritical(default, ex, "## ENDED IN ERROR : {0}", ex.GetBaseException().Message);
             }
