@@ -14,7 +14,6 @@ namespace InstagramFollowerBot
         private static int Main(string[] args)
         {
             int ret = -1;
-            DateTimeOffset dtStart = DateTimeOffset.Now;
 
             TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.CreateDefault();
             TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
@@ -32,21 +31,15 @@ namespace InstagramFollowerBot
                 telemetryConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
                 using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
+                
                 try
                 {
                     bot.Run();
-
-                    DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), Environment.MachineName, true);
                     ret = 0;
                 }
-                catch (Exception ex)
+                catch
                 {
-                    DateTimeOffset dtEnd = DateTimeOffset.Now;
-
                     bot.DebugDump();
-
-                    telemetryClient.TrackAvailability(bot.BotUserEmail, dtEnd, (dtEnd - dtStart), Environment.MachineName, false, ex.GetBaseException().Message);
                     throw;
                 }
             }

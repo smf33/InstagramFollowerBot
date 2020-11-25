@@ -101,6 +101,7 @@ namespace InstagramFollowerBot
             }
 
             Log.LogInformation("## RUNNING...");
+            telemetryClient.TrackPageView(Config.BotTasks);
             string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < tasks.Length; i++)
             {
@@ -112,6 +113,7 @@ namespace InstagramFollowerBot
                 string curTask = tasks[i];
                 Log.LogInformation("# {0}...", curTask);
                 var opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
+                DateTimeOffset dtStart = DateTimeOffset.Now;
                 try
                 {
                     switch (curTask)
@@ -176,19 +178,25 @@ namespace InstagramFollowerBot
                             break;
                     }
                     telemetryClient.StopOperation(opTask);
+                    DateTimeOffset dtEnd = DateTimeOffset.Now;
+                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), Environment.MachineName, true);
                 }
-                catch (FollowerBotException)
+                catch (FollowerBotException ex)
                 {
-                    telemetryClient.StopOperation(opTask);
+                    DateTimeOffset dtEnd = DateTimeOffset.Now;
+                    telemetryClient.TrackAvailability(curTask,dtEnd, (dtEnd - dtStart), Environment.MachineName, false, ex.GetBaseException().Message);
                     opTask.Telemetry.Success = false;
+                    telemetryClient.StopOperation(opTask);
                     throw;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    telemetryClient.TrackException(e);
-                    telemetryClient.StopOperation(opTask);
+                    DateTimeOffset dtEnd = DateTimeOffset.Now;
+                    telemetryClient.TrackAvailability(curTask,dtEnd, (dtEnd - dtStart), Environment.MachineName, false, ex.GetBaseException().Message);
+                    telemetryClient.TrackException(ex);
                     opTask.Telemetry.Success = false;
-                    throw new FollowerBotException(string.Concat(curTask, " Exception"), e);
+                    telemetryClient.StopOperation(opTask);
+                    throw new FollowerBotException(string.Concat(curTask, " Exception"), ex);
                 }
 
                 if (Config.BotSaveAfterEachAction || curTask == SaveStr)

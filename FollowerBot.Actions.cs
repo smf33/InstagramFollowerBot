@@ -205,11 +205,11 @@ namespace InstagramFollowerBot
                 // Humain user need to login with email code check ? In this case, remove password from the config and increase a lot step time (~1min) in order to allow you to pass throu this check process
                 Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
 
-                // Ignore the enable notification on your browser modal popup
-                Selenium.ClickIfPresent(Config.CssLoginWarning);
-
                 // Confirm save user info
                 Selenium.ClickIfPresent(Config.CssLoginSageInfo);
+
+                // Ignore the enable notification on your browser modal popup
+                Selenium.ClickIfPresent(Config.CssLoginWarning);
 
                 // who am i ?
                 Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
