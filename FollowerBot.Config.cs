@@ -81,11 +81,6 @@ namespace InstagramFollowerBot
 		}
 
 		private Configuration Config;
-		internal string BotUserEmail {
-			get {
-				return Config?.BotUserEmail;
-			}
-		}
 
 		private void LoadConfig(string[] args)
 		{

@@ -179,12 +179,12 @@ namespace InstagramFollowerBot
                     }
                     telemetryClient.StopOperation(opTask);
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), Environment.MachineName, true);
+                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), true);
                 }
                 catch (FollowerBotException ex)
                 {
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask,dtEnd, (dtEnd - dtStart), Environment.MachineName, false, ex.GetBaseException().Message);
+                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), false, ex.GetBaseException().Message);
                     opTask.Telemetry.Success = false;
                     telemetryClient.StopOperation(opTask);
                     throw;
@@ -192,7 +192,7 @@ namespace InstagramFollowerBot
                 catch (Exception ex)
                 {
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask,dtEnd, (dtEnd - dtStart), Environment.MachineName, false, ex.GetBaseException().Message);
+                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), false, ex.GetBaseException().Message);
                     telemetryClient.TrackException(ex);
                     opTask.Telemetry.Success = false;
                     telemetryClient.StopOperation(opTask);
