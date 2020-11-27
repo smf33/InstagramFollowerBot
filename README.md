@@ -15,7 +15,7 @@ Main functions :
 
 - Windows, Linux or Mac
 - .Net Core SDK 3.1 : https://dotnet.microsoft.com/download/dotnet-core/3.1
-- Chrome, or a Selenium server with Chrome clients
+- Chrome (not Chromium), or a Selenium server with Chrome clients
 
 ## Usage
 
