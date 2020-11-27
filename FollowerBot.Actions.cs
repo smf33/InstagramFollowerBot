@@ -143,14 +143,24 @@ namespace InstagramFollowerBot
                 }
 
                 // Ignore the message bar : Allow Instagram Cookies
-                Selenium.ClickIfPresent(Config.CssCookiesWarning);
+                if (Selenium.ClickIfPresent(Config.CssCookiesWarning))
+                {
+                    WaitHumanizer();
+                }
 
                 // Ignore the enable notification on your browser modal popup
-                Selenium.ClickIfPresent(Config.CssLoginWarning);
+                if (Selenium.ClickIfPresent(Config.CssLoginWarning))
+                {
+                    WaitHumanizer();
+                }
 
                 //check cookie auth OK :  who am i ?
-                Selenium.ClickIfPresent(Config.CssLoginMyself); // if not present, will not fail and next test will detect an error and go for the normal loggin
-                WaitHumanizer();
+                if (Selenium.ClickIfPresent(Config.CssLoginMyself))
+                {
+                    WaitHumanizer();
+                }
+                // else if not present, will not fail and next test will detect an error and go for the normal loggin
+
                 string curUserContactUrl = Selenium.Url;
                 if (curUserContactUrl != null && curUserContactUrl.EndsWith('/')) // standardize
                 {
@@ -185,7 +195,10 @@ namespace InstagramFollowerBot
             if (!string.IsNullOrWhiteSpace(Config.BotUserEmail))
             {
                 // Ignore the message bar : Allow Instagram Cookies
-                Selenium.ClickIfPresent(Config.CssCookiesWarning);
+                if (Selenium.ClickIfPresent(Config.CssCookiesWarning))
+                {
+                    WaitHumanizer();
+                }
 
                 Selenium.InputWrite(Config.CssLoginEmail, Config.BotUserEmail);
 
@@ -206,10 +219,16 @@ namespace InstagramFollowerBot
                 Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
 
                 // Confirm save user info
-                Selenium.ClickIfPresent(Config.CssLoginSageInfo);
+                if (Selenium.ClickIfPresent(Config.CssLoginSageInfo))
+                {
+                    WaitHumanizer();
+                }
 
                 // Ignore the enable notification on your browser modal popup
-                Selenium.ClickIfPresent(Config.CssLoginWarning);
+                if (Selenium.ClickIfPresent(Config.CssLoginWarning))
+                {
+                    WaitHumanizer();
+                }
 
                 // who am i ?
                 Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
