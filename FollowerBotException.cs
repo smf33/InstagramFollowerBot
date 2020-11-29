@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 
 namespace InstagramFollowerBot
 {
-
     public class FollowerBotException : Exception
     {
         public FollowerBotException()
@@ -21,7 +20,5 @@ namespace InstagramFollowerBot
         protected FollowerBotException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
-
     }
-
 }

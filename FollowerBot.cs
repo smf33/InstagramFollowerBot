@@ -43,10 +43,9 @@ namespace InstagramFollowerBot
             telemetryClient.Context.User.Id = Config.BotUserEmail;
 
             Log.LogInformation("## LOADING...");
-            var opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOADING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
+            Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOADING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
             try
             {
-
                 LoadData();
 
                 string w = Rand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
@@ -80,7 +79,7 @@ namespace InstagramFollowerBot
         public void Run()
         {
             Log.LogInformation("## LOGGING...");
-            var opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOGGING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
+            Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOGGING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
             try
             {
                 if (Data.UserContactUrl == null || !TryAuthCookies())
@@ -112,7 +111,7 @@ namespace InstagramFollowerBot
             {
                 string curTask = tasks[i];
                 Log.LogInformation("# {0}...", curTask);
-                var opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
+                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
                 DateTimeOffset dtStart = DateTimeOffset.Now;
                 try
                 {
@@ -121,35 +120,46 @@ namespace InstagramFollowerBot
                         case DetectContactsFollowBackStr:
                             DetectContactsFollowBack();
                             break;
+
                         case DetectContactsUnfollowBackStr:
                             DetectContactsUnfollowBack();
                             break;
+
                         case DoContactsFollowStr:
                             DoContactsFollow();
                             break;
+
                         case DoContactsUnfollowStr:
                             DoContactsUnfollow();
                             break;
+
                         case DoPhotosLikeStr:
                             DoPhotosLike();
                             break;
+
                         case DoPhotosLikeJustFollowStr:
                             DoPhotosLike(true, false);
                             break;
+
                         case DoPhotosLikeJustLikeStr:
                             DoPhotosLike(false, true);
                             break;
+
                         case ExplorePhotosStr:
                             ExplorePhotos();
                             break;
+
                         case ExplorePeopleSuggestedStr:
                             ExplorePeopleSuggested();
                             break;
+
                         case SaveStr: // managed in the if after
                             break;
+
                         case SearchKeywordsStr:
                             SearchKeywords();
                             break;
+
                         case PauseStr:
                         case WaitStr:
                             Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitSec, Config.BotWaitTaskMaxWaitSec))
@@ -173,6 +183,7 @@ namespace InstagramFollowerBot
                                 curTask = SaveStr;
                             }
                             break;
+
                         default:
                             Log.LogError("Unknown BotTask : {0}", tasks[i]);
                             break;
@@ -243,10 +254,10 @@ namespace InstagramFollowerBot
             {
                 // Not usefull because already in exception
             }
-
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
         private SeleniumWrapper Selenium;
 
@@ -268,7 +279,7 @@ namespace InstagramFollowerBot
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
 
+        #endregion IDisposable Support
     }
 }

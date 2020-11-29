@@ -11,7 +11,6 @@ namespace InstagramFollowerBot
 {
     internal class SeleniumWrapper : IDisposable
     {
-
         private readonly IJavaScriptExecutor JsDriver;
 
         private static ChromeOptions GetOptions(string w, string h, IEnumerable<string> seleniumBrowserArguments)
@@ -26,7 +25,6 @@ namespace InstagramFollowerBot
             {
                 options.AddArgument(a);
             }
-
 
             return options;
         }
@@ -73,7 +71,6 @@ namespace InstagramFollowerBot
                 return Array.Empty<IWebElement>();
             }
         }
-
 
         public string Url
         {
@@ -226,6 +223,7 @@ namespace InstagramFollowerBot
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
         private IWebDriver WebDriver;
 
@@ -258,7 +256,7 @@ namespace InstagramFollowerBot
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        #endregion
 
+        #endregion IDisposable Support
     }
 }

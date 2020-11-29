@@ -48,16 +48,19 @@ namespace InstagramFollowerBot
             Task.Delay(Config.BotStepMinWaitMs)
                 .Wait();
         }
+
         private void WaitHumanizer()
         {
             Task.Delay(Rand.Next(Config.BotStepMinWaitMs, Config.BotStepMaxWaitMs))
                     .Wait();
         }
+
         private void WaitBeforeFollowHumanizer()
         {
             Task.Delay(Rand.Next(Config.BotStepFollowMinWaitMs, Config.BotStepFollowMaxWaitMs))
                     .Wait();
         }
+
         private void WaitBeforeLikeHumanizer()
         {
             Task.Delay(Rand.Next(Config.BotStepLikeMinWaitMs, Config.BotStepLikeMaxWaitMs))
@@ -248,7 +251,6 @@ namespace InstagramFollowerBot
 
         private void PostAuthInit()
         {
-
             if (!Data.MyContactsUpdate.HasValue
                 || DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
             {
@@ -418,7 +420,7 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToFollow.Count;
             while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
             {
-                var opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "FOLLOW", Url = new Uri(uri) });
+                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "FOLLOW", Url = new Uri(uri) });
                 try
                 {
                     if (!MoveTo(uri))
@@ -464,7 +466,7 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToUnfollow.Count;
             while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
             {
-                var opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "UNFOLLOW", Url = new Uri(uri) });
+                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "UNFOLLOW", Url = new Uri(uri) });
                 try
                 {
                     if (!MoveTo(uri))
@@ -518,14 +520,13 @@ namespace InstagramFollowerBot
             Log.LogDebug("$ContactsToUnfollow -{0}", c - Data.ContactsToUnfollow.Count);
         }
 
-
         private void DoPhotosLike(bool doFollow = true, bool doLike = true)
         {
             int todo = Rand.Next(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
             int c = Data.PhotosToLike.Count;
             while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
             {
-                var opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "LIKE", Url = new Uri(uri) });
+                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "LIKE", Url = new Uri(uri) });
                 try
                 {
                     if (!MoveTo(uri))
@@ -567,6 +568,5 @@ namespace InstagramFollowerBot
             }
             Log.LogDebug("$PhotosToLike -{0}", c - Data.PhotosToLike.Count);
         }
-
     }
 }

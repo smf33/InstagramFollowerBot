@@ -10,7 +10,6 @@ namespace InstagramFollowerBot
 {
     public class Program
     {
-
         private static int Main(string[] args)
         {
             int ret = -1;
@@ -31,7 +30,7 @@ namespace InstagramFollowerBot
                 telemetryConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
 
                 using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
-                
+
                 try
                 {
                     bot.Run();
@@ -58,6 +57,5 @@ namespace InstagramFollowerBot
 
             return ret;
         }
-
     }
 }
