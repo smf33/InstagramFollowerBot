@@ -164,9 +164,11 @@ namespace InstagramFollowerBot
                         case WaitStr:
                             Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitSec, Config.BotWaitTaskMaxWaitSec))
                                 .Wait();
-                            continue; // no save anyway
+                            break;
+
                         case LoopStartStr:
-                            continue; // no save anyway
+                            break;
+
                         case LoopStr:
                             if (Config.BotLoopTaskLimited <= 0)
                             {
@@ -190,12 +192,12 @@ namespace InstagramFollowerBot
                     }
                     telemetryClient.StopOperation(opTask);
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), true);
+                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, true);
                 }
                 catch (FollowerBotException ex)
                 {
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), false, ex.GetBaseException().Message);
+                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, false, ex.GetBaseException().Message);
                     opTask.Telemetry.Success = false;
                     telemetryClient.StopOperation(opTask);
                     throw;
@@ -203,7 +205,7 @@ namespace InstagramFollowerBot
                 catch (Exception ex)
                 {
                     DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(curTask, dtEnd, (dtEnd - dtStart), string.Concat(Environment.MachineName, '\t', Config.BotUserEmail), false, ex.GetBaseException().Message);
+                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, false, ex.GetBaseException().Message);
                     telemetryClient.TrackException(ex);
                     opTask.Telemetry.Success = false;
                     telemetryClient.StopOperation(opTask);
