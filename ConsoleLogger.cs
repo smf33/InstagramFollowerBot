@@ -14,45 +14,63 @@ namespace InstagramFollowerBot
             this.telemetryClient = telemetryClient;
         }
 
-        private static void Log(ConsoleColor color, string message, ConsoleColor debugColor, object debug)
-        {
-            Console.ForegroundColor = color;
-            Console.WriteLine(message);
-            if (debug != null)
-            {
-                Console.ForegroundColor = debugColor;
-                Console.WriteLine(debug);
-            }
-            Console.ResetColor();
-        }
-
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
             string msg = formatter(state, exception);
             switch (logLevel)
             {
                 case LogLevel.Critical:
-                    Log(ConsoleColor.Magenta, msg, ConsoleColor.DarkMagenta, exception);
+                    Console.WriteLine(string.Concat("##[error]", msg));
+                    if (exception != null)
+                    {
+                        Console.WriteLine("##[group]");
+                        Console.WriteLine(exception);
+                        Console.WriteLine("##[endgroup]");
+                    }
                     telemetryClient.TrackTrace(msg, SeverityLevel.Critical);
                     break;
 
                 case LogLevel.Error:
-                    Log(ConsoleColor.Red, msg, ConsoleColor.DarkRed, exception);
+                    Console.WriteLine(string.Concat("##[error]", msg));
+                    if (exception != null)
+                    {
+                        Console.WriteLine("##[group]");
+                        Console.WriteLine(exception);
+                        Console.WriteLine("##[endgroup]");
+                    }
                     telemetryClient.TrackTrace(msg, SeverityLevel.Error);
                     break;
 
                 case LogLevel.Warning:
-                    Log(ConsoleColor.Yellow, msg, ConsoleColor.DarkYellow, exception);
+                    Console.WriteLine(string.Concat("##[warning]", msg));
+                    if (exception != null)
+                    {
+                        Console.WriteLine("##[group]");
+                        Console.WriteLine(exception);
+                        Console.WriteLine("##[endgroup]");
+                    }
                     telemetryClient.TrackTrace(msg, SeverityLevel.Warning);
                     break;
 
                 case LogLevel.Information:
-                    Log(ConsoleColor.White, msg, 0, exception);
+                    Console.WriteLine(msg);
+                    if (exception != null)
+                    {
+                        Console.WriteLine("##[group]");
+                        Console.WriteLine(exception);
+                        Console.WriteLine("##[endgroup]");
+                    }
                     telemetryClient.TrackTrace(msg, SeverityLevel.Information);
                     break;
 
                 default:
-                    Log(ConsoleColor.DarkGray, msg, 0, exception);
+                    Console.WriteLine(string.Concat("##[debug]", msg));
+                    if (exception != null)
+                    {
+                        Console.WriteLine("##[group]");
+                        Console.WriteLine(exception);
+                        Console.WriteLine("##[endgroup]");
+                    }
                     telemetryClient.TrackTrace(msg, SeverityLevel.Verbose);
                     break;
             }
