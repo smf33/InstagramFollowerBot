@@ -33,7 +33,6 @@ namespace InstagramFollowerBot
 
         private readonly ILogger Log;
         private readonly TelemetryClient telemetryClient;
-        private readonly DependencyTrackingTelemetryModule aiDependencyTrackingTelemetryModule; // even if not used, must be kept during all the app life
 
         public FollowerBot(string[] configArgs, ILogger logger, TelemetryClient telemetryCli)
         {
