@@ -226,34 +226,18 @@ namespace InstagramFollowerBot
 
         internal void DebugDump()
         {
-            StringBuilder dump = new StringBuilder();
             try
             {
-                dump.AppendFormat("# Try Dump last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
-                dump.Append(Selenium.CurrentPageSource); // this one may crash more probably
-            }
-            catch
-            {
-                // Not usefull because already in exception
-            }
-
-            if (dump.Length > 0)
-            {
-                Log.LogDebug(dump.ToString());
-            }
-            else
-            {
-                Log.LogDebug("# Couldn't dump last page context");
-            }
-
-            try
-            {
-                Log.LogDebug("# Try saving Data in order to avoid queue polution");
+                Log.LogInformation("Try saving Data in order to avoid queue polution");
                 SaveData();
+
+                Log.LogInformation("##[group]Dumping last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
+                Log.LogInformation(Selenium.CurrentPageSource); // this one may crash more probably
+                Log.LogInformation("##[endgroup]");
             }
-            catch
+            catch (Exception ex)
             {
-                // Not usefull because already in exception
+                Log.LogWarning(default, ex, "DebugDump() Failed : {0}", ex.GetBaseException().Message);
             }
         }
 

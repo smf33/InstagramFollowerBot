@@ -23,7 +23,7 @@ namespace InstagramFollowerBot
                     Console.WriteLine(string.Concat("##[error]", msg));
                     if (exception != null)
                     {
-                        Console.WriteLine("##[group]");
+                        Console.WriteLine("##[group]Exception");
                         Console.WriteLine(exception);
                         Console.WriteLine("##[endgroup]");
                     }
@@ -34,7 +34,7 @@ namespace InstagramFollowerBot
                     Console.WriteLine(string.Concat("##[error]", msg));
                     if (exception != null)
                     {
-                        Console.WriteLine("##[group]");
+                        Console.WriteLine("##[group]Exception");
                         Console.WriteLine(exception);
                         Console.WriteLine("##[endgroup]");
                     }
@@ -45,7 +45,7 @@ namespace InstagramFollowerBot
                     Console.WriteLine(string.Concat("##[warning]", msg));
                     if (exception != null)
                     {
-                        Console.WriteLine("##[group]");
+                        Console.WriteLine("##[group]Exception");
                         Console.WriteLine(exception);
                         Console.WriteLine("##[endgroup]");
                     }
@@ -56,7 +56,7 @@ namespace InstagramFollowerBot
                     Console.WriteLine(msg);
                     if (exception != null)
                     {
-                        Console.WriteLine("##[group]");
+                        Console.WriteLine("##[group]Exception");
                         Console.WriteLine(exception);
                         Console.WriteLine("##[endgroup]");
                     }
@@ -67,7 +67,7 @@ namespace InstagramFollowerBot
                     Console.WriteLine(string.Concat("##[debug]", msg));
                     if (exception != null)
                     {
-                        Console.WriteLine("##[group]");
+                        Console.WriteLine("##[group]Exception");
                         Console.WriteLine(exception);
                         Console.WriteLine("##[endgroup]");
                     }
