@@ -403,14 +403,20 @@ namespace InstagramFollowerBot
 
                 string[] list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false)
                     .ToArray();// solve
-
-                int c = Data.PhotosToLike.Count;
-                foreach (string url in list
-                    .Except(Data.PhotosToLike))
+                if (list.Any())
                 {
-                    Data.PhotosToLike.Enqueue(url);
+                    int c = Data.PhotosToLike.Count;
+                    foreach (string url in list
+                        .Except(Data.PhotosToLike))
+                    {
+                        Data.PhotosToLike.Enqueue(url);
+                    }
+                    Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
                 }
-                Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
+                else
+                {
+                    Log.LogWarning("Searching \"{0}\" with CSS \"{1}\" return nothing ! Is an CSS selector update required ?", keyword, Config.CssExplorePhotos);
+                }
             }
         }
 

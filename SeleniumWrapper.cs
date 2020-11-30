@@ -109,19 +109,18 @@ namespace InstagramFollowerBot
         public bool ClickIfPresent(string cssSelector)
         {
             WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
-            bool isPresent;
-            try
-            {
-                WebDriver.FindElement(By.CssSelector(cssSelector))
-                    .Click();
-                isPresent = true;
-            }
-            catch (NoSuchElementException)
-            {
-                isPresent = false;
-            }
+            ICollection<IWebElement> found = WebDriver.FindElements(By.CssSelector(cssSelector));
             WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
-            return isPresent;
+
+            if (found.Any())
+            {
+                found.First().Click();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public void CrashIfPresent(string cssSelector, string crashMessage)
