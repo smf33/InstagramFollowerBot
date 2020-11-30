@@ -2,11 +2,9 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.Extensions.Logging;
 
 namespace InstagramFollowerBot

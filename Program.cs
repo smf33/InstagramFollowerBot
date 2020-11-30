@@ -10,6 +10,10 @@ namespace InstagramFollowerBot
 {
     public class Program
     {
+        protected Program()
+        {
+        }
+
         private static int Main(string[] args)
         {
             int ret = -1;
