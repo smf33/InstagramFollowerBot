@@ -159,7 +159,7 @@ namespace InstagramFollowerBot
 
                         case PauseStr:
                         case WaitStr:
-                            Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitSec, Config.BotWaitTaskMaxWaitSec))
+                            Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
                                 .Wait();
                             break;
 
