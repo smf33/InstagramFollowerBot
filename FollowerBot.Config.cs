@@ -37,8 +37,8 @@ namespace InstagramFollowerBot
             internal int BotUsePersistenceLimitHours;
             internal int BotLikeTaskBatchMaxLimit;
             internal int BotLikeTaskBatchMinLimit;
-            internal int BotWaitTaskMaxWaitSec;
-            internal int BotWaitTaskMinWaitSec;
+            internal int BotWaitTaskMaxWaitMs;
+            internal int BotWaitTaskMinWaitMs;
             internal int SeleniumRemoteServerWarmUpWaitMs;
             internal int SeleniumWindowMaxH;
             internal int SeleniumWindowMaxW;
@@ -158,8 +158,8 @@ namespace InstagramFollowerBot
                     Config.BotUsePersistenceLimitHours = int.Parse(config["BotUsePersistenceLimitHours"], CultureInfo.InvariantCulture);
                     Config.BotLikeTaskBatchMaxLimit = int.Parse(config["BotLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
                     Config.BotLikeTaskBatchMinLimit = int.Parse(config["BotLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
-                    Config.BotWaitTaskMaxWaitSec = int.Parse(config["BotWaitTaskMaxWaitSec"], CultureInfo.InvariantCulture);
-                    Config.BotWaitTaskMinWaitSec = int.Parse(config["BotWaitTaskMinWaitSec"], CultureInfo.InvariantCulture);
+                    Config.BotWaitTaskMaxWaitMs = int.Parse(config["BotWaitTaskMaxWaitMs"], CultureInfo.InvariantCulture);
+                    Config.BotWaitTaskMinWaitMs = int.Parse(config["BotWaitTaskMinWaitMs"], CultureInfo.InvariantCulture);
                     Config.SeleniumRemoteServerWarmUpWaitMs = int.Parse(config["SeleniumRemoteServerWarmUpWaitMs"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMaxH = int.Parse(config["SeleniumWindowMaxH"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMaxW = int.Parse(config["SeleniumWindowMaxW"], CultureInfo.InvariantCulture);
