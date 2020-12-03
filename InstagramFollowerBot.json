@@ -42,7 +42,7 @@
   "CssContactUnfollowButtonAlt": "button._8A5w5:not(.fAR91)",
   "CssContactUnfollowConfirm": "button.-Cab_",
   "CssCookiesWarning": ".bIiDR",
-  "CssExplorePhotos": ".v1Nh3>a",
+  "CssExplorePhotos": ".QzzMF>a", // also Igw0E IwRSH eGOV_ _4EzTm NUiEW
   "CssLoginEmail": "input[name=\"username\"]",
   "CssLoginMyself": ".gmFkV",
   "CssLoginPassword": "input[name=\"password\"]",

@@ -109,12 +109,13 @@ namespace InstagramFollowerBot
         public bool ClickIfPresent(string cssSelector)
         {
             WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
-            IEnumerable<IWebElement> found = WebDriver.FindElements(By.CssSelector(cssSelector));
+            IWebElement found = WebDriver.FindElements(By.CssSelector(cssSelector))
+                .FirstOrDefault(x => x.Displayed);    // new case of css may be found on behind element not clikable.
             WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
 
-            if (found.Any())
+            if (found != null)
             {
-                found.First().Click();
+                found.Click();
                 return true;
             }
             else
