@@ -11,12 +11,17 @@ namespace InstagramFollowerBot
     {
         private static readonly Random Rand = new Random();
 
+        private void SchroolDownLoop()
+        {
+            Selenium.ScrollToBottom();
+            WaitHumanizer();
+        }
+
         private void SchroolDownLoop(int loop)
         {
             for (int i = 0; i < loop; i++)
             {
-                Selenium.ScrollToBottom();
-                WaitHumanizer();
+                SchroolDownLoop();
             }
         }
 
@@ -324,16 +329,23 @@ namespace InstagramFollowerBot
 
             SchroolDownLoop(Config.BotExplorePhotosScrools);
 
-            IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos)
+            IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false, true)
                 .ToList(); // Solve the request
 
-            int c = Data.PhotosToLike.Count;
-            foreach (string url in list
-                .Except(Data.PhotosToLike))
+            if (list.Any())
             {
-                Data.PhotosToLike.Enqueue(url);
+                int c = Data.PhotosToLike.Count;
+                foreach (string url in list
+                    .Except(Data.PhotosToLike))
+                {
+                    Data.PhotosToLike.Enqueue(url);
+                }
+                Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
             }
-            Log.LogDebug("$PhotosToLike +{0}", Data.PhotosToLike.Count - c);
+            else
+            {
+                Log.LogWarning("Exploring with CSS \"{0}\" return nothing ! A CSS selector update may be required.", Config.CssExplorePhotos);
+            }
         }
 
         private void DetectContactsUnfollowBack()
@@ -399,7 +411,7 @@ namespace InstagramFollowerBot
 
                 SchroolDownLoop(Config.BotSearchScrools);
 
-                string[] list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false)
+                string[] list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false, true)
                     .ToArray();// solve
                 if (list.Any())
                 {
@@ -413,7 +425,7 @@ namespace InstagramFollowerBot
                 }
                 else
                 {
-                    Log.LogWarning("Searching \"{0}\" with CSS \"{1}\" return nothing ! Is an CSS selector update required ?", keyword, Config.CssExplorePhotos);
+                    Log.LogWarning("Searching \"{0}\" with CSS \"{1}\" return nothing ! A CSS selector update may be required.", keyword, Config.CssExplorePhotos);
                 }
             }
         }
