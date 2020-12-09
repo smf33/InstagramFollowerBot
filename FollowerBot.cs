@@ -40,6 +40,7 @@ namespace InstagramFollowerBot
             telemetryClient.Context.User.Id = Config.BotUserEmail;
 
             Log.LogInformation("## LOADING...");
+            DateTimeOffset dtStart = DateTimeOffset.Now;
             Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOADING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
             try
             {
@@ -63,9 +64,13 @@ namespace InstagramFollowerBot
                     Selenium = SeleniumWrapper.NewRemoteSeleniumWrapper(Config.SeleniumRemoteServer, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
                 }
                 telemetryClient.StopOperation(opLoading);
+                DateTimeOffset dtEnd = DateTimeOffset.Now;
+                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOADING", true);
             }
             catch (Exception e)
             {
+                DateTimeOffset dtEnd = DateTimeOffset.Now;
+                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOADING", false, e.GetBaseException().Message);
                 telemetryClient.TrackException(e);
                 opLoading.Telemetry.Success = false;
                 telemetryClient.StopOperation(opLoading);
@@ -76,6 +81,7 @@ namespace InstagramFollowerBot
         public void Run()
         {
             Log.LogInformation("## LOGGING...");
+            DateTimeOffset dtStart = DateTimeOffset.Now;
             Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOGGING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
             try
             {
@@ -87,9 +93,13 @@ namespace InstagramFollowerBot
                 PostAuthInit();
                 SaveData(); // save cookies at last
                 telemetryClient.StopOperation(opLogging);
+                DateTimeOffset dtEnd = DateTimeOffset.Now;
+                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOGGING", true);
             }
             catch (Exception e)
             {
+                DateTimeOffset dtEnd = DateTimeOffset.Now;
+                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOGGING", false, e.GetBaseException().Message);
                 telemetryClient.TrackException(e);
                 opLogging.Telemetry.Success = false;
                 telemetryClient.StopOperation(opLogging);
@@ -109,7 +119,7 @@ namespace InstagramFollowerBot
                 string curTask = tasks[i];
                 Log.LogInformation("# {0}...", curTask);
                 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
-                DateTimeOffset dtStart = DateTimeOffset.Now;
+                dtStart = DateTimeOffset.Now;
                 try
                 {
                     switch (curTask)
