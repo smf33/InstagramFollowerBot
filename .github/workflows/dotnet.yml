@@ -10,7 +10,8 @@ on:
     - LICENSE
     - docker-compose.yml
     - Dockerfile
-
+  workflow_dispatch:
+  
 jobs:
   build:
 
