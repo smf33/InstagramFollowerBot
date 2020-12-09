@@ -1,4 +1,4 @@
-name: .NET Core
+name: .NET
 
 on:
   push:
@@ -10,7 +10,8 @@ on:
     - LICENSE
     - docker-compose.yml
     - Dockerfile
-
+  workflow_dispatch:
+  
 jobs:
   build:
 
@@ -22,7 +23,8 @@ jobs:
     - name: Setup .NET Core on Windows
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.102
+        dotnet-version: '5.0.x'
 
     - name: Build with dotNet
       run: dotnet build --configuration Release
+
