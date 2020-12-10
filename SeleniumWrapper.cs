@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -80,7 +81,19 @@ namespace InstagramFollowerBot
 
         public string Title => WebDriver.Title;
 
-        internal string CurrentPageSource => JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString();
+        internal void DumpCurrentPage(string basePath, string userName)
+        {
+            string dt = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+
+            // save HTML
+            string html = JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString()
+                .Replace("href=\"/", "href=\"https://www.instagram.com/");
+            File.WriteAllText(Path.Combine(basePath, string.Concat(userName, '.', dt, ".html")), html);
+
+            // sage image
+            Screenshot ss = ((ITakesScreenshot)WebDriver).GetScreenshot();
+            ss.SaveAsFile(Path.Combine(basePath, string.Concat(userName, '.', dt, ".png")));
+        }
 
         public IEnumerable<IWebElement> GetElements(string cssSelector, bool displayedOnly = true, bool noImplicitWait = false)
         {

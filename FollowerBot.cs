@@ -107,6 +107,8 @@ namespace InstagramFollowerBot
                 throw new FollowerBotException("LOGGING Exception", e);
             }
 
+            DebugDump();
+
             Log.LogInformation("## RUNNING...");
             telemetryClient.TrackPageView(Config.BotTasks);
             string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -241,16 +243,24 @@ namespace InstagramFollowerBot
         {
             try
             {
-                Log.LogInformation("Try saving Data in order to avoid queue polution");
+                Log.LogDebug("# Try saving Data in order to avoid queue polution");
                 SaveData();
-
-                Log.LogInformation("##[group]Dumping last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
-                Log.LogInformation(Selenium.CurrentPageSource); // this one may crash more probably
-                Log.LogInformation("##[endgroup]");
             }
-            catch (Exception ex)
+            catch
             {
-                Log.LogWarning(default, ex, "DebugDump() Failed : {0}", ex.GetBaseException().Message);
+                // Not usefull because already in exception context
+            }
+            finally
+            {
+                try
+                {
+                    Log.LogDebug("# Try to dumping last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
+                    Selenium.DumpCurrentPage(Config.BotUserSaveFolder ?? ExecPath, Config.BotUserEmail);
+                }
+                catch
+                {
+                    // Not usefull because already in exception context
+                }
             }
         }
 
