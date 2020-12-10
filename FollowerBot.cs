@@ -71,8 +71,6 @@ namespace InstagramFollowerBot
             PostAuthInit();
             SaveData(); // save cookies at last
 
-            DebugDump();
-
             Log.LogInformation("## RUNNING...");
             string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
             for (int i = 0; i < tasks.Length; i++)
