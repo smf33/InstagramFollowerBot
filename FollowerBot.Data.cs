@@ -59,7 +59,7 @@ namespace InstagramFollowerBot
         /// </summary>
         private readonly HashSet<string> MyContactsInTryout = new HashSet<string>();
 
-        private string JsonPath;
+        private string JsonPath { get; private set; }
 
         private PersistenceData Data;
 

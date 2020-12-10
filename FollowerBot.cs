@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -71,6 +70,8 @@ namespace InstagramFollowerBot
             Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
             PostAuthInit();
             SaveData(); // save cookies at last
+
+            DebugDump();
 
             Log.LogInformation("## RUNNING...");
             string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
@@ -174,26 +175,6 @@ namespace InstagramFollowerBot
 
         internal void DebugDump()
         {
-            StringBuilder dump = new StringBuilder();
-            try
-            {
-                dump.AppendFormat("# Try Dump last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
-                dump.Append(Selenium.CurrentPageSource); // this one may crash more probably
-            }
-            catch
-            {
-                // Not usefull because already in exception
-            }
-
-            if (dump.Length > 0)
-            {
-                Log.LogDebug(dump.ToString());
-            }
-            else
-            {
-                Log.LogDebug("# Couldn't dump last page context");
-            }
-
             try
             {
                 Log.LogDebug("# Try saving Data in order to avoid queue polution");
@@ -201,7 +182,19 @@ namespace InstagramFollowerBot
             }
             catch
             {
-                // Not usefull because already in exception
+                // Not usefull because already in exception context
+            }
+            finally
+            {
+                try
+                {
+                    Log.LogDebug("# Try to dumping last page : {0} @ {1}\r\n", Selenium.Title, Selenium.Url);
+                    Selenium.DumpCurrentPage(Config.BotUserSaveFolder ?? ExecPath, Config.BotUserEmail);
+                }
+                catch
+                {
+                    // Not usefull because already in exception context
+                }
             }
         }
 
