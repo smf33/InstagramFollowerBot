@@ -21,6 +21,7 @@ namespace InstagramFollowerBot
             internal int BotCacheTimeLimitHours;
             internal int BotFollowTaskBatchMaxLimit;
             internal int BotFollowTaskBatchMinLimit;
+            internal int BotHomeLikeInitScrools;
             internal int BotKeepSomeUnfollowerContacts;
             internal int BotLoopTaskLimited;
             internal int BotExplorePhotosScrools;
@@ -44,6 +45,8 @@ namespace InstagramFollowerBot
             internal int SeleniumWindowMaxW;
             internal int SeleniumWindowMinH;
             internal int SeleniumWindowMinW;
+            internal int BotHomeLikeTaskBatchMaxLimit;
+            internal int BotHomeLikeTaskBatchMinLimit;
             internal string AddContactsToFollow;
             internal string AddPhotosToLike;
             internal string BotSearchKeywords;
@@ -143,6 +146,7 @@ namespace InstagramFollowerBot
                     Config.BotCacheTimeLimitHours = int.Parse(config["BotCacheTimeLimitHours"], CultureInfo.InvariantCulture);
                     Config.BotFollowTaskBatchMaxLimit = int.Parse(config["BotFollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
                     Config.BotFollowTaskBatchMinLimit = int.Parse(config["BotFollowTaskBatchMinLimit"], CultureInfo.InvariantCulture);
+                    Config.BotHomeLikeInitScrools = int.Parse(config["BotHomeLikeInitScrools"], CultureInfo.InvariantCulture);
                     Config.BotKeepSomeUnfollowerContacts = int.Parse(config["BotKeepSomeUnfollowerContacts"], CultureInfo.InvariantCulture);
                     Config.BotExplorePhotosScrools = int.Parse(config["BotExplorePhotosScrools"], CultureInfo.InvariantCulture);
                     Config.BotExplorePeopleSuggestedScrools = int.Parse(config["BotExplorePeopleSuggestedScrools"], CultureInfo.InvariantCulture);
@@ -165,6 +169,8 @@ namespace InstagramFollowerBot
                     Config.SeleniumWindowMaxW = int.Parse(config["SeleniumWindowMaxW"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMinH = int.Parse(config["SeleniumWindowMinH"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMinW = int.Parse(config["SeleniumWindowMinW"], CultureInfo.InvariantCulture);
+                    Config.BotHomeLikeTaskBatchMaxLimit = int.Parse(config["BotHomeLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
+                    Config.BotHomeLikeTaskBatchMinLimit = int.Parse(config["BotHomeLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
 
                     if (int.TryParse(config["BotLoopTaskLimited"], out int tmpBotLoopTaskLimited))
                     {

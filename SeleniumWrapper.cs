@@ -137,6 +137,16 @@ namespace InstagramFollowerBot
             }
         }
 
+        public void ScrollIntoView(IWebElement element)
+        {
+            JsDriver.ExecuteScript("window.scrollTo(0,0);arguments[0].parentNode.scrollIntoView({block:'end',inline:'end',behavior:'smooth'});", element);
+        }
+
+        public void Click(IWebElement element)
+        {
+            element.Click();
+        }
+
         public void Click(string cssSelector)
         {
             WebDriver.FindElement(By.CssSelector(cssSelector))
@@ -157,7 +167,7 @@ namespace InstagramFollowerBot
 
         internal void ScrollToBottom()
         {
-            JsDriver.ExecuteScript("window.scrollTo(0, document.body.scrollHeight)");
+            JsDriver.ExecuteScript("window.scrollTo(document.body.scrollWidth/2, document.body.scrollHeight)");
         }
 
         /// <summary>

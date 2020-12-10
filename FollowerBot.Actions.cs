@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
 
 namespace InstagramFollowerBot
 {
@@ -428,6 +429,38 @@ namespace InstagramFollowerBot
                     Log.LogWarning("Searching \"{0}\" with CSS \"{1}\" return nothing ! A CSS selector update may be required.", keyword, Config.CssExplorePhotos);
                 }
             }
+        }
+
+        private void DoHomePhotosLike()
+        {
+            MoveTo(Config.UrlRoot);
+            WaitHumanizer();
+
+            for (int i = 0; i < Config.BotHomeLikeInitScrools; i++)
+            {
+                SchroolDownLoop();
+            }
+
+            int c = 0;
+            int todo = Rand.Next(Config.BotHomeLikeTaskBatchMinLimit, Config.BotHomeLikeTaskBatchMaxLimit);
+            IWebElement element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
+            while (element != null && c < todo) // manage the already followed like this
+            {
+                Selenium.ScrollIntoView(element);
+                WaitBeforeLikeHumanizer();
+                Selenium.Click(element);
+                SchroolDownLoop();
+                WaitHumanizer();
+                c++;
+
+                // issue detection : too many actions lately ? should stop for 24-48h...
+                Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+
+                todo--;
+                element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
+            }
+
+            Log.LogDebug("Home Photos Liked {0}", c);
         }
 
         private void DoContactsFollow()
