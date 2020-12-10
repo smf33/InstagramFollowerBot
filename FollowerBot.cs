@@ -107,8 +107,6 @@ namespace InstagramFollowerBot
                 throw new FollowerBotException("LOGGING Exception", e);
             }
 
-            DebugDump();
-
             Log.LogInformation("## RUNNING...");
             telemetryClient.TrackPageView(Config.BotTasks);
             string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
