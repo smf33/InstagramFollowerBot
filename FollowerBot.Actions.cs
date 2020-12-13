@@ -256,6 +256,7 @@ namespace InstagramFollowerBot
         private void PostAuthInit()
         {
             if (!Data.MyContactsUpdate.HasValue
+                || Config.BotCacheTimeLimitHours <= 0
                 || DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
             {
                 MoveTo(Data.UserContactUrl);
