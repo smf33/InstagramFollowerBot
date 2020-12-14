@@ -23,7 +23,7 @@ namespace InstagramFollowerBot
             internal int BotFollowTaskBatchMinLimit;
             internal int BotHomeLikeInitScrools;
             internal int BotKeepSomeUnfollowerContacts;
-            internal int BotLoopTaskLimited;
+            internal int BotLoopTaskLimit;
             internal int BotExplorePhotosScrools;
             internal int BotExplorePeopleSuggestedScrools;
             internal int BotSearchScrools;
@@ -172,13 +172,13 @@ namespace InstagramFollowerBot
                     Config.BotHomeLikeTaskBatchMaxLimit = int.Parse(config["BotHomeLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
                     Config.BotHomeLikeTaskBatchMinLimit = int.Parse(config["BotHomeLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
 
-                    if (int.TryParse(config["BotLoopTaskLimited"], out int tmpBotLoopTaskLimited))
+                    if (int.TryParse(config["BotLoopTaskLimit"], out int tmpBotLoopTaskLimit))
                     {
-                        Config.BotLoopTaskLimited = tmpBotLoopTaskLimited;
+                        Config.BotLoopTaskLimit = tmpBotLoopTaskLimit;
                     }
                     else
                     {
-                        Config.BotLoopTaskLimited = 0;
+                        Config.BotLoopTaskLimit = 0;
                     }
 
                     if (!string.IsNullOrWhiteSpace(config["SeleniumBrowserArguments"]))

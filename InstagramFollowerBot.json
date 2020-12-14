@@ -13,7 +13,7 @@
   "BotLikeTaskBatchMinLimit": 10,
   "BotHomeLikeTaskBatchMaxLimit": 30,
   "BotHomeLikeTaskBatchMinLimit": 20,
-  "BotLoopTaskLimited": 0,
+  "BotLoopTaskLimit": 5,
   "BotSaveAfterEachAction": 0,
   "BotSaveOnEnd": 1,
   "BotSaveOnLoop": 1,

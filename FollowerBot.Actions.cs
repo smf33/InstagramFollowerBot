@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Security.Cryptography;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
@@ -10,102 +10,6 @@ namespace InstagramFollowerBot
 {
     public partial class FollowerBot
     {
-        private static readonly Random Rand = new Random();
-
-        private void SchroolDownLoop()
-        {
-            Selenium.ScrollToBottom();
-            WaitHumanizer();
-        }
-
-        private void SchroolDownLoop(int loop)
-        {
-            for (int i = 0; i < loop; i++)
-            {
-                SchroolDownLoop();
-            }
-        }
-
-        private void SchroolDownLoop(string divId)
-        {
-            string oldValue, newValue = null;
-            int it = 0;
-            do
-            {
-                oldValue = newValue;
-
-                // accelerator
-                for (int i = 0; i < it; i++)
-                {
-                    Selenium.ScrollToBottom(divId);
-                }
-                it++;
-
-                newValue = Selenium.ScrollToBottom(divId);
-                WaitMin();
-            }
-            while (oldValue != newValue);
-        }
-
-        private void WaitMin()
-        {
-            Task.Delay(Config.BotStepMinWaitMs)
-                .Wait();
-        }
-
-        private void WaitHumanizer()
-        {
-            Task.Delay(Rand.Next(Config.BotStepMinWaitMs, Config.BotStepMaxWaitMs))
-                    .Wait();
-        }
-
-        private void WaitBeforeFollowHumanizer()
-        {
-            Task.Delay(Rand.Next(Config.BotStepFollowMinWaitMs, Config.BotStepFollowMaxWaitMs))
-                    .Wait();
-        }
-
-        private void WaitBeforeLikeHumanizer()
-        {
-            Task.Delay(Rand.Next(Config.BotStepLikeMinWaitMs, Config.BotStepLikeMaxWaitMs))
-                    .Wait();
-        }
-
-        private void WaitUrlStartsWith(string url)
-        {
-            while (!Selenium.Url.StartsWith(url, StringComparison.OrdinalIgnoreCase))
-            {
-                Log.LogDebug("WaitUrlStartsWith...");
-                WaitMin();
-            }
-        }
-
-        private bool MoveTo(string partialOrNotUrl, bool forceReload = false)
-        {
-            Log.LogDebug("GET {0}", partialOrNotUrl);
-            string target;
-            if (partialOrNotUrl.StartsWith(Config.UrlRoot, StringComparison.OrdinalIgnoreCase))
-            {
-                target = partialOrNotUrl;
-            }
-            else
-            {
-                target = Config.UrlRoot + partialOrNotUrl;
-            }
-            if (!target.Equals(Selenium.Url, StringComparison.OrdinalIgnoreCase) || forceReload)
-            {
-                Selenium.Url = target;
-                WaitHumanizer();
-
-                // TODO error detection like "Please wait a few minutes before you try again."
-                return true;
-            }
-            else
-            {
-                return true; // no redirection si OK.
-            }
-        }
-
         private void AddForced(string configName, string configValue, Queue<string> queue)
         {
             if (!string.IsNullOrWhiteSpace(configValue))
@@ -150,22 +54,13 @@ namespace InstagramFollowerBot
                 }
 
                 // Ignore the message bar : Allow Instagram Cookies
-                if (Selenium.ClickIfPresent(Config.CssCookiesWarning))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssCookiesWarning);
 
                 // Ignore the enable notification on your browser modal popup
-                if (Selenium.ClickIfPresent(Config.CssLoginWarning))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssLoginWarning);
 
                 //check cookie auth OK :  who am i ?
-                if (Selenium.ClickIfPresent(Config.CssLoginMyself))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssLoginMyself);
                 // else if not present, will not fail and next test will detect an error and go for the normal loggin
 
                 string curUserContactUrl = Selenium.Url;
@@ -202,10 +97,7 @@ namespace InstagramFollowerBot
             if (!string.IsNullOrWhiteSpace(Config.BotUserEmail))
             {
                 // Ignore the message bar : Allow Instagram Cookies
-                if (Selenium.ClickIfPresent(Config.CssCookiesWarning))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssCookiesWarning);
 
                 Selenium.InputWrite(Config.CssLoginEmail, Config.BotUserEmail);
 
@@ -226,16 +118,10 @@ namespace InstagramFollowerBot
                 Selenium.CrashIfPresent(Config.CssLoginUnusual, "Unusual Login Attempt Detected");
 
                 // Confirm save user info
-                if (Selenium.ClickIfPresent(Config.CssLoginSageInfo))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssLoginSageInfo);
 
                 // Ignore the enable notification on your browser modal popup
-                if (Selenium.ClickIfPresent(Config.CssLoginWarning))
-                {
-                    WaitHumanizer();
-                }
+                ClickWaitIfPresent(Config.CssLoginWarning);
 
                 // who am i ?
                 Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
@@ -443,13 +329,13 @@ namespace InstagramFollowerBot
             }
 
             int c = 0;
-            int todo = Rand.Next(Config.BotHomeLikeTaskBatchMinLimit, Config.BotHomeLikeTaskBatchMaxLimit);
+            int todo = PseudoRand.Next(Config.BotHomeLikeTaskBatchMinLimit, Config.BotHomeLikeTaskBatchMaxLimit);
             IWebElement element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
             while (element != null && c < todo) // manage the already followed like this
             {
                 Selenium.ScrollIntoView(element);
                 WaitBeforeLikeHumanizer();
-                Selenium.Click(element);
+                element.Click();
                 SchroolDownLoop();
                 WaitHumanizer();
                 c++;
@@ -466,7 +352,7 @@ namespace InstagramFollowerBot
 
         private void DoContactsFollow()
         {
-            int todo = Rand.Next(Config.BotFollowTaskBatchMinLimit, Config.BotFollowTaskBatchMaxLimit);
+            int todo = PseudoRand.Next(Config.BotFollowTaskBatchMinLimit, Config.BotFollowTaskBatchMaxLimit);
             int c = Data.ContactsToFollow.Count;
             while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
             {
@@ -498,7 +384,7 @@ namespace InstagramFollowerBot
 
         private void DoContactsUnfollow()
         {
-            int todo = Rand.Next(Config.BotUnfollowTaskBatchMinLimit, Config.BotUnfollowTaskBatchMaxLimit);
+            int todo = RandomNumberGenerator.GetInt32(Config.BotUnfollowTaskBatchMinLimit, Config.BotUnfollowTaskBatchMaxLimit);
             int c = Data.ContactsToUnfollow.Count;
             while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
             {
@@ -544,7 +430,7 @@ namespace InstagramFollowerBot
 
         private void DoPhotosLike(bool doFollow = true, bool doLike = true)
         {
-            int todo = Rand.Next(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
+            int todo = PseudoRand.Next(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
             int c = Data.PhotosToLike.Count;
             while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
             {
@@ -559,7 +445,6 @@ namespace InstagramFollowerBot
                     WaitBeforeLikeHumanizer();
                     Selenium.Click(Config.CssPhotoLike);
                     WaitHumanizer();
-                    // TODO Add in the folowed list, else will be detected in 48h
 
                     // issue detection : too many actions lately ? should stop for 24-48h...
                     Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");

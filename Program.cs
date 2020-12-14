@@ -30,5 +30,10 @@ namespace InstagramFollowerBot
 
             return 0;
         }
+
+        // Utility classes should not have public constructors
+        protected Program()
+        {
+        }
     }
 }
