@@ -48,13 +48,13 @@ namespace InstagramFollowerBot
                 Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
                 Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
 
+                // Ignore the message bar : Allow Instagram Cookies
+                ClickWaitIfPresent(Config.CssCookiesWarning);
+
                 if (!MoveTo(Config.UrlRoot))
                 {
                     throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
                 }
-
-                // Ignore the message bar : Allow Instagram Cookies
-                ClickWaitIfPresent(Config.CssCookiesWarning);
 
                 // Ignore the enable notification on your browser modal popup
                 ClickWaitIfPresent(Config.CssLoginWarning);
