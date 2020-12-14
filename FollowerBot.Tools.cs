@@ -10,21 +10,21 @@ namespace InstagramFollowerBot
     {
         private static readonly Random PseudoRand = new Random(); // this pseudorandom number generator is safe here.
 
-        private void SchroolDownLoop()
+        private void ScrollToBottomWait()
         {
             Selenium.ScrollToBottom();
-            WaitHumanizer();
+            WaitMin();
         }
 
-        private void SchroolDownLoop(int loop)
+        private void SchroolDownWaitLoop(int loop)
         {
             for (int i = 0; i < loop; i++)
             {
-                SchroolDownLoop();
+                ScrollToBottomWait();
             }
         }
 
-        private void SchroolDownLoop(string divId)
+        private void SchroolDownWaitLoop(string divId)
         {
             string oldValue, newValue = null;
             int it = 0;

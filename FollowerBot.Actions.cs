@@ -154,7 +154,7 @@ namespace InstagramFollowerBot
                 WaitHumanizer();
 
                 // ScroolDown
-                SchroolDownLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
+                SchroolDownWaitLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
 
                 Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
                     .ToHashSet();
@@ -176,7 +176,7 @@ namespace InstagramFollowerBot
             Selenium.Click(Config.CssContactsFollowers);
             WaitHumanizer();
 
-            SchroolDownLoop(Config.CssContactsListScrollable);
+            SchroolDownWaitLoop(Config.CssContactsListScrollable);
             IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
                                       .ToList(); // Solve
 
@@ -196,7 +196,7 @@ namespace InstagramFollowerBot
             MoveTo(Config.UrlExplorePeopleSuggested);
             WaitHumanizer();
 
-            SchroolDownLoop(Config.BotExplorePeopleSuggestedScrools);
+            SchroolDownWaitLoop(Config.BotExplorePeopleSuggestedScrools);
 
             IEnumerable<string> list = Selenium.GetAttributes(Config.CssSuggestedContact)
                 .ToList(); // Solve the request
@@ -217,7 +217,7 @@ namespace InstagramFollowerBot
             MoveTo(Config.UrlExplore);
             WaitHumanizer();
 
-            SchroolDownLoop(Config.BotExplorePhotosScrools);
+            SchroolDownWaitLoop(Config.BotExplorePhotosScrools);
 
             IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false, true)
                 .ToList(); // Solve the request
@@ -247,7 +247,7 @@ namespace InstagramFollowerBot
             WaitHumanizer();
 
             // ScroolDown
-            SchroolDownLoop(Config.CssContactsListScrollable);
+            SchroolDownWaitLoop(Config.CssContactsListScrollable);
 
             HashSet<string> contactsFollowing = Selenium.GetAttributes(Config.UrlContacts)
                 .ToHashSet();
@@ -299,7 +299,7 @@ namespace InstagramFollowerBot
                 MoveTo(string.Format(Config.UrlSearch, HttpUtility.UrlEncode(keyword)));
                 WaitHumanizer();
 
-                SchroolDownLoop(Config.BotSearchScrools);
+                SchroolDownWaitLoop(Config.BotSearchScrools);
 
                 string[] list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false, true)
                     .ToArray();// solve
@@ -325,10 +325,7 @@ namespace InstagramFollowerBot
             MoveTo(Config.UrlRoot);
             WaitHumanizer();
 
-            for (int i = 0; i < Config.BotHomeLikeInitScrools; i++)
-            {
-                SchroolDownLoop();
-            }
+            SchroolDownWaitLoop(Config.BotHomeLikeInitScrools);
 
             int c = 0;
             int todo = PseudoRand.Next(Config.BotHomeLikeTaskBatchMinLimit, Config.BotHomeLikeTaskBatchMaxLimit);
@@ -338,7 +335,7 @@ namespace InstagramFollowerBot
                 Selenium.ScrollIntoView(element);
                 WaitBeforeLikeHumanizer();
                 element.Click();
-                SchroolDownLoop();
+                ScrollToBottomWait();
                 WaitHumanizer();
                 c++;
 
