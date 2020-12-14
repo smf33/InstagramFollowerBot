@@ -10,10 +10,6 @@ namespace InstagramFollowerBot
 {
     public class Program
     {
-        protected Program()
-        {
-        }
-
         private static int Main(string[] args)
         {
             int ret = -1;
@@ -60,6 +56,11 @@ namespace InstagramFollowerBot
             Task.Delay(5000).Wait();
 
             return ret;
+        }
+
+        // Utility classes should not have public constructors
+        protected Program()
+        {
         }
     }
 }

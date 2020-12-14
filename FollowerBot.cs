@@ -21,8 +21,6 @@ namespace InstagramFollowerBot
         private const string DoPhotosLikeJustLikeStr = "DOPHOTOSLIKE_LIKEONLY";
         private const string ExplorePhotosStr = "EXPLOREPHOTOS";
         private const string ExplorePeopleSuggestedStr = "EXPLOREPEOPLESUGGESTED";
-        private const string LoopStartStr = "LOOPSTART";
-        private const string LoopStr = "LOOP";
         private const string PauseStr = "PAUSE";
         private const string SearchKeywordsStr = "SEARCHKEYWORDS";
         private const string SaveStr = "SAVE";
@@ -47,8 +45,8 @@ namespace InstagramFollowerBot
             {
                 LoadData();
 
-                string w = Rand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
-                string h = Rand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
+                string w = PseudoRand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
+                string h = PseudoRand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
                 if (string.IsNullOrWhiteSpace(Config.SeleniumRemoteServer))
                 {
                     Log.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", ExecPath, w, h);
@@ -109,15 +107,8 @@ namespace InstagramFollowerBot
 
             Log.LogInformation("## RUNNING...");
             telemetryClient.TrackPageView(Config.BotTasks);
-            string[] tasks = Config.BotTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < tasks.Length; i++)
+            foreach (string curTask in GetTasks(Config.BotTasks, Config.BotSaveAfterEachAction, Config.BotSaveOnEnd, Config.BotSaveOnLoop, Config.BotLoopTaskLimit))
             {
-                tasks[i] = tasks[i].Trim().ToUpperInvariant(); // standardize
-            }
-            int iLoop = Config.BotLoopTaskLimited;
-            for (int i = 0; i < tasks.Length; i++)
-            {
-                string curTask = tasks[i];
                 Log.LogInformation("# {0}...", curTask);
                 Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
                 dtStart = DateTimeOffset.Now;
@@ -174,32 +165,12 @@ namespace InstagramFollowerBot
 
                         case PauseStr:
                         case WaitStr:
-                            Task.Delay(Rand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
+                            Task.Delay(PseudoRand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
                                 .Wait();
                             break;
 
-                        case LoopStartStr:
-                            break;
-
-                        case LoopStr:
-                            if (Config.BotLoopTaskLimited <= 0)
-                            {
-                                i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
-                            }
-                            else if (iLoop > 0)
-                            {
-                                Log.LogDebug("Loop still todo : {0}", iLoop);
-                                iLoop--;
-                                i = Array.IndexOf(tasks, LoopStartStr); // -1 (so ok) if not found
-                            }
-                            if (Config.BotSaveOnLoop)
-                            {
-                                curTask = SaveStr;
-                            }
-                            break;
-
                         default:
-                            Log.LogError("Unknown BotTask : {0}", tasks[i]);
+                            Log.LogError("Unknown BotTask : {0}", curTask);
                             break;
                     }
                     telemetryClient.StopOperation(opTask);
@@ -261,31 +232,5 @@ namespace InstagramFollowerBot
                 }
             }
         }
-
-        #region IDisposable Support
-
-        private bool disposedValue = false; // To detect redundant calls
-        private SeleniumWrapper Selenium;
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    Selenium.Dispose();
-                    Selenium = null;
-                }
-                disposedValue = true;
-            }
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        #endregion IDisposable Support
     }
 }
