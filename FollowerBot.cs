@@ -9,21 +9,6 @@ namespace InstagramFollowerBot
 {
     public partial class FollowerBot : IDisposable
     {
-        private const string DetectContactsFollowBackStr = "DETECTCONTACTSFOLLOWBACK";
-        private const string DetectContactsUnfollowBackStr = "DETECTCONTACTSUNFOLLOWBACK";
-        private const string DoContactsFollowStr = "DOCONTACTSFOLLOW";
-        private const string DoContactsUnfollowStr = "DOCONTACTSUNFOLLOW";
-        private const string DoHomePhotosLikeStr = "DOHOMEPHOTOSLIKE";
-        private const string DoPhotosLikeStr = "DOPHOTOSLIKE";
-        private const string DoPhotosLikeJustFollowStr = "DOPHOTOSLIKE_FOLLOWONLY";
-        private const string DoPhotosLikeJustLikeStr = "DOPHOTOSLIKE_LIKEONLY";
-        private const string ExplorePhotosStr = "EXPLOREPHOTOS";
-        private const string ExplorePeopleSuggestedStr = "EXPLOREPEOPLESUGGESTED";
-        private const string PauseStr = "PAUSE";
-        private const string SearchKeywordsStr = "SEARCHKEYWORDS";
-        private const string SaveStr = "SAVE";
-        private const string WaitStr = "WAIT";
-
         private static readonly string ExecPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         private readonly ILogger Log;
@@ -76,58 +61,71 @@ namespace InstagramFollowerBot
                 Log.LogInformation("# {0}...", curTask);
                 switch (curTask)
                 {
-                    case DetectContactsFollowBackStr:
+                    case "DETECTCONTACTSFOLLOWBACK":
                         DetectContactsFollowBack();
                         break;
 
-                    case DetectContactsUnfollowBackStr:
+                    case "DETECTCONTACTSUNFOLLOWBACK":
                         DetectContactsUnfollowBack();
                         break;
 
-                    case DoContactsFollowStr:
+                    case "DOCONTACTSFOLLOW":
                         DoContactsFollow();
                         break;
 
-                    case DoContactsUnfollowStr:
+                    case "DOCONTACTSUNFOLLOW":
                         DoContactsUnfollow();
                         break;
 
-                    case DoPhotosLikeStr:
-                        DoPhotosLike();
+                    case "DOPHOTOSLIKE":
+                        DoPhotosLike(true, true);
                         break;
 
-                    case DoPhotosLikeJustFollowStr:
+                    case "DOPHOTOSLIKE_FOLLOWONLY":
                         DoPhotosLike(true, false);
                         break;
 
-                    case DoPhotosLikeJustLikeStr:
+                    case "DOPHOTOSLIKE_LIKEONLY":
                         DoPhotosLike(false, true);
                         break;
 
-                    case ExplorePhotosStr:
+                    case "EXPLOREPHOTOS":
                         ExplorePhotos();
                         break;
 
-                    case ExplorePeopleSuggestedStr:
-                        ExplorePeopleSuggested();
+                    case "EXPLOREPEOPLESUGGESTED":
+                        ExplorePeople();
                         break;
 
-                    case SaveStr: // managed in the if after
+                    case "SAVE":
+                        SaveData();
                         break;
 
-                    case SearchKeywordsStr:
+                    case "SEARCHKEYWORDS":
                         SearchKeywords();
                         break;
 
-                    case DoHomePhotosLikeStr:
-                        DoHomePhotosLike();
+                    case "DOHOMEPAGELIKE":
+                        DoHomePageActions();
                         break;
 
-                    case PauseStr:
-                    case WaitStr:
+                    case "DOEXPLOREPHOTOSLIKEFOLLOW":
+                        DoExplorePhotosPageActions(true, true);
+                        break;
+
+                    case "DOEXPLOREPHOTOSLIKE":
+                        DoExplorePhotosPageActions(true, false);
+                        break;
+
+                    case "DOEXPLOREPHOTOSFOLLOW":
+                        DoExplorePhotosPageActions(false, true);
+                        break;
+
+                    case "PAUSE":
+                    case "WAIT":
                         Task.Delay(PseudoRand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
                             .Wait();
-                        continue; // no save anyway
+                        break;
 
                     default:
                         Log.LogError("Unknown BotTask : {0}", curTask);

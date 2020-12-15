@@ -76,7 +76,7 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 
 | Name | Description |
 | :--- | :---------- |
-| DoHomePhotosLike | Like post in the home screen, after BotHomeLikeInitScrools scrools, like between BotHomeLikeTaskBatchMinLimit and BotHomeLikeTaskBatchMaxLimit post |
+| DoHomePageLike | Like post in the home screen, after BotHomePageInitScrools scrools, like between BotHomePageLikeMin and BotHomePageLikeMax post |
 | DetectContactsUnfollowBack | Push contacts for DoContactsUnfollow |
 | DoContactsUnfollow | Pop elements that DetectContactsUnfollowBack have send to this queue |
 | Save | Update the session file |
