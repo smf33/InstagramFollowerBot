@@ -152,7 +152,7 @@ namespace InstagramFollowerBot
 
         public void ScrollIntoView(IWebElement element)
         {
-            JsDriver.ExecuteScript("window.scrollTo(0,0);arguments[0].parentNode.scrollIntoView({block:'end',inline:'end',behavior:'smooth'});", element);
+            JsDriver.ExecuteScript("arguments[0].parentNode.scrollIntoView(false);", element);
         }
 
         public void Click(string cssSelector)
