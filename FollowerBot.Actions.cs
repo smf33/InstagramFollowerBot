@@ -35,15 +35,22 @@ namespace InstagramFollowerBot
             }
         }
 
+        private void UserLogging()
+        {
+            if (Data.UserContactUrl == null
+                || !TryAuthCookies())
+            {
+                AuthLogin();
+            }
+            Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
+            PostAuthInit();
+        }
+
         private bool TryAuthCookies()
         {
             if (Data.Cookies != null && Data.Cookies.Any())
             {
-                if (!MoveTo(Config.UrlRoot))
-                {
-                    throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
-                }
-
+                MoveTo(Config.UrlRoot);
                 Selenium.Cookies = Data.Cookies; // need to have loaded the page 1st
                 Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
                 Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
@@ -51,11 +58,7 @@ namespace InstagramFollowerBot
                 // Ignore the message bar : Allow Instagram Cookies
                 ClickWaitIfPresent(Config.CssCookiesWarning);
 
-                if (!MoveTo(Config.UrlRoot))
-                {
-                    throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
-                }
-
+                MoveTo(Config.UrlRoot);
                 // Ignore the enable notification on your browser modal popup
                 ClickWaitIfPresent(Config.CssLoginWarning);
 
@@ -89,10 +92,7 @@ namespace InstagramFollowerBot
 
         private void AuthLogin()
         {
-            if (!MoveTo(Config.UrlLogin))
-            {
-                throw new NotSupportedException("INSTAGRAM RETURN ERROR ON " + Config.UrlLogin);
-            }
+            MoveTo(Config.UrlLogin);
 
             if (!string.IsNullOrWhiteSpace(Config.BotUserEmail))
             {
@@ -392,11 +392,7 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToFollow.Count;
             while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : INSTAGRAM RETURN ERROR ON ({0})", uri);
-                    break; // no retry
-                }
+                MoveTo(uri);
                 MyContactsInTryout.Add(uri);
                 if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
                 {
@@ -423,11 +419,7 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToUnfollow.Count;
             while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                    break; // no retry
-                }
+                MoveTo(uri);
 
                 bool process = false;
                 // with triangle
@@ -466,28 +458,20 @@ namespace InstagramFollowerBot
             int c = Data.PhotosToLike.Count;
             while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                    break; // no retry
-                }
+                MoveTo(uri);
 
                 if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
                 {
                     WaitBeforeLikeHumanizer();
                     ClickWait(Config.CssPhotoLike);
-
-                    // issue detection : too many actions lately ? should stop for 24-48h...
-                    Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                    CheckActionWarning();
                 }
 
                 if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
                 {
                     WaitBeforeFollowHumanizer();
                     ClickWait(Config.CssPhotoFollow);
-
-                    // issue detection : too many actions lately ? should stop for 24-48h...
-                    Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                    CheckActionWarning();
                 }
 
                 todo--;

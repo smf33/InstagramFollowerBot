@@ -43,24 +43,16 @@ namespace InstagramFollowerBot
 
         public void Run()
         {
-            Log.LogInformation("## LOGGING...");
-
-            if (Data.UserContactUrl == null
-                || !TryAuthCookies())
-            {
-                AuthLogin();
-            }
-            Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
-            PostAuthInit();
-            SaveData(); // save cookies at last
-
             Log.LogInformation("## RUNNING...");
-
             foreach (string curTask in GetTasks(Config.BotTasks, Config.BotSaveAfterEachAction, Config.BotSaveOnEnd, Config.BotSaveOnLoop, Config.BotLoopTaskLimit))
             {
                 Log.LogInformation("# {0}...", curTask);
                 switch (curTask)
                 {
+                    case "LOGGING":
+                        UserLogging();
+                        break;
+
                     case "DETECTCONTACTSFOLLOWBACK":
                         DetectContactsFollowBack();
                         break;

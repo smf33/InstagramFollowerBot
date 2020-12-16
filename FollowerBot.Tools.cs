@@ -78,7 +78,7 @@ namespace InstagramFollowerBot
             }
         }
 
-        private bool MoveTo(string partialOrNotUrl, bool forceReload = false)
+        private void MoveTo(string partialOrNotUrl, bool forceReload = false)
         {
             Log.LogDebug("GET {0}", partialOrNotUrl);
             string target;
@@ -94,12 +94,6 @@ namespace InstagramFollowerBot
             {
                 Selenium.Url = target;
                 WaitHumanizer();
-
-                return true;
-            }
-            else
-            {
-                return true; // no redirection si OK.
             }
         }
 
@@ -191,7 +185,8 @@ namespace InstagramFollowerBot
                 computedTasks = tasks.ToString(); // resolve
             }
 
-            return computedTasks.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            return string.Concat("LOGGING,SAVE,", computedTasks)
+                .Split(',', StringSplitOptions.RemoveEmptyEntries);
         }
 
         #region IDisposable Support
