@@ -126,8 +126,7 @@ namespace InstagramFollowerBot
                 ClickWaitIfPresent(Config.CssLoginWarning);
 
                 // who am i ?
-                Selenium.Click(Config.CssLoginMyself); // must be here, else the auth have failed
-                WaitHumanizer();
+                ClickWait(Config.CssLoginMyself); // must be here, else the auth have failed
                 Data.UserContactUrl = Selenium.Url;
                 if (Data.UserContactUrl.EndsWith('/')) // standardize
                 {
@@ -150,8 +149,7 @@ namespace InstagramFollowerBot
                 MoveTo(Data.UserContactUrl);
                 WaitHumanizer();
 
-                Selenium.Click(Config.CssContactsFollowing);
-                WaitHumanizer();
+                ClickWait(Config.CssContactsFollowing);
 
                 // ScroolDown
                 SchroolDownWaitLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
@@ -173,8 +171,7 @@ namespace InstagramFollowerBot
             MoveTo(Data.UserContactUrl);
             WaitHumanizer();
 
-            Selenium.Click(Config.CssContactsFollowers);
-            WaitHumanizer();
+            ClickWait(Config.CssContactsFollowers);
 
             SchroolDownWaitLoop(Config.CssContactsListScrollable);
             IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
@@ -191,12 +188,12 @@ namespace InstagramFollowerBot
             Log.LogDebug("$ContactsToFollow +{0}", Data.ContactsToFollow.Count - c);
         }
 
-        private void ExplorePeopleSuggested()
+        private void ExplorePeople()
         {
-            MoveTo(Config.UrlExplorePeopleSuggested);
+            MoveTo(Config.UrlExplorePeople);
             WaitHumanizer();
 
-            SchroolDownWaitLoop(Config.BotExplorePeopleSuggestedScrools);
+            SchroolDownWaitLoop(Config.BotExplorePeopleScrools);
 
             IEnumerable<string> list = Selenium.GetAttributes(Config.CssSuggestedContact)
                 .ToList(); // Solve the request
@@ -214,10 +211,10 @@ namespace InstagramFollowerBot
 
         private void ExplorePhotos()
         {
-            MoveTo(Config.UrlExplore);
+            MoveTo(Config.UrlExplorePhotos);
             WaitHumanizer();
 
-            SchroolDownWaitLoop(Config.BotExplorePhotosScrools);
+            SchroolDownWaitLoop(Config.BotExplorePhotosPageInitScrools);
 
             IEnumerable<string> list = Selenium.GetAttributes(Config.CssExplorePhotos, "href", false, true)
                 .ToList(); // Solve the request
@@ -243,8 +240,7 @@ namespace InstagramFollowerBot
             MoveTo(Data.UserContactUrl);
             WaitHumanizer();
 
-            Selenium.Click(Config.CssContactsFollowers);
-            WaitHumanizer();
+            ClickWait(Config.CssContactsFollowers);
 
             // ScroolDown
             SchroolDownWaitLoop(Config.CssContactsListScrollable);
@@ -320,33 +316,76 @@ namespace InstagramFollowerBot
             }
         }
 
-        private void DoHomePhotosLike()
+        private void DoExplorePhotosPageActions(bool doLike, bool doFollow)
+        {
+            MoveTo(Config.UrlExplorePhotos);
+            WaitHumanizer();
+
+            SchroolDownWaitLoop(Config.BotExplorePhotosPageInitScrools);
+
+            int likeTodo = doLike ? PseudoRand.Next(Config.BotExplorePhotosPageLikeMin, Config.BotExplorePhotosPageLikeMax) : 0;
+            int followTodo = doFollow ? PseudoRand.Next(Config.BotExplorePhotosPageFollowMin, Config.BotExplorePhotosPageFollowMax) : 0;
+            IWebElement element = Selenium.GetElements(Config.CssExplorePhotos, true, true).FirstOrDefault();
+
+            int likeRemaining = likeTodo;
+            int followRemaining = followTodo;
+            while (element != null && (likeRemaining > 0 || followRemaining > 0))
+            {
+                Selenium.ScrollIntoView(element);
+                WaitMin();
+                element.Click();
+                WaitMin();
+
+                if (likeRemaining > 0 && ClickWaitIfPresent(Config.CssPhotoLike))
+                {
+                    CheckActionWarning();
+                    likeRemaining--;
+                }
+
+                if (followRemaining > 0 && ClickWaitIfPresent(Config.CssPhotoFollow))
+                {
+                    CheckActionWarning();
+                    followRemaining--;
+                }
+
+                // close modal page without waiter
+                Selenium.Click(Config.CssPhotoClose);
+
+                // add more result in the page for next
+                ScrollToBottomWait();
+
+                element = Selenium.GetElements(Config.CssExplorePhotos, true, true).FirstOrDefault();
+            }
+            Log.LogDebug("Explore Photos page actions : {0} like, {1} follow", likeTodo, followTodo);
+        }
+
+        private void DoHomePageActions()
         {
             MoveTo(Config.UrlRoot);
             WaitHumanizer();
 
-            SchroolDownWaitLoop(Config.BotHomeLikeInitScrools);
+            SchroolDownWaitLoop(Config.BotHomePageInitScrools);
 
-            int c = 0;
-            int todo = PseudoRand.Next(Config.BotHomeLikeTaskBatchMinLimit, Config.BotHomeLikeTaskBatchMaxLimit);
+            int likeTodo = PseudoRand.Next(Config.BotHomePageLikeMin, Config.BotHomePageLikeMax);
             IWebElement element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
-            while (element != null && c < todo) // manage the already followed like this
+
+            int likeRemaining = likeTodo;
+            while (element != null && likeRemaining > 0)
             {
                 Selenium.ScrollIntoView(element);
                 WaitBeforeLikeHumanizer();
                 element.Click();
-                ScrollToBottomWait();
+                likeRemaining--;
                 WaitHumanizer();
-                c++;
 
-                // issue detection : too many actions lately ? should stop for 24-48h...
-                Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                CheckActionWarning();
 
-                todo--;
+                // add more result in the page for next
+                ScrollToBottomWait();
+
                 element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
             }
-
-            Log.LogDebug("Home Photos Liked {0}", c);
+            Log.LogDebug("Home page Actions : {0} like", likeTodo);
         }
 
         private void DoContactsFollow()
@@ -367,9 +406,8 @@ namespace InstagramFollowerBot
                     if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
                     {
                         WaitBeforeFollowHumanizer();
-                        Selenium.Click(Config.CssContactFollow);
-                        Data.MyContacts.Add(uri);
-                        WaitHumanizer();// the url relad may break a waiting ball
+                        ClickWait(Config.CssContactFollow);
+                        Data.MyContacts.Add(uri); // the url relad may break a waiting ball
 
                         // issue detection : too many actions lately ? should stop for 24-48h...
                         Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
@@ -429,11 +467,8 @@ namespace InstagramFollowerBot
                     {
                         WaitHumanizer();
 
-                        Selenium.Click(Config.CssContactUnfollowConfirm);
-                        WaitHumanizer();// the url relad may break a waiting ball
-
-                        // issue detection : too many actions lately ? should stop for 24-48h...
-                        Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                        ClickWait(Config.CssContactUnfollowConfirm);
+                        CheckActionWarning();
 
                         Data.MyContacts.Remove(uri);
                         MyContactsInTryout.Remove(uri);
@@ -473,21 +508,15 @@ namespace InstagramFollowerBot
                     if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
                     {
                         WaitBeforeLikeHumanizer();
-                        Selenium.Click(Config.CssPhotoLike);
-                        WaitHumanizer();
-
-                        // issue detection : too many actions lately ? should stop for 24-48h...
-                        Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                        ClickWait(Config.CssPhotoLike);
+                        CheckActionWarning();
                     }
 
                     if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
                     {
                         WaitBeforeFollowHumanizer();
-                        Selenium.Click(Config.CssPhotoFollow);
-                        WaitHumanizer();
-
-                        // issue detection : too many actions lately ? should stop for 24-48h...
-                        Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+                        ClickWait(Config.CssPhotoFollow);
+                        ClickWait(Config.CssPhotoLike);
                     }
                     telemetryClient.StopOperation(opAction);
                 }

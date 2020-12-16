@@ -21,11 +21,11 @@ namespace InstagramFollowerBot
             internal int BotCacheTimeLimitHours;
             internal int BotFollowTaskBatchMaxLimit;
             internal int BotFollowTaskBatchMinLimit;
-            internal int BotHomeLikeInitScrools;
+            internal int BotHomePageInitScrools;
             internal int BotKeepSomeUnfollowerContacts;
             internal int BotLoopTaskLimit;
-            internal int BotExplorePhotosScrools;
-            internal int BotExplorePeopleSuggestedScrools;
+            internal int BotExplorePhotosPageInitScrools;
+            internal int BotExplorePeopleScrools;
             internal int BotSearchScrools;
             internal int BotStepFollowMaxWaitMs;
             internal int BotStepFollowMinWaitMs;
@@ -45,8 +45,12 @@ namespace InstagramFollowerBot
             internal int SeleniumWindowMaxW;
             internal int SeleniumWindowMinH;
             internal int SeleniumWindowMinW;
-            internal int BotHomeLikeTaskBatchMaxLimit;
-            internal int BotHomeLikeTaskBatchMinLimit;
+            internal int BotHomePageLikeMax;
+            internal int BotHomePageLikeMin;
+            internal int BotExplorePhotosPageFollowMax;
+            internal int BotExplorePhotosPageFollowMin;
+            internal int BotExplorePhotosPageLikeMax;
+            internal int BotExplorePhotosPageLikeMin;
             internal string AddContactsToFollow;
             internal string AddPhotosToLike;
             internal string BotSearchKeywords;
@@ -73,10 +77,11 @@ namespace InstagramFollowerBot
             internal string CssPhotoFollow;
             internal string CssPhotoLike;
             internal string CssSuggestedContact;
+            internal string CssPhotoClose;
             internal string SeleniumRemoteServer;
             internal string UrlContacts;
-            internal string UrlExplore;
-            internal string UrlExplorePeopleSuggested;
+            internal string UrlExplorePhotos;
+            internal string UrlExplorePeople;
             internal string UrlLogin;
             internal string UrlRoot;
             internal string UrlSearch;
@@ -123,10 +128,11 @@ namespace InstagramFollowerBot
                     CssPhotoFollow = config["CssPhotoFollow"],
                     CssPhotoLike = config["CssPhotoLike"],
                     CssSuggestedContact = config["CssSuggestedContact"],
+                    CssPhotoClose = config["CssPhotoClose"],
                     SeleniumRemoteServer = config["SeleniumRemoteServer"],
                     UrlContacts = config["UrlContacts"],
-                    UrlExplore = config["UrlExplore"],
-                    UrlExplorePeopleSuggested = config["UrlExplorePeopleSuggested"],
+                    UrlExplorePhotos = config["UrlExplorePhotos"],
+                    UrlExplorePeople = config["UrlExplorePeople"],
                     UrlLogin = config["UrlLogin"],
                     UrlRoot = config["UrlRoot"],
                     UrlSearch = config["UrlSearch"]
@@ -146,10 +152,10 @@ namespace InstagramFollowerBot
                     Config.BotCacheTimeLimitHours = int.Parse(config["BotCacheTimeLimitHours"], CultureInfo.InvariantCulture);
                     Config.BotFollowTaskBatchMaxLimit = int.Parse(config["BotFollowTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
                     Config.BotFollowTaskBatchMinLimit = int.Parse(config["BotFollowTaskBatchMinLimit"], CultureInfo.InvariantCulture);
-                    Config.BotHomeLikeInitScrools = int.Parse(config["BotHomeLikeInitScrools"], CultureInfo.InvariantCulture);
+                    Config.BotHomePageInitScrools = int.Parse(config["BotHomePageInitScrools"], CultureInfo.InvariantCulture);
                     Config.BotKeepSomeUnfollowerContacts = int.Parse(config["BotKeepSomeUnfollowerContacts"], CultureInfo.InvariantCulture);
-                    Config.BotExplorePhotosScrools = int.Parse(config["BotExplorePhotosScrools"], CultureInfo.InvariantCulture);
-                    Config.BotExplorePeopleSuggestedScrools = int.Parse(config["BotExplorePeopleSuggestedScrools"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePhotosPageInitScrools = int.Parse(config["BotExplorePhotosPageInitScrools"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePeopleScrools = int.Parse(config["BotExplorePeopleScrools"], CultureInfo.InvariantCulture);
                     Config.BotSearchScrools = int.Parse(config["BotSearchScrools"], CultureInfo.InvariantCulture);
                     Config.BotStepFollowMaxWaitMs = int.Parse(config["BotStepFollowMaxWaitMs"], CultureInfo.InvariantCulture);
                     Config.BotStepFollowMinWaitMs = int.Parse(config["BotStepFollowMinWaitMs"], CultureInfo.InvariantCulture);
@@ -169,8 +175,12 @@ namespace InstagramFollowerBot
                     Config.SeleniumWindowMaxW = int.Parse(config["SeleniumWindowMaxW"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMinH = int.Parse(config["SeleniumWindowMinH"], CultureInfo.InvariantCulture);
                     Config.SeleniumWindowMinW = int.Parse(config["SeleniumWindowMinW"], CultureInfo.InvariantCulture);
-                    Config.BotHomeLikeTaskBatchMaxLimit = int.Parse(config["BotHomeLikeTaskBatchMaxLimit"], CultureInfo.InvariantCulture);
-                    Config.BotHomeLikeTaskBatchMinLimit = int.Parse(config["BotHomeLikeTaskBatchMinLimit"], CultureInfo.InvariantCulture);
+                    Config.BotHomePageLikeMax = int.Parse(config["BotHomePageLikeMax"], CultureInfo.InvariantCulture);
+                    Config.BotHomePageLikeMin = int.Parse(config["BotHomePageLikeMin"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePhotosPageFollowMax = int.Parse(config["BotExplorePhotosPageFollowMax"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePhotosPageFollowMin = int.Parse(config["BotExplorePhotosPageFollowMin"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePhotosPageLikeMax = int.Parse(config["BotExplorePhotosPageLikeMax"], CultureInfo.InvariantCulture);
+                    Config.BotExplorePhotosPageLikeMin = int.Parse(config["BotExplorePhotosPageLikeMin"], CultureInfo.InvariantCulture);
 
                     if (int.TryParse(config["BotLoopTaskLimit"], out int tmpBotLoopTaskLimit))
                     {

@@ -103,12 +103,29 @@ namespace InstagramFollowerBot
             }
         }
 
-        private void ClickWaitIfPresent(string cssSelector)
+        private bool ClickWaitIfPresent(string cssSelector)
         {
             if (Selenium.ClickIfPresent(cssSelector))
             {
                 WaitHumanizer();
+                return true;
             }
+            else
+            {
+                return false;
+            }
+        }
+
+        private void ClickWait(string cssSelector)
+        {
+            Selenium.Click(cssSelector);
+            WaitHumanizer();
+        }
+
+        private void CheckActionWarning()
+        {
+            // issue detection : too many actions lately ? should stop for 24-48h...
+            Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
         }
 
         private static IEnumerable<string> GetTasks(string runTasks, bool botSaveAfterEachAction, bool botSaveOnEnd, bool botSaveOnLoop, int botLoopTaskLimit)
