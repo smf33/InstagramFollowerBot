@@ -4,7 +4,6 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 
 namespace InstagramFollowerBot
@@ -25,78 +24,45 @@ namespace InstagramFollowerBot
 
             Log.LogInformation("## LOADING...");
             DateTimeOffset dtStart = DateTimeOffset.Now;
-            Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLoading = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOADING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, "?loading=", Config.BotUserEmail)) });
-            try
-            {
-                LoadData();
 
-                string w = PseudoRand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
-                string h = PseudoRand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
-                if (string.IsNullOrWhiteSpace(Config.SeleniumRemoteServer))
-                {
-                    Log.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", ExecPath, w, h);
-                    Selenium = SeleniumWrapper.NewChromeSeleniumWrapper(ExecPath, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
-                }
-                else
-                {
-                    if (Config.SeleniumRemoteServerWarmUpWaitMs > 0)
-                    {
-                        Task.Delay(Config.SeleniumRemoteServerWarmUpWaitMs)
-                            .Wait();
-                    }
-                    Log.LogDebug("NewRemoteSeleniumWrapper({0}, {1}, {2})", Config.SeleniumRemoteServer, w, h);
-                    Selenium = SeleniumWrapper.NewRemoteSeleniumWrapper(Config.SeleniumRemoteServer, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
-                }
-                telemetryClient.StopOperation(opLoading);
-                DateTimeOffset dtEnd = DateTimeOffset.Now;
-                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOADING", true);
-            }
-            catch (Exception e)
+            LoadData();
+
+            string w = PseudoRand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
+            string h = PseudoRand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
+            if (string.IsNullOrWhiteSpace(Config.SeleniumRemoteServer))
             {
-                DateTimeOffset dtEnd = DateTimeOffset.Now;
-                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOADING", false, e.GetBaseException().Message);
-                telemetryClient.TrackException(e);
-                opLoading.Telemetry.Success = false;
-                telemetryClient.StopOperation(opLoading);
-                throw new FollowerBotException("LOADING Exception", e);
+                Log.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", ExecPath, w, h);
+                Selenium = SeleniumWrapper.NewChromeSeleniumWrapper(ExecPath, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
             }
+            else
+            {
+                if (Config.SeleniumRemoteServerWarmUpWaitMs > 0)
+                {
+                    Task.Delay(Config.SeleniumRemoteServerWarmUpWaitMs)
+                        .Wait();
+                }
+                Log.LogDebug("NewRemoteSeleniumWrapper({0}, {1}, {2})", Config.SeleniumRemoteServer, w, h);
+                Selenium = SeleniumWrapper.NewRemoteSeleniumWrapper(Config.SeleniumRemoteServer, w, h, Config.SeleniumBrowserArguments, Config.BotSeleniumTimeoutSec);
+            }
+            telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), "LOADING", true);
         }
 
         public void Run()
         {
             Log.LogInformation("## LOGGING...");
-            DateTimeOffset dtStart = DateTimeOffset.Now;
-            Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opLogging = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat("LOGGING ", Config.BotUserEmail), Url = new Uri(string.Concat(Config.UrlRoot, Config.UrlLogin, "?logging=", Config.BotUserEmail)) });
-            try
+            if (Data.UserContactUrl == null || !TryAuthCookies())
             {
-                if (Data.UserContactUrl == null || !TryAuthCookies())
-                {
-                    AuthLogin();
-                }
-                Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
-                PostAuthInit();
-                SaveData(); // save cookies at last
-                telemetryClient.StopOperation(opLogging);
-                DateTimeOffset dtEnd = DateTimeOffset.Now;
-                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOGGING", true);
+                AuthLogin();
             }
-            catch (Exception e)
-            {
-                DateTimeOffset dtEnd = DateTimeOffset.Now;
-                telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), "LOGGING", false, e.GetBaseException().Message);
-                telemetryClient.TrackException(e);
-                opLogging.Telemetry.Success = false;
-                telemetryClient.StopOperation(opLogging);
-                throw new FollowerBotException("LOGGING Exception", e);
-            }
+            Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
+            PostAuthInit();
+            SaveData(); // save cookies at last
 
             Log.LogInformation("## RUNNING...");
-            telemetryClient.TrackPageView(Config.BotTasks);
             foreach (string curTask in GetTasks(Config.BotTasks, Config.BotSaveAfterEachAction, Config.BotSaveOnEnd, Config.BotSaveOnLoop, Config.BotLoopTaskLimit))
             {
                 Log.LogInformation("# {0}...", curTask);
-                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opTask = telemetryClient.StartOperation(new RequestTelemetry { Name = string.Concat(curTask, " ", Config.BotUserEmail), Url = new Uri(string.Concat(Data.UserContactUrl, "?task=", curTask)) });
-                dtStart = DateTimeOffset.Now;
+                DateTimeOffset dtStart = DateTimeOffset.Now;
                 try
                 {
                     switch (curTask)
@@ -171,25 +137,11 @@ namespace InstagramFollowerBot
                             Log.LogError("Unknown BotTask : {0}", curTask);
                             break;
                     }
-                    telemetryClient.StopOperation(opTask);
-                    DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, true);
-                }
-                catch (FollowerBotException ex)
-                {
-                    DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, false, ex.GetBaseException().Message);
-                    opTask.Telemetry.Success = false;
-                    telemetryClient.StopOperation(opTask);
-                    throw;
+                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
                 }
                 catch (Exception ex)
                 {
-                    DateTimeOffset dtEnd = DateTimeOffset.Now;
-                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtEnd, (dtEnd - dtStart), curTask, false, ex.GetBaseException().Message);
-                    telemetryClient.TrackException(ex);
-                    opTask.Telemetry.Success = false;
-                    telemetryClient.StopOperation(opTask);
+                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
                     throw new FollowerBotException(string.Concat(curTask, " Exception"), ex);
                 }
             }

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Web;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Extensions.Logging;
 using OpenQA.Selenium;
 
@@ -394,40 +392,26 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToFollow.Count;
             while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
             {
-                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "FOLLOW", Url = new Uri(uri) });
-                try
+                if (!MoveTo(uri))
                 {
-                    if (!MoveTo(uri))
-                    {
-                        Log.LogWarning("ACTION STOPED : INSTAGRAM RETURN ERROR ON ({0})", uri);
-                        break; // no retry
-                    }
-                    MyContactsInTryout.Add(uri);
-                    if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
-                    {
-                        WaitBeforeFollowHumanizer();
-                        ClickWait(Config.CssContactFollow);
-                        Data.MyContacts.Add(uri); // the url relad may break a waiting ball
-
-                        // issue detection : too many actions lately ? should stop for 24-48h...
-                        Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
-
-                        todo--;
-                    }
-                    else
-                    {
-                        Data.MyContactsBanned.Add(uri); // avoid going back each time to a "requested" account
-                    }
+                    Log.LogWarning("ACTION STOPED : INSTAGRAM RETURN ERROR ON ({0})", uri);
+                    break; // no retry
                 }
-                catch (Exception e)
+                MyContactsInTryout.Add(uri);
+                if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
                 {
-                    telemetryClient.TrackException(e);
-                    opAction.Telemetry.Success = false;
-                    throw new FollowerBotException("FOLLOW Exception", e);
+                    WaitBeforeFollowHumanizer();
+                    ClickWait(Config.CssContactFollow);
+                    Data.MyContacts.Add(uri); // the url relad may break a waiting ball
+
+                    // issue detection : too many actions lately ? should stop for 24-48h...
+                    Selenium.CrashIfPresent(Config.CssActionWarning, "This action was blocked. Please try again later");
+
+                    todo--;
                 }
-                finally
+                else
                 {
-                    telemetryClient.StopOperation(opAction);
+                    Data.MyContactsBanned.Add(uri); // avoid going back each time to a "requested" account
                 }
             }
             Log.LogDebug("$ContactsToFollow -{0}", c - Data.ContactsToFollow.Count);
@@ -439,52 +423,38 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToUnfollow.Count;
             while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
             {
-                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "UNFOLLOW", Url = new Uri(uri) });
-                try
+                if (!MoveTo(uri))
                 {
-                    if (!MoveTo(uri))
-                    {
-                        Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                        break; // no retry
-                    }
-
-                    bool process = false;
-                    // with triangle
-                    if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
-                    {
-                        WaitBeforeFollowHumanizer();
-                        Selenium.Click(Config.CssContactUnfollowButton);
-                        process = true;
-                    }
-                    // without triangle
-                    else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
-                    {
-                        WaitBeforeFollowHumanizer();
-                        Selenium.Click(Config.CssContactUnfollowButtonAlt);
-                        process = true;
-                    }
-                    if (process)
-                    {
-                        WaitHumanizer();
-
-                        ClickWait(Config.CssContactUnfollowConfirm);
-                        CheckActionWarning();
-
-                        Data.MyContacts.Remove(uri);
-                        MyContactsInTryout.Remove(uri);
-                        Data.MyContactsBanned.Add(uri);
-                        todo--;
-                    }
+                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
+                    break; // no retry
                 }
-                catch (Exception e)
+
+                bool process = false;
+                // with triangle
+                if (Selenium.GetElements(Config.CssContactUnfollowButton).Any()) // manage the already unfollowed like this
                 {
-                    telemetryClient.TrackException(e);
-                    opAction.Telemetry.Success = false;
-                    throw new FollowerBotException("LOGGING Exception", e);
+                    WaitBeforeFollowHumanizer();
+                    Selenium.Click(Config.CssContactUnfollowButton);
+                    process = true;
                 }
-                finally
+                // without triangle
+                else if (Selenium.GetElements(Config.CssContactUnfollowButtonAlt).Any()) // manage the already unfollowed like this
                 {
-                    telemetryClient.StopOperation(opAction);
+                    WaitBeforeFollowHumanizer();
+                    Selenium.Click(Config.CssContactUnfollowButtonAlt);
+                    process = true;
+                }
+                if (process)
+                {
+                    WaitHumanizer();
+
+                    ClickWait(Config.CssContactUnfollowConfirm);
+                    CheckActionWarning();
+
+                    Data.MyContacts.Remove(uri);
+                    MyContactsInTryout.Remove(uri);
+                    Data.MyContactsBanned.Add(uri);
+                    todo--;
                 }
             }
             Log.LogDebug("$ContactsToUnfollow -{0}", c - Data.ContactsToUnfollow.Count);
@@ -496,37 +466,26 @@ namespace InstagramFollowerBot
             int c = Data.PhotosToLike.Count;
             while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
             {
-                Microsoft.ApplicationInsights.Extensibility.IOperationHolder<RequestTelemetry> opAction = telemetryClient.StartOperation(new RequestTelemetry { Name = "LIKE", Url = new Uri(uri) });
-                try
+                if (!MoveTo(uri))
                 {
-                    if (!MoveTo(uri))
-                    {
-                        Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                        break; // no retry
-                    }
-
-                    if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
-                    {
-                        WaitBeforeLikeHumanizer();
-                        ClickWait(Config.CssPhotoLike);
-                        CheckActionWarning();
-                    }
-
-                    if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
-                    {
-                        WaitBeforeFollowHumanizer();
-                        ClickWait(Config.CssPhotoFollow);
-                        ClickWait(Config.CssPhotoLike);
-                    }
-                    telemetryClient.StopOperation(opAction);
+                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
+                    break; // no retry
                 }
-                catch (Exception e)
+
+                if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
                 {
-                    telemetryClient.TrackException(e);
-                    opAction.Telemetry.Success = false;
-                    telemetryClient.StopOperation(opAction);
-                    throw new FollowerBotException("LIKE Exception", e);
+                    WaitBeforeLikeHumanizer();
+                    ClickWait(Config.CssPhotoLike);
+                    CheckActionWarning();
                 }
+
+                if (doFollow && Selenium.GetElements(Config.CssPhotoFollow).Any()) // manage the already unfollowed like this
+                {
+                    WaitBeforeFollowHumanizer();
+                    ClickWait(Config.CssPhotoFollow);
+                    ClickWait(Config.CssPhotoLike);
+                }
+
                 todo--;
             }
             Log.LogDebug("$PhotosToLike -{0}", c - Data.PhotosToLike.Count);

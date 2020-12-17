@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
 using Microsoft.Extensions.Logging;
@@ -22,13 +21,6 @@ namespace InstagramFollowerBot
 
             try
             {
-                using DependencyTrackingTelemetryModule aiDependencyTrackingTelemetryModule = new DependencyTrackingTelemetryModule();
-                aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("core.windows.net");
-                aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("localhost");
-                aiDependencyTrackingTelemetryModule.ExcludeComponentCorrelationHttpHeadersOnDomains.Add("127.0.0.1");
-                aiDependencyTrackingTelemetryModule.Initialize(telemetryConfiguration);
-                telemetryConfiguration.TelemetryInitializers.Add(new HttpDependenciesParsingTelemetryInitializer());
-
                 using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
 
                 try
@@ -41,10 +33,6 @@ namespace InstagramFollowerBot
                     bot.DebugDump();
                     throw;
                 }
-            }
-            catch (FollowerBotException ex)
-            {
-                logger.LogCritical(default, ex, "## ENDED IN ERROR : {0}", ex.GetBaseException().Message);
             }
             catch (Exception ex)
             {
