@@ -22,8 +22,8 @@ namespace InstagramFollowerBot
 
             LoadData();
 
-            string w = PseudoRand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
-            string h = PseudoRand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
+            string w = PseudoRand(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
+            string h = PseudoRand(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
             if (string.IsNullOrWhiteSpace(Config.SeleniumRemoteServer))
             {
                 Log.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", ExecPath, w, h);
@@ -89,6 +89,10 @@ namespace InstagramFollowerBot
                         ExplorePeople();
                         break;
 
+                    case "CHECKACTIVITY":
+                        DoActivityPageActions();
+                        break;
+
                     case "SAVE":
                         SaveData();
                         break;
@@ -115,7 +119,7 @@ namespace InstagramFollowerBot
 
                     case "PAUSE":
                     case "WAIT":
-                        Task.Delay(PseudoRand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
+                        Task.Delay(PseudoRand(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
                             .Wait();
                         break;
 

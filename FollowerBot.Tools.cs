@@ -3,12 +3,24 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OpenQA.Selenium;
 
 namespace InstagramFollowerBot
 {
     public partial class FollowerBot
     {
-        private static readonly Random PseudoRand = new Random(); // this pseudorandom number generator is safe here.
+        private static readonly Random _PseudoRand = new Random(); // this pseudorandom number generator is safe here.
+
+        private static int PseudoRand(int min, int max)
+        {
+            return _PseudoRand.Next(min, max + 1);
+        }
+
+        private void ScrollToTopWait()
+        {
+            Selenium.ScrollToTop();
+            WaitMin();
+        }
 
         private void ScrollToBottomWait()
         {
@@ -53,19 +65,19 @@ namespace InstagramFollowerBot
 
         private void WaitHumanizer()
         {
-            Task.Delay(PseudoRand.Next(Config.BotStepMinWaitMs, Config.BotStepMaxWaitMs))
+            Task.Delay(PseudoRand(Config.BotStepMinWaitMs, Config.BotStepMaxWaitMs))
                     .Wait();
         }
 
         private void WaitBeforeFollowHumanizer()
         {
-            Task.Delay(PseudoRand.Next(Config.BotStepFollowMinWaitMs, Config.BotStepFollowMaxWaitMs))
+            Task.Delay(PseudoRand(Config.BotStepFollowMinWaitMs, Config.BotStepFollowMaxWaitMs))
                     .Wait();
         }
 
         private void WaitBeforeLikeHumanizer()
         {
-            Task.Delay(PseudoRand.Next(Config.BotStepLikeMinWaitMs, Config.BotStepLikeMaxWaitMs))
+            Task.Delay(PseudoRand(Config.BotStepLikeMinWaitMs, Config.BotStepLikeMaxWaitMs))
                     .Wait();
         }
 
@@ -78,7 +90,7 @@ namespace InstagramFollowerBot
             }
         }
 
-        private void MoveTo(string partialOrNotUrl, bool forceReload = false)
+        private void MoveToWait(string partialOrNotUrl, bool forceReload = false)
         {
             Log.LogDebug("GET {0}", partialOrNotUrl);
             string target;
@@ -97,22 +109,37 @@ namespace InstagramFollowerBot
             }
         }
 
-        private bool ClickWaitIfPresent(string cssSelector)
+        private void ClickWaitIfPresent(string cssSelector)
         {
             if (Selenium.ClickIfPresent(cssSelector))
             {
                 WaitHumanizer();
-                return true;
             }
-            else
-            {
-                return false;
-            }
+        }
+
+        private void ScrollClickWait(IWebElement element)
+        {
+            Selenium.ScrollIntoView(element);
+            WaitMin();
+            element.Click();
+            WaitHumanizer();
+        }
+
+        private void ClickWait(IWebElement element)
+        {
+            element.Click();
+            WaitHumanizer();
         }
 
         private void ClickWait(string cssSelector)
         {
             Selenium.Click(cssSelector);
+            WaitHumanizer();
+        }
+
+        private void ClickByPositionWait(string cssSelector)
+        {
+            Selenium.ClickByPosition(cssSelector);
             WaitHumanizer();
         }
 

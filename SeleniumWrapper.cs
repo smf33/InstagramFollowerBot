@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Remote;
 
 namespace InstagramFollowerBot
@@ -119,6 +120,23 @@ namespace InstagramFollowerBot
                 .Select(x => x.GetAttribute(attribute));
         }
 
+        public bool GetIfPresent(string cssSelector, out IWebElement found)
+        {
+            WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
+            found = WebDriver.FindElements(By.CssSelector(cssSelector))
+                .FirstOrDefault(x => x.Displayed);    // new case of css may be found on behind element not clikable.
+            WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
+
+            if (found != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool ClickIfPresent(string cssSelector)
         {
             WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
@@ -150,15 +168,22 @@ namespace InstagramFollowerBot
             }
         }
 
-        public void ScrollIntoView(IWebElement element)
-        {
-            JsDriver.ExecuteScript("arguments[0].parentNode.scrollIntoView(false);", element);
-        }
-
         public void Click(string cssSelector)
         {
             WebDriver.FindElement(By.CssSelector(cssSelector))
                 .Click();
+        }
+
+        /// <summary>
+        /// Used for element having hidden layer before that will catch the click
+        /// </summary>
+        public void ClickByPosition(string cssSelector)
+        {
+            IWebElement element = WebDriver.FindElement(By.CssSelector(cssSelector));
+            Actions action = new Actions(WebDriver);
+            action.MoveToElement(element, element.Size.Width / 2, element.Size.Height / 2)
+                .Click()
+                .Build().Perform();
         }
 
         public void InputWrite(string cssSelector, string text)
@@ -171,6 +196,16 @@ namespace InstagramFollowerBot
         {
             WebDriver.FindElement(By.CssSelector(cssSelector))
                     .SendKeys(Keys.Enter);
+        }
+
+        internal void ScrollToTop()
+        {
+            JsDriver.ExecuteScript("window.scrollTo(document.body.scrollWidth/2, 0);");
+        }
+
+        internal void ScrollIntoView(IWebElement element)
+        {
+            JsDriver.ExecuteScript("arguments[0].parentNode.scrollIntoView(false);", element);
         }
 
         internal void ScrollToBottom()
