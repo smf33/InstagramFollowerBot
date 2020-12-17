@@ -120,7 +120,7 @@ namespace InstagramFollowerBot
                     CssContactUnfollowConfirm = config["CssContactUnfollowConfirm"],
                     CssContactsFollowers = config["CssContactsFollowers"],
                     CssContactsFollowing = config["CssContactsFollowing"],
-                    CssClassNameContactsListScrollable = config["CssContactsListScrollable"],
+                    CssClassNameContactsListScrollable = config["CssClassNameContactsListScrollable"],
                     CssCookiesWarning = config["CssCookiesWarning"],
                     CssLoginEmail = config["CssLoginEmail"],
                     CssLoginMyself = config["CssLoginMyself"],
