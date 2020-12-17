@@ -216,9 +216,9 @@ namespace InstagramFollowerBot
         /// <summary>
         /// Scrool half is 1st time
         /// </summary>
-        internal string ScrollToBottom(string divId)
+        internal string ScrollToBottom(string className)
         {
-            return JsDriver.ExecuteScript("let containerEl=document.getElementsByClassName('" + divId + "')[0];containerEl.scrollTop=containerEl.scrollTop==0?200:(containerEl.scrollHeight-containerEl.offsetHeight>containerEl.scrollTop+200?containerEl.scrollTop+200:containerEl.scrollHeight-containerEl.offsetHeight);return containerEl.scrollTop;").ToString();
+            return JsDriver.ExecuteScript("let containerEl=document.getElementsByClassName('" + className + "')[0];containerEl.scrollTop=containerEl.scrollTop==0?200:(containerEl.scrollHeight-containerEl.offsetHeight>containerEl.scrollTop+200?containerEl.scrollTop+200:containerEl.scrollHeight-containerEl.offsetHeight);return containerEl.scrollTop;").ToString();
         }
 
         internal IEnumerable<object> Cookies

@@ -149,7 +149,7 @@ namespace InstagramFollowerBot
                 ClickWait(Config.CssContactsFollowing);
 
                 // ScroolDown
-                SchroolDownWaitLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
+                SchroolDownWaitLoop(Config.CssClassNameContactsListScrollable);   // TOFIX : will crash if no contact at all
                 Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
                     .ToHashSet();
                 ClickWait(Config.CssContactsListClose);
@@ -169,7 +169,7 @@ namespace InstagramFollowerBot
 
             ClickWait(Config.CssContactsFollowers);
 
-            SchroolDownWaitLoop(Config.CssContactsListScrollable);
+            SchroolDownWaitLoop(Config.CssClassNameContactsListScrollable);
             IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
                                       .ToList(); // Solve
             ClickWait(Config.CssContactsListClose);
@@ -237,7 +237,7 @@ namespace InstagramFollowerBot
             ClickWait(Config.CssContactsFollowers);
 
             // ScroolDown
-            SchroolDownWaitLoop(Config.CssContactsListScrollable);
+            SchroolDownWaitLoop(Config.CssClassNameContactsListScrollable);
             HashSet<string> contactsFollowing = Selenium.GetAttributes(Config.UrlContacts)
                 .ToHashSet();
             ClickWait(Config.CssContactsListClose);
