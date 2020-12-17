@@ -27,8 +27,8 @@ namespace InstagramFollowerBot
 
             LoadData();
 
-            string w = PseudoRand.Next(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
-            string h = PseudoRand.Next(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
+            string w = PseudoRand(Config.SeleniumWindowMinW, Config.SeleniumWindowMaxW).ToString(CultureInfo.InvariantCulture);
+            string h = PseudoRand(Config.SeleniumWindowMinH, Config.SeleniumWindowMaxH).ToString(CultureInfo.InvariantCulture);
             if (string.IsNullOrWhiteSpace(Config.SeleniumRemoteServer))
             {
                 Log.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", ExecPath, w, h);
@@ -49,15 +49,6 @@ namespace InstagramFollowerBot
 
         public void Run()
         {
-            Log.LogInformation("## LOGGING...");
-            if (Data.UserContactUrl == null || !TryAuthCookies())
-            {
-                AuthLogin();
-            }
-            Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
-            PostAuthInit();
-            SaveData(); // save cookies at last
-
             Log.LogInformation("## RUNNING...");
             foreach (string curTask in GetTasks(Config.BotTasks, Config.BotSaveAfterEachAction, Config.BotSaveOnEnd, Config.BotSaveOnLoop, Config.BotLoopTaskLimit))
             {
@@ -67,6 +58,10 @@ namespace InstagramFollowerBot
                 {
                     switch (curTask)
                     {
+                        case "LOGGING":
+                            UserLogging();
+                            break;
+
                         case "DETECTCONTACTSFOLLOWBACK":
                             DetectContactsFollowBack();
                             break;
@@ -103,6 +98,10 @@ namespace InstagramFollowerBot
                             ExplorePeople();
                             break;
 
+                        case "CHECKACTIVITY":
+                            DoActivityPageActions();
+                            break;
+
                         case "SAVE":
                             SaveData();
                             break;
@@ -129,7 +128,7 @@ namespace InstagramFollowerBot
 
                         case "PAUSE":
                         case "WAIT":
-                            Task.Delay(PseudoRand.Next(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
+                            Task.Delay(PseudoRand(Config.BotWaitTaskMinWaitMs, Config.BotWaitTaskMaxWaitMs))
                                 .Wait();
                             break;
 
@@ -142,7 +141,7 @@ namespace InstagramFollowerBot
                 catch (Exception ex)
                 {
                     telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
-                    throw new FollowerBotException(string.Concat(curTask, " Exception"), ex);
+                    throw;
                 }
             }
 

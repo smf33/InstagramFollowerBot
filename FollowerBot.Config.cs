@@ -66,6 +66,7 @@ namespace InstagramFollowerBot
             internal string CssContactsFollowers;
             internal string CssContactsFollowing;
             internal string CssContactsListScrollable;
+            internal string CssContactsListClose;
             internal string CssCookiesWarning;
             internal string CssLoginEmail;
             internal string CssLoginMyself;
@@ -78,6 +79,9 @@ namespace InstagramFollowerBot
             internal string CssPhotoLike;
             internal string CssSuggestedContact;
             internal string CssPhotoClose;
+            internal string CssHeaderButtonHome;
+            internal string CssHeaderButtonExplore;
+            internal string CssHeaderButtonActivity;
             internal string SeleniumRemoteServer;
             internal string UrlContacts;
             internal string UrlExplorePhotos;
@@ -129,6 +133,10 @@ namespace InstagramFollowerBot
                     CssPhotoLike = config["CssPhotoLike"],
                     CssSuggestedContact = config["CssSuggestedContact"],
                     CssPhotoClose = config["CssPhotoClose"],
+                    CssHeaderButtonHome = config["CssHeaderButtonHome"],
+                    CssHeaderButtonExplore = config["CssHeaderButtonExplore"],
+                    CssHeaderButtonActivity = config["CssHeaderButtonActivity"],
+                    CssContactsListClose = config["CssContactsListClose"],
                     SeleniumRemoteServer = config["SeleniumRemoteServer"],
                     UrlContacts = config["UrlContacts"],
                     UrlExplorePhotos = config["UrlExplorePhotos"],

@@ -35,15 +35,22 @@ namespace InstagramFollowerBot
             }
         }
 
+        private void UserLogging()
+        {
+            if (Data.UserContactUrl == null
+                || !TryAuthCookies())
+            {
+                AuthLogin();
+            }
+            Log.LogInformation("Logged user :  {0}", Data.UserContactUrl);
+            PostAuthInit();
+        }
+
         private bool TryAuthCookies()
         {
             if (Data.Cookies != null && Data.Cookies.Any())
             {
-                if (!MoveTo(Config.UrlRoot))
-                {
-                    throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
-                }
-
+                MoveToWait(Config.UrlRoot);
                 Selenium.Cookies = Data.Cookies; // need to have loaded the page 1st
                 Selenium.SessionStorage = Data.SessionStorage; // need to have loaded the page 1st
                 Selenium.LocalStorage = Data.LocalStorage; // need to have loaded the page 1st
@@ -51,11 +58,7 @@ namespace InstagramFollowerBot
                 // Ignore the message bar : Allow Instagram Cookies
                 ClickWaitIfPresent(Config.CssCookiesWarning);
 
-                if (!MoveTo(Config.UrlRoot))
-                {
-                    throw new NotSupportedException("INSTAGRAM RETURN ERROR 500 ON " + Config.UrlRoot);
-                }
-
+                MoveToWait(Config.UrlRoot);
                 // Ignore the enable notification on your browser modal popup
                 ClickWaitIfPresent(Config.CssLoginWarning);
 
@@ -89,10 +92,7 @@ namespace InstagramFollowerBot
 
         private void AuthLogin()
         {
-            if (!MoveTo(Config.UrlLogin))
-            {
-                throw new NotSupportedException("INSTAGRAM RETURN ERROR ON " + Config.UrlLogin);
-            }
+            MoveToWait(Config.UrlLogin);
 
             if (!string.IsNullOrWhiteSpace(Config.BotUserEmail))
             {
@@ -144,16 +144,15 @@ namespace InstagramFollowerBot
                 || Config.BotCacheTimeLimitHours <= 0
                 || DateTime.UtcNow > Data.MyContactsUpdate.Value.AddHours(Config.BotCacheTimeLimitHours))
             {
-                MoveTo(Data.UserContactUrl);
-                WaitHumanizer();
+                MoveToWait(Data.UserContactUrl);
 
                 ClickWait(Config.CssContactsFollowing);
 
                 // ScroolDown
                 SchroolDownWaitLoop(Config.CssContactsListScrollable);   // TOFIX : will crash if no contact at all
-
                 Data.MyContacts = Selenium.GetAttributes(Config.UrlContacts)
                     .ToHashSet();
+                ClickWait(Config.CssContactsListClose);
 
                 Log.LogDebug("MyContacts ={0}", Data.MyContacts.Count);
 
@@ -166,14 +165,14 @@ namespace InstagramFollowerBot
 
         private void DetectContactsFollowBack()
         {
-            MoveTo(Data.UserContactUrl);
-            WaitHumanizer();
+            MoveToWait(Data.UserContactUrl);
 
             ClickWait(Config.CssContactsFollowers);
 
             SchroolDownWaitLoop(Config.CssContactsListScrollable);
             IEnumerable<string> list = Selenium.GetAttributes(Config.UrlContacts)
                                       .ToList(); // Solve
+            ClickWait(Config.CssContactsListClose);
 
             int c = Data.ContactsToFollow.Count;
             foreach (string needToFollow in list
@@ -188,8 +187,7 @@ namespace InstagramFollowerBot
 
         private void ExplorePeople()
         {
-            MoveTo(Config.UrlExplorePeople);
-            WaitHumanizer();
+            MoveToWait(Config.UrlExplorePeople);
 
             SchroolDownWaitLoop(Config.BotExplorePeopleScrools);
 
@@ -209,8 +207,7 @@ namespace InstagramFollowerBot
 
         private void ExplorePhotos()
         {
-            MoveTo(Config.UrlExplorePhotos);
-            WaitHumanizer();
+            MoveToWait(Config.UrlExplorePhotos);
 
             SchroolDownWaitLoop(Config.BotExplorePhotosPageInitScrools);
 
@@ -235,16 +232,15 @@ namespace InstagramFollowerBot
 
         private void DetectContactsUnfollowBack()
         {
-            MoveTo(Data.UserContactUrl);
-            WaitHumanizer();
+            MoveToWait(Data.UserContactUrl);
 
             ClickWait(Config.CssContactsFollowers);
 
             // ScroolDown
             SchroolDownWaitLoop(Config.CssContactsListScrollable);
-
             HashSet<string> contactsFollowing = Selenium.GetAttributes(Config.UrlContacts)
                 .ToHashSet();
+            ClickWait(Config.CssContactsListClose);
 
             IEnumerable<string> result = Data.MyContacts
                 .Except(contactsFollowing)
@@ -290,8 +286,7 @@ namespace InstagramFollowerBot
             {
                 Log.LogDebug("Searching {0}", keyword);
 
-                MoveTo(string.Format(Config.UrlSearch, HttpUtility.UrlEncode(keyword)));
-                WaitHumanizer();
+                MoveToWait(string.Format(Config.UrlSearch, HttpUtility.UrlEncode(keyword)));
 
                 SchroolDownWaitLoop(Config.BotSearchScrools);
 
@@ -316,37 +311,43 @@ namespace InstagramFollowerBot
 
         private void DoExplorePhotosPageActions(bool doLike, bool doFollow)
         {
-            MoveTo(Config.UrlExplorePhotos);
-            WaitHumanizer();
+            Log.LogDebug("Go to Explore page");
+            ScrollToTopWait();
+            ClickWait(Config.CssHeaderButtonExplore);
 
             SchroolDownWaitLoop(Config.BotExplorePhotosPageInitScrools);
 
-            int likeTodo = doLike ? PseudoRand.Next(Config.BotExplorePhotosPageLikeMin, Config.BotExplorePhotosPageLikeMax) : 0;
-            int followTodo = doFollow ? PseudoRand.Next(Config.BotExplorePhotosPageFollowMin, Config.BotExplorePhotosPageFollowMax) : 0;
+            int likeTodo = doLike ? PseudoRand(Config.BotExplorePhotosPageLikeMin, Config.BotExplorePhotosPageLikeMax) : 0;
+            int followTodo = doFollow ? PseudoRand(Config.BotExplorePhotosPageFollowMin, Config.BotExplorePhotosPageFollowMax) : 0;
             IWebElement element = Selenium.GetElements(Config.CssExplorePhotos, true, true).FirstOrDefault();
 
-            int likeRemaining = likeTodo;
-            int followRemaining = followTodo;
-            while (element != null && (likeRemaining > 0 || followRemaining > 0))
+            int likeDone = 0;
+            int followDone = 0;
+            while (element != null && (likeDone < likeTodo || followDone < followTodo))
             {
-                Selenium.ScrollIntoView(element);
-                WaitMin();
-                element.Click();
-                WaitMin();
+                Log.LogDebug("Opening a post");
+                ScrollClickWait(element);
 
-                if (likeRemaining > 0 && ClickWaitIfPresent(Config.CssPhotoLike))
+                if (likeDone < likeTodo && Selenium.GetIfPresent(Config.CssPhotoLike, out IWebElement btnLike))
                 {
+                    Log.LogDebug("Liking");
+                    WaitBeforeLikeHumanizer();
+                    ClickWait(btnLike);
                     CheckActionWarning();
-                    likeRemaining--;
+                    likeDone++;
                 }
 
-                if (followRemaining > 0 && ClickWaitIfPresent(Config.CssPhotoFollow))
+                if (followDone < followTodo && Selenium.GetIfPresent(Config.CssPhotoFollow, out IWebElement btnFollow))
                 {
+                    Log.LogDebug("Following");
+                    WaitBeforeFollowHumanizer();
+                    ClickWait(btnFollow);
                     CheckActionWarning();
-                    followRemaining--;
+                    followDone++;
                 }
 
                 // close modal page without waiter
+                Log.LogDebug("Closing a post");
                 Selenium.Click(Config.CssPhotoClose);
 
                 // add more result in the page for next
@@ -354,49 +355,69 @@ namespace InstagramFollowerBot
 
                 element = Selenium.GetElements(Config.CssExplorePhotos, true, true).FirstOrDefault();
             }
-            Log.LogDebug("Explore Photos page actions : {0} like, {1} follow", likeTodo, followTodo);
+            if (likeDone == likeTodo && followDone == followTodo)
+            {
+                Log.LogInformation("Explore Photos page actions : {0} like, {1} follow", likeDone, followDone);
+            }
+            else
+            {
+                Log.LogWarning("Explore Photos page actions : {0}/{1} like, {2}/{3} follow (not all done, you may increase scrool or reduce frequency)", likeDone, likeTodo, followDone, followTodo);
+            }
+        }
+
+        private void DoActivityPageActions()
+        {
+            Log.LogDebug("Go to Activity page");
+            ScrollToTopWait();
+            ClickWait(Config.CssHeaderButtonActivity);
+
+            WaitHumanizer();
+
+            ClickByPositionWait(Config.CssHeaderButtonActivity);
         }
 
         private void DoHomePageActions()
         {
-            MoveTo(Config.UrlRoot);
-            WaitHumanizer();
+            Log.LogDebug("Go to Home page");
+            ScrollToTopWait();
+            ClickWait(Config.CssHeaderButtonHome);
 
             SchroolDownWaitLoop(Config.BotHomePageInitScrools);
 
-            int likeTodo = PseudoRand.Next(Config.BotHomePageLikeMin, Config.BotHomePageLikeMax);
+            int likeTodo = PseudoRand(Config.BotHomePageLikeMin, Config.BotHomePageLikeMax);
             IWebElement element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
 
-            int likeRemaining = likeTodo;
-            while (element != null && likeRemaining > 0)
+            int likeDone = 0;
+            while (element != null && likeDone < likeTodo)
             {
-                Selenium.ScrollIntoView(element);
+                Log.LogDebug("Liking");
                 WaitBeforeLikeHumanizer();
-                element.Click();
-                likeRemaining--;
-                WaitHumanizer();
-
+                ScrollClickWait(element);
                 CheckActionWarning();
+                likeDone++;
 
                 // add more result in the page for next
                 ScrollToBottomWait();
 
                 element = Selenium.GetElements(Config.CssPhotoLike, true, true).FirstOrDefault();
             }
-            Log.LogDebug("Home page Actions : {0} like", likeTodo);
+            if (likeDone == likeTodo)
+            {
+                Log.LogInformation("Home page actions : {0} like", likeDone);
+            }
+            else
+            {
+                Log.LogWarning("Home page actions : {0}/{1} like (not all done, you may increase scrool or reduce frequency)", likeDone, likeTodo);
+            }
         }
 
         private void DoContactsFollow()
         {
-            int todo = PseudoRand.Next(Config.BotFollowTaskBatchMinLimit, Config.BotFollowTaskBatchMaxLimit);
+            int todo = PseudoRand(Config.BotFollowTaskBatchMinLimit, Config.BotFollowTaskBatchMaxLimit);
             int c = Data.ContactsToFollow.Count;
             while (Data.ContactsToFollow.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : INSTAGRAM RETURN ERROR ON ({0})", uri);
-                    break; // no retry
-                }
+                MoveToWait(uri);
                 MyContactsInTryout.Add(uri);
                 if (Selenium.GetElements(Config.CssContactFollow).Any()) // manage the already followed like this
                 {
@@ -423,11 +444,7 @@ namespace InstagramFollowerBot
             int c = Data.ContactsToUnfollow.Count;
             while (Data.ContactsToUnfollow.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                    break; // no retry
-                }
+                MoveToWait(uri);
 
                 bool process = false;
                 // with triangle
@@ -462,15 +479,11 @@ namespace InstagramFollowerBot
 
         private void DoPhotosLike(bool doFollow = true, bool doLike = true)
         {
-            int todo = PseudoRand.Next(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
+            int todo = PseudoRand(Config.BotLikeTaskBatchMinLimit, Config.BotLikeTaskBatchMaxLimit);
             int c = Data.PhotosToLike.Count;
             while (Data.PhotosToLike.TryDequeue(out string uri) && todo > 0)
             {
-                if (!MoveTo(uri))
-                {
-                    Log.LogWarning("ACTION STOPED : Instagram RETURN ERROR ({0})", uri);
-                    break; // no retry
-                }
+                MoveToWait(uri);
 
                 if (doLike && Selenium.GetElements(Config.CssPhotoLike).Any()) // manage the already unfollowed like this
                 {
@@ -483,7 +496,7 @@ namespace InstagramFollowerBot
                 {
                     WaitBeforeFollowHumanizer();
                     ClickWait(Config.CssPhotoFollow);
-                    ClickWait(Config.CssPhotoLike);
+                    CheckActionWarning();
                 }
 
                 todo--;
