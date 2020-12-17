@@ -36,7 +36,7 @@ namespace InstagramFollowerBot
             }
         }
 
-        private void SchroolDownWaitLoop(string divId)
+        private void SchroolDownWaitLoop(string className)
         {
             string oldValue, newValue = null;
             int it = 0;
@@ -47,11 +47,11 @@ namespace InstagramFollowerBot
                 // accelerator
                 for (int i = 0; i < it; i++)
                 {
-                    Selenium.ScrollToBottom(divId);
+                    Selenium.ScrollToBottom(className);
                 }
                 it++;
 
-                newValue = Selenium.ScrollToBottom(divId);
+                newValue = Selenium.ScrollToBottom(className);
                 WaitMin();
             }
             while (oldValue != newValue);
