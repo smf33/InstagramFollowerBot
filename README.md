@@ -1,12 +1,10 @@
 # Instagram Follower Bot
 
-Bot for Instagram, in .Net Core, using a Chrome client and Selenium for command it.
+Bot for Instagram, in .Net Core, using Chrome and Selenium for actions.
 
 Main functions :
-- Unfollow users whose doesn't follow you
-- Follow users which are following you
-- Follow based on Insta Explore Suggestions
-- Search or Explore Photos to Like and/or follow
+- Follow&Like with Insta Photos Explore
+- Like on Insta home page
 - Can work with a remote Selenium grid and/or in docker
 
 *Tags	: Instagram, Chrome, Selenium, C#, .Net, Core, bot, robot*
@@ -16,11 +14,12 @@ Main functions :
 - Windows, Linux or Mac
 - .Net SDK 5.0 : https://dotnet.microsoft.com/download
 - Chrome (not Chromium), or a Selenium server with Chrome clients
+*If you use Chrome (not Selenium server so), the ChromeDriver of this bot version must match your Chrome version.*
 
 ## Usage
 
 ### DotNet run
-![.NET Core](https://github.com/smf33/InstagramFollowerBot/workflows/.NET%20Core/badge.svg)
+![.NET Core](https://github.com/smf33/InstagramFollowerBot/workflows/.NET/badge.svg)
 
 Download the sources and run donet sdk command in the folder of your Windows, Linux or Mac.
 
@@ -31,26 +30,26 @@ dotnet run
 
 - On a daily base, unfollow users whose doesn't follow you :
 ```
-dotnet run BotTasks=DetectContactsUnfollowBack,DoContactsUnfollow BotUserEmail=you@dom.com BotUserPassword=Passw0rd
+dotnet run IFB_TaskManager__TaskList=DetectContactsUnfollowBack,DoContactsUnfollow IFB_Logging__User=you@dom.com IFB_Logging__Password=Passw0rd
 ```
 
 ### Docker run
 ![Docker](https://github.com/smf33/InstagramFollowerBot/workflows/Docker/badge.svg)
 
-- Build and Run default BotTasks with Docker with a remote Selenium Hub (here another docker) :
+- Build and Run default IFB_TaskManager__TaskList with Docker with a remote Selenium Hub (here another docker) :
 Exemple with Z:\InstagramFollowerBot as the source path, on a Windows system
 ```
 docker build -f Z:\InstagramFollowerBot\Dockerfile -t instagramfollowerbot Z:\InstagramFollowerBot
 docker run --name seleniumContainer --detach --publish 4444:4444 selenium/standalone-chrome --volume /dev/shm:/dev/shm 
-docker run --link seleniumContainer:seleniumhost instagramfollowerbot BotUserEmail=you@dom.com BotUserPassword=Passw0rd SeleniumRemoteServer=http://seleniumhost:4444/wd/hub
+docker run --link seleniumContainer:seleniumhost instagramfollowerbot IFB_Logging__User=you@dom.com IFB_Logging__Password=Passw0rd IFB_Selenium__RemoteServer=http://seleniumhost:4444/wd/hub
 ```
 
 ### Docker Compose run
 ![Docker Compose](https://github.com/smf33/InstagramFollowerBot/workflows/Docker%20Compose/badge.svg)
 
-- Build and Run default BotTasks with Docker and an standalone Selenium
+- Build and Run default IFB_TaskManager__TaskList with Docker and an standalone Selenium
 
-Exemple with BotUserEmail&BotUserPassword provided in the InstagramFollowerBot.json or in the "environment:" of the docker-compose.yml
+Exemple with IFB_Logging:User&IFB_Logging:Password provided in the InstagramFollowerBot.json or in the "environment:" of the docker-compose.yml
 ```
 docker-compose up
 ```
@@ -58,16 +57,16 @@ docker-compose up
 ## Configuration
 - Main settings :
 Settings may be read in command line parameter, else in environnement variable, else in InstagramFollowerBot.json.
-Only BotUserEmail and BotUserPassword won't have default working values from the initial configuration file.
-BotUserPassword may be set to null in debug mode (the user will be able to insert the password himself)
+Only IFB_Logging__User and IFB_Logging__Password won't have default working values from the initial configuration file.
+IFB_Logging__Password may be set to null in debug mode (the user will be able to insert the password himself)
 
 | Parameter | Description |
 | :-------- | :---------- |
-| BotUserEmail | Email for auto-login and filename of the session file |
-| BotUserPassword | Password for auto-login, may be set to null if session file already created |
+| IFB_Logging__User | Email or UserName for login and filename for the session file |
+| IFB_Logging__Password | Password for auto-login, may be set to null if session file already created |
 | BotUsePersistence | Will create a file for the user session and cookies |
 | SeleniumRemoteServer | Url of the Selenium Hub web service |
-| BotTasks | Tasks to do, separatedd by a comma |
+| IFB_TaskManager__TaskList | Tasks to do, separatedd by a comma |
 | BotUserSaveFolder | Where user informations (like cookie) are stored |
 
 - Taks :
@@ -76,12 +75,14 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 
 | Name | Description |
 | :--- | :---------- |
-| DoHomePageLike | Like post in the home screen, after BotHomePageInitScrools scrools, like between BotHomePageLikeMin and BotHomePageLikeMax post |
-| DetectContactsUnfollowBack | Push contacts for DoContactsUnfollow |
-| DoContactsUnfollow | Pop elements that DetectContactsUnfollowBack have send to this queue |
-| Save | Update the session file |
-| Wait | Pause the worker |
-| Loop | Restart from first task |
+| CHECKACTIVITY | Open/Close the Activity popup |
+| DOHOMEPAGELIKE | Like post in the home screen, like between IFB_HomePageActions__LikeMin and IFB_HomePageActions__LikeMax post |
+| DOEXPLOREPHOTOSFOLLOW | Follow only of the DOEXPLOREPHOTOSFOLLOWLIKE, follow between IFB_ExplorePhotosPageActions__FollowMin and IFB_ExplorePhotosPageActions__FollowMax post |
+| DOEXPLOREPHOTOSLIKE | Like only of the DOEXPLOREPHOTOSFOLLOWLIKE, like between IFB_ExplorePhotosPageActions__LikeMin and IFB_ExplorePhotosPageActions__LikeMax post |
+| DOEXPLOREPHOTOSFOLLOWLIKE | Follow and Like of the DOEXPLOREPHOTOSFOLLOWLIKE |
+| SAVE | Save the user session file, including cookie, allowing session to be resumed next application launch |
+| WAIT | Pause the worker |
+| LOOP | Restart from first task (or BEGINLOOP if present), loop for IFB_TaskManager__LoopTaskLimit times |
 
 ## Notes
 - Selenium Chrome Driver must have the same version than your Chrome (change the lib version in the project if required)
@@ -91,6 +92,4 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - The account should follow at last one account, else the bot will fail to detect this
 - About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
 ## TODO :
-- Update this readme for all function now working :-)
 - Enable more functions already working on the Flickr version of this bot
-- Like pict found and add follow the account by default
