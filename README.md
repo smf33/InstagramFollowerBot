@@ -6,6 +6,8 @@ Main functions :
 - Follow&Like with Insta Photos Explore
 - Like on Insta home page
 - Can work with a remote Selenium grid and/or in docker
+- Colored console trace or VSO format for Azure DevOps execition
+- Support ApplicationInsights (allow easier tracking of multiple context execution)
 
 *Tags	: Instagram, Chrome, Selenium, C#, .Net, Core, bot, robot*
 
@@ -62,23 +64,26 @@ IFB_Logging__Password may be set to null in debug mode (the user will be able to
 
 | Parameter | Description |
 | :-------- | :---------- |
-| IFB_Logging__User | Email or UserName for login and filename for the session file |
+| IFB_Logger_UseApplicationInsights | Enable Microsoft Azure ApplicationInsights, you must define the environnement variable APPINSIGHTS_INSTRUMENTATIONKEY with your key |
+| IFB_Logger_UseAzureDevOpsFormating | Use a VSO log format instead of the default colored output, enable it if you run your bot through Azure DevOps pipeline |
 | IFB_Logging__Password | Password for auto-login, may be set to null if session file already created |
-| BotUsePersistence | Will create a file for the user session and cookies |
-| SeleniumRemoteServer | Url of the Selenium Hub web service |
+| IFB_Logging__User | Email or UserName for login and filename for the session file |
+| IFB_Persistence__SaveFolder | Where user informations (like cookie) are stored |
+| IFB_Persistence__UsePersistence | Will create a file for the user session and cookies |
+| IFB_Selenium__RemoteServer | Url of the Selenium Hub web service |
+| IFB_Selenium__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
 | IFB_TaskManager__TaskList | Tasks to do, separatedd by a comma |
-| BotUserSaveFolder | Where user informations (like cookie) are stored |
 
-- Taks :
+- Takss :
 Task name is case insensitive
 A lot of settings in order to randomize or limit the batch, in the Bot.Json
 
 | Name | Description |
 | :--- | :---------- |
 | CHECKACTIVITY | Open/Close the Activity popup |
-| DOHOMEPAGELIKE | Like post in the home screen, like between IFB_HomePageActions__LikeMin and IFB_HomePageActions__LikeMax post |
-| DOEXPLOREPHOTOSFOLLOW | Follow only of the DOEXPLOREPHOTOSFOLLOWLIKE, follow between IFB_ExplorePhotosPageActions__FollowMin and IFB_ExplorePhotosPageActions__FollowMax post |
-| DOEXPLOREPHOTOSLIKE | Like only of the DOEXPLOREPHOTOSFOLLOWLIKE, like between IFB_ExplorePhotosPageActions__LikeMin and IFB_ExplorePhotosPageActions__LikeMax post |
+| DOHOMEPAGELIKE | Like post in the home screen, like between IFB_HomePage__LikeMin and IFB_HomePage__LikeMax post |
+| DOEXPLOREPHOTOSFOLLOW | Follow only of the DOEXPLOREPHOTOSFOLLOWLIKE, follow between IFB_ExplorePhotos__FollowMin and IFB_ExplorePhotos__FollowMax post |
+| DOEXPLOREPHOTOSLIKE | Like only of the DOEXPLOREPHOTOSFOLLOWLIKE, like between IFB_ExplorePhotos__LikeMin and IFB_ExplorePhotos__LikeMax post |
 | DOEXPLOREPHOTOSFOLLOWLIKE | Follow and Like of the DOEXPLOREPHOTOSFOLLOWLIKE |
 | SAVE | Save the user session file, including cookie, allowing session to be resumed next application launch |
 | WAIT | Pause the worker |

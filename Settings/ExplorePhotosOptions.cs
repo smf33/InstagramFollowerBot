@@ -1,8 +1,8 @@
 namespace IFB
 {
-    internal class ExplorePhotosPageActionsOptions : IScrollableActionOptions, IFollowableActionOptions, ILikeableActionOptions
+    internal class ExplorePhotosOptions : IScrollableActionOptions, IFollowableActionOptions, ILikeableActionOptions
     {
-        internal const string Section = "IFB_ExplorePhotosPageActions";
+        internal const string Section = "IFB_ExplorePhotos";
 
         public int InitScrools { get; set; }
         public int FollowMax { get; set; }

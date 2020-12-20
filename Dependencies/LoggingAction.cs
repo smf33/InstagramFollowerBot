@@ -22,6 +22,9 @@ namespace IFB
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _persistenceAction = persistenceAction ?? throw new ArgumentNullException(nameof(persistenceAction));
 
+            // used for other tools
+            LoggingOptions.CurrentUser = _loggingOptions.User;
+
             // config check
             if (string.IsNullOrWhiteSpace(_loggingOptions.User))
             {
@@ -38,9 +41,6 @@ namespace IFB
             // load page (pre requis for setting cookie)
             await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
 
-            // Ignore the message bar : Allow Instagram Cookies
-            await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
-
             if (!await TryAuthCookiesAsync(data))
             {
                 await AuthLoginAsync();
@@ -52,7 +52,7 @@ namespace IFB
 
         private async Task<bool> TryAuthCookiesAsync(PersistenceData data)
         {
-            _logger.LogTrace("TryAuthCookies()");
+            _logger.LogTrace("TryAuthCookiesAsync()");
             if (data?.UserContactUrl != null)
             {
                 _persistenceAction.UpdateSeleniumFromSession();
@@ -63,6 +63,9 @@ namespace IFB
                 // Ignore the enable notification on your browser modal popup
                 await _seleniumWrapper.Click(_instagramOptions.CssLoginWarning, canBeMissing: true);
 
+                // Ignore the message bar : Allow Instagram Cookies
+                await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
+
                 ////check cookie auth OK :  who am i ?
                 if (await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself, canBeMissing: true, noImplicitWait: false))
                 {
@@ -70,13 +73,12 @@ namespace IFB
                     if (data.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
                     {
                         _logger.LogDebug("User authentified from cookie");
-                        return true;
                     }
                     else
                     {
-                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}", data.UserContactUrl, curUserContactUrl);
-                        return false;
+                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, but will erase previous session", data.UserContactUrl, curUserContactUrl);
                     }
+                    return true;
                 }
                 else // not present = not identified
                 {
@@ -93,8 +95,10 @@ namespace IFB
 
         private async Task AuthLoginAsync()
         {
-            _logger.LogTrace("AuthLogin()");
-            await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
+            _logger.LogTrace("AuthLoginAsync()");
+
+            // Ignore the message bar : Allow Instagram Cookies
+            await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
 
             await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginEmail, _loggingOptions.User);
 

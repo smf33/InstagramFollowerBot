@@ -1,11 +1,15 @@
+using Microsoft.Extensions.Logging;
+
 namespace IFB
 {
-    internal static class LoggerOptions
+    internal class LoggerOptions
     {
         internal const string Section = "IFB_Logger";
 
-        internal const string MinimumLevel = "IFB_Logger_MinimumLevel";
-        internal const string UseAzureDevOpsFormating = "IFB_Logger_UseAzureDevOpsFormating";
-        internal const string UseApplicationInsights = "IFB_Logger_UseApplicationInsights";
+        // used
+        public LogLevel MinimumLevel { get; set; }
+
+        public bool UseAzureDevOpsFormating { get; set; }
+        public bool UseApplicationInsights { get; set; }
     }
 }

@@ -1,12 +1,12 @@
 {
-  "IFB_ExplorePhotosPageActions": {
+  "IFB_ExplorePhotos": {
     "FollowMax": 10,
     "FollowMin": 2,
     "InitScrools": 5,
     "LikeMax": 25,
     "LikeMin": 5
   },
-  "IFB_HomePageActions": {
+  "IFB_HomePage": {
     "InitScrools": 4,
     "LikeMax": 20,
     "LikeMin": 1
@@ -37,6 +37,11 @@
     "CssSuggestedContact": ".FPmhX",
     "UrlRoot": "https://www.instagram.com"
   },
+  "IFB_Logger": {
+    "MinimumLevel": "Debug",
+    "UseAzureDevOpsFormating": false,
+    "UseApplicationInsights": false
+  },
   "IFB_Logging": {
     "Password": null,
     "User": null
@@ -49,6 +54,7 @@
   },
   "IFB_Selenium": {
     "BrowserArguments": "--no-sandbox|--disable-background-networking|--disable-default-apps|--incognito|--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36|--disable-gpu|--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0,MAP edge-chat.instagram.com 0.0.0.0",
+    "DumpBrowserContextOnCrash": false,
     "RemoteServer": null,
     "RemoteServerWarmUpWaitMs": 30000,
     "TimeoutSec": 30,
@@ -75,13 +81,5 @@
     "PreLikeMinWaitMs": 25000,
     "WaitTaskMaxWaitMs": 40000,
     "WaitTaskMinWaitMs": 20000
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "IFB": "Debug",
-      "Microsoft": "Warning",
-      "System": "Warning"
-    }
   }
 }

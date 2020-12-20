@@ -23,12 +23,76 @@ namespace IFB
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
         }
 
-        private string _SessionFile;
         private PersistenceData _Session = null;
+
+        private async Task LoadSessionFile()
+        {
+            // read raw file
+            string content;
+            try
+            {
+                content = await File.ReadAllTextAsync(PersistenceOptions.CurrentLogFile, Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, "Fail to read persistence session data {0} :", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                throw;
+            }
+
+            // deserialize file
+            PersistenceData dataTmp;
+            try
+            {
+                dataTmp = JsonConvert.DeserializeObject<PersistenceData>(content);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                throw;
+            }
+
+            // check file
+            if (_persistenceOptions.UsePersistenceLimitHours <= 0
+                || DateTime.UtcNow < dataTmp.CookiesInitDate.Value.AddHours(_persistenceOptions.UsePersistenceLimitHours))
+            {
+                _logger.LogDebug("User session loaded.");
+                _Session = dataTmp;
+            }
+            else
+            {
+                _logger.LogWarning("Persistence limit reached, starting a new session");
+            }
+        }
+
+        private async Task SaveSessionFile()
+        {
+            // serialize file
+            string content;
+            try
+            {
+                content = JsonConvert.SerializeObject(_Session, Formatting.Indented);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Fail to serialize persistence session data : ", ex.GetBaseException().Message);
+                throw;
+            }
+
+            // write raw file
+            try
+            {
+                await File.WriteAllTextAsync(PersistenceOptions.CurrentLogFile, content, Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, "Fail to write persistence session data {0} :", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                throw;
+            }
+        }
 
         internal async Task<PersistenceData> GetSessionAsync(string userName)
         {
-            _logger.LogTrace("GetSession()");
+            _logger.LogTrace("GetSessionAsync()");
             if (_persistenceOptions.UsePersistence)
             {
                 // get base path
@@ -47,20 +111,20 @@ namespace IFB
                             throw;
                         }
                     }
-                    _SessionFile = Path.Combine(_persistenceOptions.SaveFolder, userName + ".json");
+                    PersistenceOptions.CurrentLogFile = Path.Combine(_persistenceOptions.SaveFolder, userName + ".json");
                 }
                 else
                 {
-                    _SessionFile = Path.Combine(Files.ExecutablePath, "PersistenceData_" + userName + ".json");
+                    PersistenceOptions.CurrentLogFile = Path.Combine(Files.ExecutablePath, "PersistenceData_" + userName + ".json");
                 }
 
-                if (File.Exists(_SessionFile))
+                if (File.Exists(PersistenceOptions.CurrentLogFile))
                 {
                     await LoadSessionFile();
                 }
                 else
                 {
-                    _logger.LogDebug("No existing session to load : {0}", _SessionFile);
+                    _logger.LogDebug("No existing session to load : {0}", PersistenceOptions.CurrentLogFile);
                 }
             }
             else
@@ -70,47 +134,9 @@ namespace IFB
             return _Session;
         }
 
-        private async Task LoadSessionFile()
-        {
-            // read raw file
-            string content;
-            try
-            {
-                content = await File.ReadAllTextAsync(_SessionFile, Encoding.UTF8);
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError(ex, "Fail to read persistence session data {0} :", _SessionFile, ex.GetBaseException().Message);
-                throw;
-            }
-
-            // deserialize file
-            PersistenceData dataTmp;
-            try
-            {
-                dataTmp = JsonConvert.DeserializeObject<PersistenceData>(content);
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", _SessionFile, ex.GetBaseException().Message);
-                throw;
-            }
-
-            // check file
-            if (_persistenceOptions.UsePersistenceLimitHours <= 0
-                || DateTime.UtcNow < dataTmp.CookiesInitDate.Value.AddHours(_persistenceOptions.UsePersistenceLimitHours))
-            {
-                _logger.LogDebug("User session loaded.");
-                _Session = dataTmp;
-            }
-            else
-            {
-                _logger.LogWarning("Persistence limit reached, starting a new session");
-            }
-        }
-
         internal PersistenceData SetNewSession(string userContactUrl)
         {
+            _logger.LogTrace("SetNewSession()");
             _Session = new PersistenceData()
             {
                 UserContactUrl = userContactUrl
@@ -151,32 +177,6 @@ namespace IFB
                 await SaveSessionFile();
 
                 _logger.LogDebug("User session saved");
-            }
-        }
-
-        private async Task SaveSessionFile()
-        {
-            // serialize file
-            string content;
-            try
-            {
-                content = JsonConvert.SerializeObject(_Session, Formatting.Indented);
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "Fail to serialize persistence session data : ", ex.GetBaseException().Message);
-                throw;
-            }
-
-            // write raw file
-            try
-            {
-                await File.WriteAllTextAsync(_SessionFile, content, Encoding.UTF8);
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError(ex, "Fail to write persistence session data {0} :", _SessionFile, ex.GetBaseException().Message);
-                throw;
             }
         }
     }

@@ -12,5 +12,6 @@ namespace IFB
         public int WindowMinW { get; set; }
         public string BrowserArguments { get; set; }
         public string RemoteServer { get; set; }
+        public bool DumpBrowserContextOnCrash { get; set; }
     }
 }

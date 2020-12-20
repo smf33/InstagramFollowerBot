@@ -17,10 +17,10 @@ namespace IFB
             // VSO prefix
             if (!string.IsNullOrEmpty(prefixVso))
             {
-                Console.WriteLine("##[{0}]", prefixVso);
+                Console.Write("##[{0}]", prefixVso);
             }
             // message itsef
-            Console.Write("[{0}] {1}", _categoryName, message);
+            Console.WriteLine("[{0}] {1}", _categoryName, message);
             // more detail
             if (exception != null)
             {

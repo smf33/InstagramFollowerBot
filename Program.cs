@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -16,26 +15,21 @@ namespace IFB
 
         public static async Task<int> Main(string[] args)
         {
-            // Setup
-            int ret = 0;
-            IServiceProvider serviceProvider = ConfigureServices(args);
-
-            // telemetryClient
-            TelemetryClient telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
-
-            // telemetryClient
-            ILogger _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
-
-            // Run
+            int ret;
+            IServiceProvider serviceProvider = null;
             try
             {
+                // Setup
+                serviceProvider = ConfigureServices(args);
+
+                // Run
                 await serviceProvider.GetRequiredService<FollowerService>()
                     .RunAsync();
+
+                ret = 0;
             }
-            catch (Exception ex)
+            catch
             {
-                telemetryClient.TrackException(ex);
-                _logger.LogCritical(ex, "EXCEPTION : {0}", ex.GetBaseException().Message);
                 ret = -1;
             }
 
@@ -45,16 +39,13 @@ namespace IFB
                 serviceProviderDisposable.Dispose();
             }
 
-            // flush telemetry
-            telemetryClient.Flush();
-            await Task.Delay(3000);
-
             // End the application
             return ret;
         }
 
         private static IServiceProvider ConfigureServices(string[] args)
         {
+            // setup config
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Files.ExecutablePath)
                 .AddJsonFile("InstagramFollowerBot.json", optional: false, reloadOnChange: false) // priority 4
@@ -62,24 +53,43 @@ namespace IFB
                 .AddCommandLine(args) // priority 1
                 .Build();
 
-            return new ServiceCollection()
-                //.AddApplicationInsightsTelemetry()
-                .AddLogging(configure => configure
-                    .AddConfiguration(configuration.GetSection("Logging"))
-                    .SetMinimumLevel(LogLevel
-                    .AddProvider(new ColoredConsoleLoggerProvider()))
+            // init services
+            IServiceCollection services = new ServiceCollection();
+
+            // Setup Logging
+            LoggerOptions loggerOptions = new LoggerOptions();
+            configuration.GetSection(LoggerOptions.Section).Bind(loggerOptions);
+            if (loggerOptions.UseApplicationInsights)
+            {
+                services.AddApplicationInsightsTelemetryWorkerService();
+            }
+            services.AddLogging(configure =>
+            {
+                configure.SetMinimumLevel(loggerOptions.MinimumLevel);
+                if (!loggerOptions.UseAzureDevOpsFormating)
+                {
+                    configure.AddProvider(new ColoredConsoleLoggerProvider());
+                }
+                else
+                {
+                    configure.AddProvider(new VsoLoggerProvider());
+                }
+            });
+
+            // Add the applications services
+            return services
                 .AddOptions()
                 .AddSingleton<PersistenceAction>() // must be singleton
                 .AddSingleton<SeleniumWrapper>() // must be singleton
                 .AddTransient<ActivityAction>() // can be used one or more time
-                .AddTransient<ExplorePhotosPageActions>() // can be used one or more time
+                .AddTransient<ExplorePhotosAction>() // can be used one or more time
                 .AddTransient<FollowerService>() // used once
-                .AddTransient<HomePageAction>() // can be used one or more time
+                .AddTransient<HomeAction>() // can be used one or more time
                 .AddTransient<LoggingAction>() // used once
                 .AddTransient<TaskLoader>() // used once
                 .AddTransient<WaitAction>() // used few time
-                .Configure<ExplorePhotosPageActionsOptions>(configuration.GetSection(ExplorePhotosPageActionsOptions.Section))
-                .Configure<HomePageActionsOptions>(configuration.GetSection(HomePageActionsOptions.Section))
+                .Configure<ExplorePhotosOptions>(configuration.GetSection(ExplorePhotosOptions.Section))
+                .Configure<HomePageOptions>(configuration.GetSection(HomePageOptions.Section))
                 .Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.Section))
                 .Configure<LoggingOptions>(configuration.GetSection(LoggingOptions.Section))
                 .Configure<PersistenceOptions>(configuration.GetSection(PersistenceOptions.Section))

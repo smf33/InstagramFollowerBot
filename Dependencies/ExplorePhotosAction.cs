@@ -6,10 +6,10 @@ using OpenQA.Selenium;
 
 namespace IFB
 {
-    internal class ExplorePhotosPageActions : ILikeAction, IFollowAction
+    internal class ExplorePhotosAction : ILikeAction, IFollowAction
     {
-        private readonly ILogger<HomePageAction> _logger;
-        private readonly ExplorePhotosPageActionsOptions _explorePhotosPageActionsOptions;
+        private readonly ILogger<HomeAction> _logger;
+        private readonly ExplorePhotosOptions _explorePhotosPageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
@@ -17,10 +17,10 @@ namespace IFB
         public bool DoFollow { get; set; }
         public bool DoLike { get; set; }
 
-        public ExplorePhotosPageActions(ILogger<HomePageAction> logger, IOptions<ExplorePhotosPageActionsOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
+        public ExplorePhotosAction(ILogger<HomeAction> logger, IOptions<ExplorePhotosOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogTrace("new ExplorePhotosPageActions()");
+            _logger.LogTrace("new ExplorePhotosAction()");
             _explorePhotosPageActionsOptions = explorePhotosPageActionsOptions.Value ?? throw new ArgumentNullException(nameof(explorePhotosPageActionsOptions));
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));

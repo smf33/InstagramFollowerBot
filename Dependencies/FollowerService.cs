@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +25,7 @@ namespace IFB
 
             // load actions to do
             Queue<string> taskQueue = new Queue<string>(_serviceProvider.GetRequiredService<TaskLoader>().GetTaskNameList());
+            TelemetryClient telemetryClient = _serviceProvider.GetService<TelemetryClient>(); // may be null
 
             // just do it
             while (taskQueue.TryDequeue(out string curTask))
@@ -48,21 +50,21 @@ namespace IFB
                         break;
 
                     case "DOHOMEPAGELIKE":
-                        action = _serviceProvider.GetRequiredService<HomePageAction>();
+                        action = _serviceProvider.GetRequiredService<HomeAction>();
                         break;
 
                     case "DOEXPLOREPHOTOSFOLLOWLIKE":
                     case "DOEXPLOREPHOTOSLIKEFOLLOW":
-                        action = _serviceProvider.GetRequiredService<ExplorePhotosPageActions>();
+                        action = _serviceProvider.GetRequiredService<ExplorePhotosAction>();
                         break;
 
                     case "DOEXPLOREPHOTOSLIKE":
-                        action = _serviceProvider.GetRequiredService<ExplorePhotosPageActions>();
+                        action = _serviceProvider.GetRequiredService<ExplorePhotosAction>();
                         ((IFollowAction)action).DoFollow = false;
                         break;
 
                     case "DOEXPLOREPHOTOSFOLLOW":
-                        action = _serviceProvider.GetRequiredService<ExplorePhotosPageActions>();
+                        action = _serviceProvider.GetRequiredService<ExplorePhotosAction>();
                         ((ILikeAction)action).DoLike = false;
                         break;
 
@@ -76,20 +78,38 @@ namespace IFB
                         continue;
                 }
 
-                _logger.LogInformation("{0}...", curTask);
+                _logger.LogInformation("{0}", curTask);
 
                 DateTimeOffset dtStart = DateTimeOffset.Now;
                 try
                 {
                     await action
                         .RunAsync();
-                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
+                    if (telemetryClient != null)
+                    {
+                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', LoggingOptions.CurrentUser), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', Config.BotUserEmail), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
+                    _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
+                    if (telemetryClient != null)
+                    {
+                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', LoggingOptions.CurrentUser), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
+                        telemetryClient.TrackException(ex);
+                    }
+                    // dump png and html if required
+                    _serviceProvider.GetRequiredService<SeleniumWrapper>()
+                        .DumpCurrentPage();
                     throw;
                 }
+            }
+
+            // flush telemetry
+            if (telemetryClient != null)
+            {
+                telemetryClient.Flush();
+                await Task.Delay(3000);
             }
         }
     }

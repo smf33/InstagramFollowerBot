@@ -1,8 +1,8 @@
 namespace IFB
 {
-    internal class HomePageActionsOptions : IScrollableActionOptions, ILikeableActionOptions
+    internal class HomePageOptions : IScrollableActionOptions, ILikeableActionOptions
     {
-        internal const string Section = "IFB_HomePageActions";
+        internal const string Section = "IFB_HomePage";
 
         public int InitScrools { get; set; }
 
