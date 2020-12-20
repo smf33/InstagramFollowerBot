@@ -1,54 +1,92 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Extensibility;
-using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace InstagramFollowerBot
+namespace IFB
 {
     public class Program
     {
-        private static int Main(string[] args)
+        // Utility classes should not have public constructors
+        protected Program()
         {
-            int ret = -1;
+        }
 
-            TelemetryConfiguration telemetryConfiguration = TelemetryConfiguration.CreateDefault();
-            TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
-            ConsoleLogger logger = new ConsoleLogger(telemetryClient);
-            using PerformanceCollectorModule perfCollectorModule = new PerformanceCollectorModule(); // https://github.com/MicrosoftDocs/azure-docs/blob/master/articles/azure-monitor/app/performance-counters.md
-            perfCollectorModule.Initialize(telemetryConfiguration);
+        public static async Task<int> Main(string[] args)
+        {
+            // Setup
+            int ret = 0;
+            IServiceProvider serviceProvider = ConfigureServices(args);
 
+            // telemetryClient
+            TelemetryClient telemetryClient = serviceProvider.GetRequiredService<TelemetryClient>();
+
+            // telemetryClient
+            ILogger _logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+            // Run
             try
             {
-                using FollowerBot bot = new FollowerBot(args, logger, telemetryClient);
-
-                try
-                {
-                    bot.Run();
-                    ret = 0;
-                }
-                catch
-                {
-                    bot.DebugDump();
-                    throw;
-                }
+                await serviceProvider.GetRequiredService<FollowerService>()
+                    .RunAsync();
             }
             catch (Exception ex)
             {
                 telemetryClient.TrackException(ex);
-                logger.LogCritical(default, ex, "## ENDED IN ERROR : {0}", ex.GetBaseException().Message);
+                _logger.LogCritical(ex, "EXCEPTION : {0}", ex.GetBaseException().Message);
+                ret = -1;
             }
 
-            telemetryClient.Flush();
-            Task.Delay(5000).Wait();
+            // CleanUp
+            if (serviceProvider is IDisposable serviceProviderDisposable)
+            {
+                serviceProviderDisposable.Dispose();
+            }
 
+            // flush telemetry
+            telemetryClient.Flush();
+            await Task.Delay(3000);
+
+            // End the application
             return ret;
         }
 
-        // Utility classes should not have public constructors
-        protected Program()
+        private static IServiceProvider ConfigureServices(string[] args)
         {
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Files.ExecutablePath)
+                .AddJsonFile("InstagramFollowerBot.json", optional: false, reloadOnChange: false) // priority 4
+                .AddEnvironmentVariables() // priority 2 prefix: "IFB_"
+                .AddCommandLine(args) // priority 1
+                .Build();
+
+            return new ServiceCollection()
+                //.AddApplicationInsightsTelemetry()
+                .AddLogging(configure => configure
+                    .AddConfiguration(configuration.GetSection("Logging"))
+                    .SetMinimumLevel(LogLevel
+                    .AddProvider(new ColoredConsoleLoggerProvider()))
+                .AddOptions()
+                .AddSingleton<PersistenceAction>() // must be singleton
+                .AddSingleton<SeleniumWrapper>() // must be singleton
+                .AddTransient<ActivityAction>() // can be used one or more time
+                .AddTransient<ExplorePhotosPageActions>() // can be used one or more time
+                .AddTransient<FollowerService>() // used once
+                .AddTransient<HomePageAction>() // can be used one or more time
+                .AddTransient<LoggingAction>() // used once
+                .AddTransient<TaskLoader>() // used once
+                .AddTransient<WaitAction>() // used few time
+                .Configure<ExplorePhotosPageActionsOptions>(configuration.GetSection(ExplorePhotosPageActionsOptions.Section))
+                .Configure<HomePageActionsOptions>(configuration.GetSection(HomePageActionsOptions.Section))
+                .Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.Section))
+                .Configure<LoggingOptions>(configuration.GetSection(LoggingOptions.Section))
+                .Configure<PersistenceOptions>(configuration.GetSection(PersistenceOptions.Section))
+                .Configure<SeleniumOptions>(configuration.GetSection(SeleniumOptions.Section))
+                .Configure<TaskManagerOptions>(configuration.GetSection(TaskManagerOptions.Section))
+                .Configure<WaitOptions>(configuration.GetSection(WaitOptions.Section))
+                .BuildServiceProvider();
         }
     }
 }
