@@ -50,13 +50,13 @@
   },
   "IFB_Persistence": {
     "CacheMyContacts": true,
-    "DumpBrowserContextOnCrash": true,
+    "DumpBrowserContextOnCrash": false,
     "SaveFolder": null,
     "UsePersistence": true,
     "UsePersistenceLimitHours": -1
   },
   "IFB_Selenium": {
-    "BrowserArguments": "--no-sandbox|--disable-background-networking|--disable-default-apps|--incognito|--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36|--disable-gpu|--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0,MAP edge-chat.instagram.com 0.0.0.0",
+    "BrowserArguments": "--no-sandbox|--disable-background-networking|--disable-default-apps|--incognito|--disable-gpu|--host-resolver-rules=MAP *.facebook.com 0.0.0.0,MAP *.cdninstagram.com 0.0.0.0,MAP edge-chat.instagram.com 0.0.0.0",
     "RemoteServer": null,
     "RemoteServerWarmUpWaitMs": 30000,
     "TimeoutSec": 30,
@@ -73,7 +73,7 @@
     "TaskList": "CHECKACTIVITY,WAIT,DOHOMEPAGELIKE,DOEXPLOREPHOTOSLIKEFOLLOW"
   },
   "IFB_Snapshoot": {
-    "MakeSnapShootEachSeconds": 2
+    "MakeSnapShootEachSeconds": -1
   },
   "IFB_Wait": {
     "PostActionStepMaxWaitMs": 8000,

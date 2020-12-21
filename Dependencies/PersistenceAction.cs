@@ -31,12 +31,12 @@ namespace IFB
                 // generate the filename base for the .json (session), .png (snapshoot every x sec), or .png and .html (crash dump)
                 string tmpUserName = userName;
                 string tmpSessionBaseFileName = _persistenceOptions.SaveFolder;
-                if (!string.IsNullOrWhiteSpace(tmpSessionBaseFileName) && !Directory.Exists(tmpSessionBaseFileName))
+                if (!string.IsNullOrWhiteSpace(tmpSessionBaseFileName) && !System.IO.Directory.Exists(tmpSessionBaseFileName))
                 {
                     _logger.LogDebug("Create session directory {0}", tmpSessionBaseFileName);
                     try
                     {
-                        Directory.CreateDirectory(tmpSessionBaseFileName);
+                        System.IO.Directory.CreateDirectory(tmpSessionBaseFileName);
                     }
                     catch (IOException ex)
                     {
@@ -46,7 +46,7 @@ namespace IFB
                 }
                 if (string.IsNullOrWhiteSpace(tmpSessionBaseFileName))
                 {
-                    tmpSessionBaseFileName = Files.ExecutablePath;
+                    tmpSessionBaseFileName = Program.ExecutablePath;
                     tmpUserName = string.Concat("PersistenceData_", tmpUserName);
                 }
                 _sessionBaseFileName = Path.Combine(tmpSessionBaseFileName, tmpUserName);

@@ -62,8 +62,8 @@ namespace IFB
             // Init Local or remote SeleniumDrivers
             if (string.IsNullOrWhiteSpace(_seleniumOptions.RemoteServer))
             {
-                _logger.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", Files.ExecutablePath, w, h);
-                WebDriver = new ChromeDriver(Files.ExecutablePath, options);
+                _logger.LogDebug("NewChromeSeleniumWrapper({0}, {1}, {2})", Program.ExecutablePath, w, h);
+                WebDriver = new ChromeDriver(Program.ExecutablePath, options);
             }
             else
             {

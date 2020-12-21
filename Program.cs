@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights.DependencyCollector;
 using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
@@ -13,6 +15,8 @@ namespace IFB
 {
     public class Program
     {
+        internal static readonly string ExecutablePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location); // allow calling the program from a remote dir
+
         // Utility classes should not have public constructors
         protected Program()
         {
@@ -53,7 +57,7 @@ namespace IFB
         {
             // setup config
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Files.ExecutablePath)
+                .SetBasePath(ExecutablePath)
                 .AddJsonFile("InstagramFollowerBot.json", optional: false, reloadOnChange: false) // priority 4
                 .AddEnvironmentVariables() // priority 2 prefix: "IFB_"
                 .AddCommandLine(args) // priority 1
