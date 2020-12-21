@@ -155,31 +155,6 @@ namespace IFB
 
         #region Click
 
-        internal async Task Click(IWebElement element, bool thenWait = true)
-        {
-            _logger.LogTrace("Click({0})", element);
-            if (element != null)
-            {
-                Actions action = new Actions(WebDriver);
-                action
-                    .MoveToElement(element
-                        , PseudoRandom.Next(0, element.Size.Width)
-                        , PseudoRandom.Next(0, element.Size.Height))
-                    .Click()
-                    .Build()
-                    .Perform();
-
-                if (thenWait)
-                {
-                    await _waitAction.PostActionsWait();
-                }
-            }
-            else // here the element have to be present if this is called
-            {
-                throw new ArgumentNullException(nameof(element));
-            }
-        }
-
         internal async Task<bool> Click(string cssSelector, bool canBeMissing = false, bool noImplicitWait = true, bool thenWait = true)
         {
             _logger.LogTrace("Click({0})", cssSelector);
@@ -197,6 +172,38 @@ namespace IFB
             {
                 return false;
             }
+        }
+
+        internal async Task Click(IWebElement element, bool thenWait = true)
+        {
+            _logger.LogTrace("Click({0})", element);
+            if (element != null)
+            {
+                Actions action = new Actions(WebDriver);
+                action
+                    .MoveToElement(element,
+                        GetRandomCenterOffset(element.Size.Width),
+                        GetRandomCenterOffset(element.Size.Height))
+                    .Click()
+                    .Build()
+                    .Perform();
+
+                if (thenWait)
+                {
+                    await _waitAction.PostActionsWait();
+                }
+            }
+            else // here the element have to be present if this is called
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+        }
+
+        // click between the 25% and 75% of the space of the object
+        private static int GetRandomCenterOffset(int elementLenght)
+        {
+            return (elementLenght / 4)  // add 25 %
+                + PseudoRandom.Next(0, (elementLenght / 2)); // random in 50% next
         }
 
         #endregion Click
