@@ -188,8 +188,16 @@ namespace IFB
             _logger.LogTrace("DumpCurrentPageIfRequired()");
             if (_persistenceOptions.DumpBrowserContextOnCrash)
             {
-                string fileNameBase = SessionFile.Remove(SessionFile.Length - 4); // remove .log of the weekly log file
-                fileNameBase = string.Concat(fileNameBase, '.', DateTime.Now.ToString("MMdd-HHmmss")); // add a more precise timestamp
+                string fileNameBase;
+                if (_persistenceOptions.UsePersistence)
+                {
+                    fileNameBase = SessionFile.Remove(SessionFile.Length - 5); // remove .json of the session file
+                }
+                else // use application path insteade
+                {
+                    fileNameBase = Path.Combine(Files.ExecutablePath, "CrashDump");
+                }
+                fileNameBase = string.Concat(fileNameBase, '.', DateTime.Now.ToString("yyyyMMdd-HHmmss")); // add a more precise timestamp
                 _seleniumWrapper.DoDumpCurrentPage(fileNameBase);
             }
         }
