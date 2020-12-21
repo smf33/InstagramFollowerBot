@@ -355,7 +355,7 @@ namespace IFB
         internal void EnableTimerSnapShoot(string filenamePath, int timerMs)
         {
             _logger.LogTrace("EnableTimerSnapShoot({0})", filenamePath);
-            timerSnapShootFileNameBase = string.Concat(filenamePath, ".SnapShoot.");
+            timerSnapShootFileNameBase = string.Concat(filenamePath, ".");
             snapShotTimer = new Timer(TimerSnapShoot, null, 0, timerMs);
         }
 

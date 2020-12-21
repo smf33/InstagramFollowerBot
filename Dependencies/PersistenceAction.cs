@@ -96,7 +96,7 @@ namespace IFB
             // do the dump requested
             if (_persistenceOptions.DumpBrowserContextOnCrash)
             {
-                string fileNameBase = string.Concat(GetSessionBaseFileName(userName), ".CrashDump.", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+                string fileNameBase = string.Concat(GetSessionBaseFileName(userName), ".", DateTime.Now.ToString("yyyyMMdd-HHmmss")); // no fraction of second, so no conflit with the beginshapshoot task
 
                 _seleniumWrapper.SafeDumpCurrentHtml(string.Concat(fileNameBase, ".html"));
 
