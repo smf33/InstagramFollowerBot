@@ -10,11 +10,11 @@ namespace IFB
     {
         private readonly ExplorePhotosOptions _explorePhotosPageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
-        private readonly ILogger<HomeAction> _logger;
+        private readonly ILogger<ExplorePhotosAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
 
-        public ExplorePhotosAction(ILogger<HomeAction> logger, IOptions<ExplorePhotosOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
+        public ExplorePhotosAction(ILogger<ExplorePhotosAction> logger, IOptions<ExplorePhotosOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new ExplorePhotosAction()");
