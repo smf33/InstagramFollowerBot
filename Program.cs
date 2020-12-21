@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.ApplicationInsights.DependencyCollector;
+using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
+using Microsoft.ApplicationInsights.WorkerService;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -63,7 +67,22 @@ namespace IFB
             configuration.GetSection(LoggerOptions.Section).Bind(loggerOptions);
             if (loggerOptions.UseApplicationInsights)
             {
-                services.AddApplicationInsightsTelemetryWorkerService();
+                services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions()
+                {
+                    EnableDiagnosticsTelemetryModule = false, // disable Microsoft telemetric : EnableHeartbeat, EnableAzureInstanceMetadataTelemetryModule, EnableAppServicesHeartbeatTelemetryModule
+                    EnableQuickPulseMetricStream = false // LiveMetrics
+                });
+                // remove spam and useless module
+                ServiceDescriptor module = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
+                if (module != null)
+                {
+                    services.Remove(module);
+                }
+                module = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(QuickPulseTelemetryModule));
+                if (module != null)
+                {
+                    services.Remove(module);
+                }
             }
             services.AddLogging(configure =>
             {
@@ -78,7 +97,8 @@ namespace IFB
                 }
                 if (loggerOptions.UseApplicationInsights)
                 {
-                    configure.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, loggerOptions.MinimumLevel); // else Information by default
+                    configure.AddApplicationInsights() // test normaly useless : exception aren t reported currently
+                        .AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, loggerOptions.MinimumLevel); // else Information by default
                 }
             });
 
