@@ -70,7 +70,8 @@ namespace IFB
                 services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions()
                 {
                     EnableDiagnosticsTelemetryModule = false, // disable Microsoft telemetric : EnableHeartbeat, EnableAzureInstanceMetadataTelemetryModule, EnableAppServicesHeartbeatTelemetryModule
-                    EnableQuickPulseMetricStream = false // LiveMetrics
+                    EnableQuickPulseMetricStream = false, // LiveMetrics
+                    EnableAdaptiveSampling = false
                 });
                 // remove spam and useless module
                 ServiceDescriptor module = services.FirstOrDefault<ServiceDescriptor>(t => t.ImplementationType == typeof(DependencyTrackingTelemetryModule));
