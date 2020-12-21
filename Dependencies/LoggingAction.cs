@@ -7,11 +7,11 @@ namespace IFB
 {
     internal class LoggingAction : IBotAction
     {
+        private readonly InstagramOptions _instagramOptions;
         private readonly ILogger<LoggingAction> _logger;
         private readonly LoggingOptions _loggingOptions;
-        private readonly InstagramOptions _instagramOptions;
-        private readonly SeleniumWrapper _seleniumWrapper;
         private readonly PersistenceAction _persistenceAction;
+        private readonly SeleniumWrapper _seleniumWrapper;
 
         public LoggingAction(ILogger<LoggingAction> logger, IOptions<LoggingOptions> loggingOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, PersistenceAction persistenceAction) // DI : constructor must be public
         {
@@ -33,6 +33,12 @@ namespace IFB
         {
             _logger.LogTrace("RunAsync()");
 
+            if (_loggingOptions.MakeSnapShootEachSeconds > 0)
+            {
+                string baseFileName = _persistenceAction.GetSessionBaseFileName(_loggingOptions.User);
+                _seleniumWrapper.EnableTimerSnapShoot(baseFileName, _loggingOptions.MakeSnapShootEachSeconds * 1000);
+            }
+
             // load page (pre requis for setting cookie)
             await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
 
@@ -48,10 +54,50 @@ namespace IFB
             _logger.LogDebug("Logged user :  {0}", data.UserContactUrl);
         }
 
+        private async Task<PersistenceData> AuthLoginAsync()
+        {
+            _logger.LogTrace("AuthLoginAsync()");
+
+            // Ignore the message bar : Allow Instagram Cookies
+            await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
+
+            await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginEmail, _loggingOptions.User);
+
+            if (!string.IsNullOrWhiteSpace(_loggingOptions.Password))
+            {
+                await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginPassword, _loggingOptions.Password);
+                await _seleniumWrapper.EnterKeyAsync(_instagramOptions.CssLoginPassword);
+            }
+            else
+            {
+                _logger.LogInformation("Waiting user manual password validation...");
+                _logger.LogWarning("PRESS <ENTER> WHEN LOGGED");
+                Console.ReadLine();
+            }
+
+            // Humain user need to login with email code check ? In this case, remove password from the config and increase a lot step time (~1min) in order to allow you to pass throu this check process
+            _seleniumWrapper.CrashIfPresent(_instagramOptions.CssLoginUnusual, InstagramOptions.CssLoginUnusualErrorMessage);
+
+            // Confirm save user info
+            await _seleniumWrapper.Click(_instagramOptions.CssLoginSageInfo, canBeMissing: true);
+
+            // Ignore the enable notification on your browser modal popup
+            await _seleniumWrapper.Click(_instagramOptions.CssLoginWarning, canBeMissing: true);
+
+            // who am i ?
+            await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself); // must be here, else the auth have failed
+
+            // new session with user URL
+            return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
+        }
+
         private async Task<PersistenceData> TryAuthCookiesAsync()
         {
             _logger.LogTrace("TryAuthCookiesAsync()");
-            PersistenceData data = await _persistenceAction.GetSessionAsync(_loggingOptions.User);
+
+            _persistenceAction.InitSessionJsonFile(_loggingOptions.User);
+
+            PersistenceData data = await _persistenceAction.GetSessionAsync();
             if (data?.UserContactUrl != null)
             {
                 _persistenceAction.UpdateSeleniumFromSession();
@@ -92,43 +138,6 @@ namespace IFB
                 _logger.LogDebug("Cookie authentification not used");
                 return null;
             }
-        }
-
-        private async Task<PersistenceData> AuthLoginAsync()
-        {
-            _logger.LogTrace("AuthLoginAsync()");
-
-            // Ignore the message bar : Allow Instagram Cookies
-            await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
-
-            await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginEmail, _loggingOptions.User);
-
-            if (!string.IsNullOrWhiteSpace(_loggingOptions.Password))
-            {
-                await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginPassword, _loggingOptions.Password);
-                await _seleniumWrapper.EnterKeyAsync(_instagramOptions.CssLoginPassword);
-            }
-            else
-            {
-                _logger.LogInformation("Waiting user manual password validation...");
-                _logger.LogWarning("PRESS <ENTER> WHEN LOGGED");
-                Console.ReadLine();
-            }
-
-            // Humain user need to login with email code check ? In this case, remove password from the config and increase a lot step time (~1min) in order to allow you to pass throu this check process
-            _seleniumWrapper.CrashIfPresent(_instagramOptions.CssLoginUnusual, InstagramOptions.CssLoginUnusualErrorMessage);
-
-            // Confirm save user info
-            await _seleniumWrapper.Click(_instagramOptions.CssLoginSageInfo, canBeMissing: true);
-
-            // Ignore the enable notification on your browser modal popup
-            await _seleniumWrapper.Click(_instagramOptions.CssLoginWarning, canBeMissing: true);
-
-            // who am i ?
-            await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself); // must be here, else the auth have failed
-
-            // new session with user URL
-            return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
         }
     }
 }

@@ -8,13 +8,11 @@ namespace IFB
 {
     internal class HomeAction : ILikeAction
     {
-        private readonly ILogger<HomeAction> _logger;
         private readonly HomePageOptions _homePageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
+        private readonly ILogger<HomeAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
-
-        public bool DoLike { get; set; }
 
         public HomeAction(ILogger<HomeAction> logger, IOptions<HomePageOptions> homePageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
@@ -26,6 +24,8 @@ namespace IFB
             _waitAction = waitAction ?? throw new ArgumentNullException(nameof(waitAction));
             DoLike = true;
         }
+
+        public bool DoLike { get; set; }
 
         public async Task RunAsync()
         {
@@ -49,8 +49,10 @@ namespace IFB
                 _logger.LogDebug("Liking");
                 await _waitAction.PreLikeWait();
                 await _seleniumWrapper.ScrollIntoView(element);
+                await _seleniumWrapper.Click(element);
                 _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                 likeDone++;
+
                 // prepare next
                 await _seleniumWrapper.ScrollToBottomAsync();
                 element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike);

@@ -38,16 +38,16 @@ namespace IFB
             await Task.Delay(PseudoRandom.Next(_waitOptions.PostScroolStepMinWaitMs, _waitOptions.PostScroolStepMaxWaitMs));
         }
 
-        internal async Task PreLikeWait()
-        {
-            _logger.LogTrace("PreLikeWait()");
-            await Task.Delay(PseudoRandom.Next(_waitOptions.PreLikeMinWaitMs, _waitOptions.PreLikeMaxWaitMs));
-        }
-
         internal async Task PreFollowWait()
         {
             _logger.LogTrace("PreFollowWait()");
             await Task.Delay(PseudoRandom.Next(_waitOptions.PreFollowMinWaitMs, _waitOptions.PreFollowMaxWaitMs));
+        }
+
+        internal async Task PreLikeWait()
+        {
+            _logger.LogTrace("PreLikeWait()");
+            await Task.Delay(PseudoRandom.Next(_waitOptions.PreLikeMinWaitMs, _waitOptions.PreLikeMaxWaitMs));
         }
     }
 }

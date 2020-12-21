@@ -42,7 +42,7 @@ dotnet run IFB_TaskManager__TaskList=DetectContactsUnfollowBack,DoContactsUnfoll
 Exemple with Z:\InstagramFollowerBot as the source path, on a Windows system
 ```
 docker build -f Z:\InstagramFollowerBot\Dockerfile -t instagramfollowerbot Z:\InstagramFollowerBot
-docker run --name seleniumContainer --detach --publish 4444:4444 selenium/standalone-chrome --volume /dev/shm:/dev/shm 
+docker run --name seleniumContainer --detach --publish 4444:4444 selenium/standalone-chrome --volume /dev/shm:/dev/shm
 docker run --link seleniumContainer:seleniumhost instagramfollowerbot IFB_Logging__User=you@dom.com IFB_Logging__Password=Passw0rd IFB_Selenium__RemoteServer=http://seleniumhost:4444/wd/hub
 ```
 

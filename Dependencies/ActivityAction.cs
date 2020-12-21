@@ -7,8 +7,8 @@ namespace IFB
 {
     internal class ActivityAction : IBotAction
     {
-        private readonly ILogger<ActivityAction> _logger;
         private readonly InstagramOptions _instagramOptions;
+        private readonly ILogger<ActivityAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
 
         public ActivityAction(ILogger<ActivityAction> logger, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper) // DI : constructor must be public

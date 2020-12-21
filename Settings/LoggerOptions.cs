@@ -9,7 +9,7 @@ namespace IFB
         // used
         public LogLevel MinimumLevel { get; set; }
 
-        public bool UseAzureDevOpsFormating { get; set; }
         public bool UseApplicationInsights { get; set; }
+        public bool UseAzureDevOpsFormating { get; set; }
     }
 }

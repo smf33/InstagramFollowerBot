@@ -13,14 +13,14 @@ namespace IFB
         private readonly ILogger<FollowerService> _logger;
         private readonly IServiceProvider _serviceProvider;
 
+        private string _UserName;
+
         public FollowerService(ILogger<FollowerService> logger, IServiceProvider serviceProvider) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new FollowerService()");
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
-
-        private string _UserName;
 
         private string UserName
         {
@@ -103,6 +103,8 @@ namespace IFB
                 {
                     await action
                         .RunAsync();
+
+                    // ApplicationInsight
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(
@@ -113,6 +115,8 @@ namespace IFB
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
+
+                    // ApplicationInsight
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(
@@ -120,16 +124,20 @@ namespace IFB
                             false, ex.GetBaseException().Message);
                         telemetryClient.TrackException(ex);
                     }
+
                     // dump png and html if required
                     _serviceProvider.GetRequiredService<PersistenceAction>()
                         .DumpCurrentPageIfRequired();
+
+                    //raise exception
                     throw;
                 }
             }
 
-            // flush telemetry
+            // ApplicationInsight
             if (telemetryClient != null)
             {
+                // flush telemetry
                 telemetryClient.Flush();
                 await Task.Delay(5000);
             }

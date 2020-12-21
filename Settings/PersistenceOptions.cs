@@ -5,9 +5,9 @@ namespace IFB
         internal const string Section = "IFB_Persistence";
 
         public bool CacheMyContacts { get; set; }
+        public bool DumpBrowserContextOnCrash { get; set; }
+        public string SaveFolder { get; set; }
         public bool UsePersistence { get; set; }
         public int UsePersistenceLimitHours { get; set; }
-        public string SaveFolder { get; set; }
-        public bool DumpBrowserContextOnCrash { get; set; }
     }
 }

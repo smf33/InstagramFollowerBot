@@ -8,14 +8,11 @@ namespace IFB
 {
     internal class ExplorePhotosAction : ILikeAction, IFollowAction
     {
-        private readonly ILogger<HomeAction> _logger;
         private readonly ExplorePhotosOptions _explorePhotosPageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
+        private readonly ILogger<HomeAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
-
-        public bool DoFollow { get; set; }
-        public bool DoLike { get; set; }
 
         public ExplorePhotosAction(ILogger<HomeAction> logger, IOptions<ExplorePhotosOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
@@ -28,6 +25,9 @@ namespace IFB
             DoFollow = true;
             DoLike = true;
         }
+
+        public bool DoFollow { get; set; }
+        public bool DoLike { get; set; }
 
         public async Task RunAsync()
         {
@@ -51,16 +51,15 @@ namespace IFB
             {
                 _logger.LogDebug("Opening a post");
                 await _seleniumWrapper.ScrollIntoView(element);
-                element.Click();
-                await _waitAction.PostScroolWait(); // give small time to the popup to open
+                await _seleniumWrapper.Click(element);
+                // TOFIX : In some case, the popup seem to fail to open and then _seleniumWrapper.Click(_instagramOptions.CssPhotoClose); will fail or click on the current customer icon and open user profil, next actions will faild then
 
                 // Follow
                 if (followDone < followTodo && _seleniumWrapper.GetElementIfPresent(_instagramOptions.CssPhotoFollow, out IWebElement btnFollow))
                 {
                     _logger.LogDebug("Following");
                     await _waitAction.PreFollowWait();
-                    btnFollow.Click();
-                    await _waitAction.PostActionsWait();
+                    await _seleniumWrapper.Click(btnFollow);
                     _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                     followDone++;
                 }
@@ -70,8 +69,7 @@ namespace IFB
                 {
                     _logger.LogDebug("Liking");
                     await _waitAction.PreLikeWait();
-                    btnLike.Click();
-                    await _waitAction.PostActionsWait();
+                    await _seleniumWrapper.Click(btnLike);
                     _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                     likeDone++;
                 }

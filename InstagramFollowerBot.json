@@ -44,11 +44,12 @@
   },
   "IFB_Logging": {
     "Password": null,
-    "User": null
+    "User": null,
+    "MakeSnapShootEachSeconds": 2
   },
   "IFB_Persistence": {
     "CacheMyContacts": true,
-    "DumpBrowserContextOnCrash": false,
+    "DumpBrowserContextOnCrash": true,
     "SaveFolder": null,
     "UsePersistence": true,
     "UsePersistenceLimitHours": -1

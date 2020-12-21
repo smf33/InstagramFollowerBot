@@ -12,16 +12,14 @@ namespace IFB
             _categoryName = categoryName;
         }
 
-        private void Log(string lvlName, ConsoleColor color, string message, ConsoleColor exceptionColor, Exception exception)
+        public IDisposable BeginScope<TState>(TState state)
         {
-            Console.ForegroundColor = color;
-            Console.WriteLine("[{0}:{1}] {2}", lvlName, _categoryName, message);
-            if (exception != null)
-            {
-                Console.ForegroundColor = exceptionColor;
-                Console.WriteLine(exception);
-            }
-            Console.ResetColor();
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -57,14 +55,16 @@ namespace IFB
             }
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        private void Log(string lvlName, ConsoleColor color, string message, ConsoleColor exceptionColor, Exception exception)
         {
-            return true;
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
+            Console.ForegroundColor = color;
+            Console.WriteLine("[{0}:{1}] {2}", lvlName, _categoryName, message);
+            if (exception != null)
+            {
+                Console.ForegroundColor = exceptionColor;
+                Console.WriteLine(exception);
+            }
+            Console.ResetColor();
         }
     }
 }

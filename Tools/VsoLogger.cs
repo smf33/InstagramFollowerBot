@@ -12,22 +12,14 @@ namespace IFB
             _categoryName = categoryName;
         }
 
-        private void Log(string prefixVso, string message, Exception exception)
+        public IDisposable BeginScope<TState>(TState state)
         {
-            // VSO prefix
-            if (!string.IsNullOrEmpty(prefixVso))
-            {
-                Console.Write("##[{0}]", prefixVso);
-            }
-            // message itsef
-            Console.WriteLine("[{0}] {1}", _categoryName, message);
-            // more detail
-            if (exception != null)
-            {
-                Console.WriteLine("##[group]Exception");
-                Console.WriteLine(exception);
-                Console.WriteLine("##[endgroup]");
-            }
+            throw new NotImplementedException();
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
@@ -57,14 +49,22 @@ namespace IFB
             }
         }
 
-        public bool IsEnabled(LogLevel logLevel)
+        private void Log(string prefixVso, string message, Exception exception)
         {
-            return true;
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
+            // VSO prefix
+            if (!string.IsNullOrEmpty(prefixVso))
+            {
+                Console.Write("##[{0}]", prefixVso);
+            }
+            // message itsef
+            Console.WriteLine("[{0}] {1}", _categoryName, message);
+            // more detail
+            if (exception != null)
+            {
+                Console.WriteLine("##[group]Exception");
+                Console.WriteLine(exception);
+                Console.WriteLine("##[endgroup]");
+            }
         }
     }
 }
