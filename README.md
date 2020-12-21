@@ -68,10 +68,10 @@ IFB_Logging__Password may be set to null in debug mode (the user will be able to
 | IFB_Logger_UseAzureDevOpsFormating | Use a VSO log format instead of the default colored output, enable it if you run your bot through Azure DevOps pipeline |
 | IFB_Logging__Password | Password for auto-login, may be set to null if session file already created |
 | IFB_Logging__User | Email or UserName for login and filename for the session file |
+| IFB_Persistence__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
 | IFB_Persistence__SaveFolder | Where user informations (like cookie) are stored |
 | IFB_Persistence__UsePersistence | Will create a file for the user session and cookies |
 | IFB_Selenium__RemoteServer | Url of the Selenium Hub web service |
-| IFB_Selenium__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
 | IFB_TaskManager__TaskList | Tasks to do, separatedd by a comma |
 
 - Takss :

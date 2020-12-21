@@ -22,9 +22,6 @@ namespace IFB
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _persistenceAction = persistenceAction ?? throw new ArgumentNullException(nameof(persistenceAction));
 
-            // used for other tools
-            LoggingOptions.CurrentUser = _loggingOptions.User;
-
             // config check
             if (string.IsNullOrWhiteSpace(_loggingOptions.User))
             {

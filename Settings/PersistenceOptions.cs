@@ -8,8 +8,6 @@ namespace IFB
         public bool UsePersistence { get; set; }
         public int UsePersistenceLimitHours { get; set; }
         public string SaveFolder { get; set; }
-
-        // little hack for accessing User more easily cross the app
-        internal static string CurrentLogFile { get; set; }
+        public bool DumpBrowserContextOnCrash { get; set; }
     }
 }

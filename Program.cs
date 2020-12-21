@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.ApplicationInsights;
 
 namespace IFB
 {
@@ -73,6 +74,10 @@ namespace IFB
                 else
                 {
                     configure.AddProvider(new VsoLoggerProvider());
+                }
+                if (loggerOptions.UseApplicationInsights)
+                {
+                    configure.AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, loggerOptions.MinimumLevel); // else Information by default
                 }
             });
 

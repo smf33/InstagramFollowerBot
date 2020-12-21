@@ -17,9 +17,9 @@ services:
         volumes:
             - .:/local
         environment:
-            - SeleniumRemoteServer=hub
-            - BotUserSaveFolder=/local
+            - IFB_Selenium__RemoteServer=hub
+            - IFB_Persistence__SaveFolder=/local
             # if set, use the host env variable 
-            - BotUserEmail
-            - BotUserPassword
-            - BotTasks
+            - IFB_Logging__User
+            - IFB_Logging__Password
+            - IFB_TaskManager__TaskList

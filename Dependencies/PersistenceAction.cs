@@ -23,6 +23,9 @@ namespace IFB
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
         }
 
+        // little hack for accessing User more easily cross the app
+        private string SessionFile;
+
         private PersistenceData _Session = null;
 
         private async Task LoadSessionFile()
@@ -31,11 +34,11 @@ namespace IFB
             string content;
             try
             {
-                content = await File.ReadAllTextAsync(PersistenceOptions.CurrentLogFile, Encoding.UTF8);
+                content = await File.ReadAllTextAsync(SessionFile, Encoding.UTF8);
             }
             catch (IOException ex)
             {
-                _logger.LogError(ex, "Fail to read persistence session data {0} :", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                _logger.LogError(ex, "Fail to read persistence session data {0} :", SessionFile, ex.GetBaseException().Message);
                 throw;
             }
 
@@ -47,7 +50,7 @@ namespace IFB
             }
             catch (JsonException ex)
             {
-                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", SessionFile, ex.GetBaseException().Message);
                 throw;
             }
 
@@ -81,11 +84,11 @@ namespace IFB
             // write raw file
             try
             {
-                await File.WriteAllTextAsync(PersistenceOptions.CurrentLogFile, content, Encoding.UTF8);
+                await File.WriteAllTextAsync(SessionFile, content, Encoding.UTF8);
             }
             catch (IOException ex)
             {
-                _logger.LogError(ex, "Fail to write persistence session data {0} :", PersistenceOptions.CurrentLogFile, ex.GetBaseException().Message);
+                _logger.LogError(ex, "Fail to write persistence session data {0} :", SessionFile, ex.GetBaseException().Message);
                 throw;
             }
         }
@@ -111,20 +114,20 @@ namespace IFB
                             throw;
                         }
                     }
-                    PersistenceOptions.CurrentLogFile = Path.Combine(_persistenceOptions.SaveFolder, userName + ".json");
+                    SessionFile = Path.Combine(_persistenceOptions.SaveFolder, userName + ".json");
                 }
                 else
                 {
-                    PersistenceOptions.CurrentLogFile = Path.Combine(Files.ExecutablePath, "PersistenceData_" + userName + ".json");
+                    SessionFile = Path.Combine(Files.ExecutablePath, "PersistenceData_" + userName + ".json");
                 }
 
-                if (File.Exists(PersistenceOptions.CurrentLogFile))
+                if (File.Exists(SessionFile))
                 {
                     await LoadSessionFile();
                 }
                 else
                 {
-                    _logger.LogDebug("No existing session to load : {0}", PersistenceOptions.CurrentLogFile);
+                    _logger.LogDebug("No existing session to load : {0}", SessionFile);
                 }
             }
             else
@@ -177,6 +180,17 @@ namespace IFB
                 await SaveSessionFile();
 
                 _logger.LogDebug("User session saved");
+            }
+        }
+
+        internal void DumpCurrentPageIfRequired()
+        {
+            _logger.LogTrace("DumpCurrentPageIfRequired()");
+            if (_persistenceOptions.DumpBrowserContextOnCrash)
+            {
+                string fileNameBase = SessionFile.Remove(SessionFile.Length - 4); // remove .log of the weekly log file
+                fileNameBase = string.Concat(fileNameBase, '.', DateTime.Now.ToString("MMdd-HHmmss")); // add a more precise timestamp
+                _seleniumWrapper.DoDumpCurrentPage(fileNameBase);
             }
         }
     }

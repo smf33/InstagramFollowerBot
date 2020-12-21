@@ -327,28 +327,25 @@ namespace IFB
 
         #endregion FindElements
 
-        internal void DumpCurrentPage()
+        internal void DoDumpCurrentPage(string fileNameBase)
         {
-            if (_seleniumOptions.DumpBrowserContextOnCrash)
+            _logger.LogTrace("DoDumpCurrentPage({0})", fileNameBase);
+            try
             {
-                string fileNameBase = string.Concat(PersistenceOptions.CurrentLogFile, '.', DateTime.Now.ToString("MMdd-HHmmss"));
-                try
-                {
-                    _logger.LogInformation("Dump page context {0} as {1}.html and {1}.png", WebDriver.Url, fileNameBase);
+                _logger.LogInformation("Dump page context {0} as {1}.html and .png", WebDriver.Url, fileNameBase);
 
-                    // save HTML
-                    string html = JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString()
-                        .Replace("href=\"/", "href=\"https://www.instagram.com/");
-                    File.WriteAllText(string.Concat(fileNameBase, ".html"), html);
+                // save HTML
+                string html = JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString()
+                    .Replace("href=\"/", "href=\"https://www.instagram.com/");
+                File.WriteAllText(string.Concat(fileNameBase, ".html"), html);
 
-                    // sage image
-                    Screenshot ss = ((ITakesScreenshot)WebDriver).GetScreenshot();
-                    ss.SaveAsFile(string.Concat(fileNameBase, ".png"));
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Couldn't dump page context {0}", ex.GetBaseException().Message);
-                }
+                // sage image
+                Screenshot ss = ((ITakesScreenshot)WebDriver).GetScreenshot();
+                ss.SaveAsFile(string.Concat(fileNameBase, ".png"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Couldn't dump page context {0}", ex.GetBaseException().Message);
             }
         }
 

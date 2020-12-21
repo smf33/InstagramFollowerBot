@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace IFB
 {
@@ -17,6 +18,23 @@ namespace IFB
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new FollowerService()");
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        private string _UserName;
+
+        private string UserName
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_UserName))
+                {
+                    _UserName = _serviceProvider
+                        .GetRequiredService<IOptions<LoggingOptions>>()
+                        .Value
+                        .User;
+                }
+                return _UserName;
+            }
         }
 
         public async Task RunAsync()
@@ -87,7 +105,7 @@ namespace IFB
                         .RunAsync();
                     if (telemetryClient != null)
                     {
-                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', LoggingOptions.CurrentUser), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
+                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
                     }
                 }
                 catch (Exception ex)
@@ -95,12 +113,12 @@ namespace IFB
                     _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
                     if (telemetryClient != null)
                     {
-                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', LoggingOptions.CurrentUser), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
+                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
                         telemetryClient.TrackException(ex);
                     }
                     // dump png and html if required
-                    _serviceProvider.GetRequiredService<SeleniumWrapper>()
-                        .DumpCurrentPage();
+                    _serviceProvider.GetRequiredService<PersistenceAction>()
+                        .DumpCurrentPageIfRequired();
                     throw;
                 }
             }
