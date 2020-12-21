@@ -24,7 +24,8 @@ namespace IFB
                 serviceProvider = ConfigureServices(args);
 
                 // Run
-                await serviceProvider.GetRequiredService<FollowerService>()
+                await serviceProvider
+                    .GetRequiredService<FollowerService>()
                     .RunAsync();
 
                 ret = 0;

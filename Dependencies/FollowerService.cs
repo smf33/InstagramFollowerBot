@@ -105,7 +105,9 @@ namespace IFB
                         .RunAsync();
                     if (telemetryClient != null)
                     {
-                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask, true);
+                        telemetryClient.TrackAvailability(
+                            string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask,
+                            true);
                     }
                 }
                 catch (Exception ex)
@@ -113,7 +115,9 @@ namespace IFB
                     _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
                     if (telemetryClient != null)
                     {
-                        telemetryClient.TrackAvailability(string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask, false, ex.GetBaseException().Message);
+                        telemetryClient.TrackAvailability(
+                            string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask,
+                            false, ex.GetBaseException().Message);
                         telemetryClient.TrackException(ex);
                     }
                     // dump png and html if required
@@ -127,7 +131,7 @@ namespace IFB
             if (telemetryClient != null)
             {
                 telemetryClient.Flush();
-                await Task.Delay(3000);
+                await Task.Delay(5000);
             }
         }
     }
