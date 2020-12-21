@@ -33,23 +33,25 @@ namespace IFB
         {
             _logger.LogTrace("RunAsync()");
 
-            PersistenceData data = await _persistenceAction.GetSessionAsync(_loggingOptions.User);
-
             // load page (pre requis for setting cookie)
             await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
 
-            if (!await TryAuthCookiesAsync(data))
+            //Auth from Cookies
+            PersistenceData data = await TryAuthCookiesAsync();
+
+            // else auth from login/password
+            if (data == null)
             {
-                await AuthLoginAsync();
-                // update the user URL
-                data = _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
+                data = await AuthLoginAsync();
             }
+
             _logger.LogDebug("Logged user :  {0}", data.UserContactUrl);
         }
 
-        private async Task<bool> TryAuthCookiesAsync(PersistenceData data)
+        private async Task<PersistenceData> TryAuthCookiesAsync()
         {
             _logger.LogTrace("TryAuthCookiesAsync()");
+            PersistenceData data = await _persistenceAction.GetSessionAsync(_loggingOptions.User);
             if (data?.UserContactUrl != null)
             {
                 _persistenceAction.UpdateSeleniumFromSession();
@@ -69,28 +71,30 @@ namespace IFB
                     string curUserContactUrl = _seleniumWrapper.CurrentUrl;
                     if (data.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogDebug("User authentified from cookie");
+                        _logger.LogDebug("User {0} authentified from cookie", _loggingOptions.User);
+                        return data;
                     }
                     else
                     {
-                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, but will erase previous session", data.UserContactUrl, curUserContactUrl);
+                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, erasing previous session data", data.UserContactUrl, curUserContactUrl);
+                        // get new Session
+                        return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
                     }
-                    return true;
                 }
                 else // not present = not identified
                 {
                     _logger.LogWarning("Cookie authentification failed");
-                    return false;
+                    return null;
                 }
             }
             else
             {
                 _logger.LogDebug("Cookie authentification not used");
-                return false;
+                return null;
             }
         }
 
-        private async Task AuthLoginAsync()
+        private async Task<PersistenceData> AuthLoginAsync()
         {
             _logger.LogTrace("AuthLoginAsync()");
 
@@ -122,6 +126,9 @@ namespace IFB
 
             // who am i ?
             await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself); // must be here, else the auth have failed
+
+            // new session with user URL
+            return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
         }
     }
 }
