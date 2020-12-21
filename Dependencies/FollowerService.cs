@@ -73,7 +73,6 @@ namespace IFB
 
                     case "BEGINSNAPSHOOT":
                         action = _serviceProvider.GetRequiredService<SnapshootAction>();
-                        ((ILikeableAction)action).DoLike = false;
                         break;
 
                     case "ENDSNAPSHOOT":
