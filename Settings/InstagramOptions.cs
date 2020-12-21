@@ -2,6 +2,8 @@ namespace IFB
 {
     internal class InstagramOptions
     {
+        internal const string CssActionWarningErrorMessage = "This action was blocked. Please try again later";
+        internal const string CssLoginUnusualErrorMessage = "Unusual Login Attempt Detected";
         internal const string Section = "IFB_Instagram";
 
         public string CssActionWarning { get; set; }
@@ -29,8 +31,5 @@ namespace IFB
         public string CssSuggestedContact { get; set; }
         public string SeleniumRemoteServer { get; set; }
         public string UrlRoot { get; set; }
-
-        internal const string CssActionWarningErrorMessage = "This action was blocked. Please try again later";
-        internal const string CssLoginUnusualErrorMessage = "Unusual Login Attempt Detected";
     }
 }

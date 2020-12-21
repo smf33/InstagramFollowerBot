@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,10 +22,10 @@ namespace IFB
         private readonly SeleniumOptions _seleniumOptions;
         private readonly WaitAction _waitAction;
 
+        private bool disposedValue;
+        private IJavaScriptExecutor JsDriver;
         private TimeSpan NormalWaiter;
         private IWebDriver WebDriver;
-        private IJavaScriptExecutor JsDriver;
-        private bool disposedValue;
 
         public SeleniumWrapper(ILogger<SeleniumWrapper> logger, IOptions<SeleniumOptions> seleniumOptions, WaitAction waitAction) // DI : constructor must be public
         {
@@ -101,6 +103,18 @@ namespace IFB
             }
         }
 
+        internal IDictionary<string, string> LocalStorage
+        {
+            get => GetJsStorage("localStorage");
+            set => SetJsStorage("localStorage", value);
+        }
+
+        internal IDictionary<string, string> SessionStorage
+        {
+            get => GetJsStorage("sessionStorage");
+            set => SetJsStorage("sessionStorage", value);
+        }
+
         private IDictionary<string, string> GetJsStorage(string jsObject)
         {
             IDictionary<string, object> ret = JsDriver.ExecuteScript(string.Concat("return ", jsObject, ";")) as IDictionary<string, object>;
@@ -118,18 +132,6 @@ namespace IFB
                 s.AppendFormat("{0}.setItem('{1}', '{2}');", jsObject, kv.Key, kv.Value);
             }
             JsDriver.ExecuteScript(s.ToString());
-        }
-
-        internal IDictionary<string, string> LocalStorage
-        {
-            get => GetJsStorage("localStorage");
-            set => SetJsStorage("localStorage", value);
-        }
-
-        internal IDictionary<string, string> SessionStorage
-        {
-            get => GetJsStorage("sessionStorage");
-            set => SetJsStorage("sessionStorage", value);
         }
 
         #endregion Session Management
@@ -151,37 +153,18 @@ namespace IFB
             }
         }
 
-        internal void CrashIfPresent(string cssSelector, string crashMessage, bool noImplicitWait = true)
-        {
-            _logger.LogTrace("CrashIfPresent({0})", cssSelector);
-
-            IWebElement found = GetElement(cssSelector
-                , noImplicitWait: noImplicitWait
-                , canBeMissing: true);
-
-            if (found != null)
-            {
-                throw new InvalidOperationException(crashMessage);
-            }
-        }
-
         #region Click
 
-        internal async Task<bool> Click(string cssSelector, bool canBeMissing = false, bool noImplicitWait = true, bool thenWait = true)
+        internal async Task Click(IWebElement element, bool thenWait = true)
         {
-            _logger.LogTrace("Click({0})", cssSelector);
-
-            IWebElement found = GetElement(cssSelector
-                , noImplicitWait: noImplicitWait
-                , canBeMissing: canBeMissing);
-
-            if (found != null)
+            _logger.LogTrace("Click({0})", element);
+            if (element != null)
             {
                 Actions action = new Actions(WebDriver);
                 action
-                    .MoveToElement(found
-                        , PseudoRandom.Next(0, found.Size.Width)
-                        , PseudoRandom.Next(0, found.Size.Height))
+                    .MoveToElement(element
+                        , PseudoRandom.Next(0, element.Size.Width)
+                        , PseudoRandom.Next(0, element.Size.Height))
                     .Click()
                     .Build()
                     .Perform();
@@ -190,9 +173,27 @@ namespace IFB
                 {
                     await _waitAction.PostActionsWait();
                 }
+            }
+            else // here the element have to be present if this is called
+            {
+                throw new ArgumentNullException(nameof(element));
+            }
+        }
+
+        internal async Task<bool> Click(string cssSelector, bool canBeMissing = false, bool noImplicitWait = true, bool thenWait = true)
+        {
+            _logger.LogTrace("Click({0})", cssSelector);
+
+            // find the element and crash if necessarie
+            IWebElement element = GetElement(cssSelector, noImplicitWait: noImplicitWait, canBeMissing: canBeMissing);
+
+            // exception have been raise if canBeMissing== false and not found
+            if (element != null)
+            {
+                await Click(element, thenWait: thenWait);
                 return true;
             }
-            else // canBeMissing have been managed by GetElement()
+            else
             {
                 return false;
             }
@@ -201,20 +202,6 @@ namespace IFB
         #endregion Click
 
         #region Keyboard
-
-        internal async Task InputWriteAsync(string cssSelector, string text, bool thenWait = true)
-        {
-            _logger.LogTrace("InputWriteAsync({0})", cssSelector);
-
-            WebDriver
-                .FindElement(By.CssSelector(cssSelector))
-                .SendKeys(text);
-
-            if (thenWait)
-            {
-                await _waitAction.PostScroolWait();
-            }
-        }
 
         internal async Task EnterKeyAsync(string cssSelector, bool thenWait = true)
         {
@@ -230,9 +217,44 @@ namespace IFB
             }
         }
 
+        internal async Task InputWriteAsync(string cssSelector, string text, bool thenWait = true)
+        {
+            _logger.LogTrace("InputWriteAsync({0})", cssSelector);
+
+            WebDriver
+                .FindElement(By.CssSelector(cssSelector))
+                .SendKeys(text);
+
+            if (thenWait)
+            {
+                await _waitAction.PostScroolWait();
+            }
+        }
+
         #endregion Keyboard
 
         #region Scroll
+
+        internal async Task ScrollIntoView(IWebElement element, bool thenWait = true)
+        {
+            _logger.LogTrace("ScrollIntoView({0})", element);
+            await JsScrollAsync("arguments[0].parentNode.scrollIntoView(false);", thenWait, element);
+        }
+
+        internal async Task ScrollToBottomAsync(int loop = 1, bool thenWait = true)
+        {
+            _logger.LogTrace("ScrollToBottomAsync({0})", loop);
+            for (int i = 0; i < loop; i++)
+            {
+                await JsScrollAsync("window.scrollTo(document.body.scrollWidth/2, document.body.scrollHeight)", thenWait);
+            }
+        }
+
+        internal async Task ScrollToTopAsync(bool thenWait = true)
+        {
+            _logger.LogTrace("ScrollToTopAsync()");
+            await JsScrollAsync("window.scrollTo(document.body.scrollWidth/2, 0)", thenWait);
+        }
 
         private async Task JsScrollAsync(string js, bool thenWait, IWebElement element = null)
         {
@@ -251,30 +273,23 @@ namespace IFB
             }
         }
 
-        internal async Task ScrollToTopAsync(bool thenWait = true)
-        {
-            _logger.LogTrace("ScrollToTopAsync()");
-            await JsScrollAsync("window.scrollTo(document.body.scrollWidth/2, 0)", thenWait);
-        }
-
-        internal async Task ScrollToBottomAsync(int loop = 1, bool thenWait = true)
-        {
-            _logger.LogTrace("ScrollToBottomAsync({0})", loop);
-            for (int i = 0; i < loop; i++)
-            {
-                await JsScrollAsync("window.scrollTo(document.body.scrollWidth/2, document.body.scrollHeight)", thenWait);
-            }
-        }
-
-        internal async Task ScrollIntoView(IWebElement element, bool thenWait = true)
-        {
-            _logger.LogTrace("ScrollIntoView()");
-            await JsScrollAsync("arguments[0].parentNode.scrollIntoView(false);", thenWait, element);
-        }
-
         #endregion Scroll
 
         #region FindElements
+
+        internal void CrashIfPresent(string cssSelector, string crashMessage, bool noImplicitWait = true)
+        {
+            _logger.LogTrace("CrashIfPresent({0})", cssSelector);
+
+            IWebElement found = GetElement(cssSelector
+                , noImplicitWait: noImplicitWait
+                , canBeMissing: true);
+
+            if (found != null)
+            {
+                throw new InvalidOperationException(crashMessage);
+            }
+        }
 
         internal IWebElement GetElement(string cssSelector, bool displayedOnly = true, bool canBeMissing = false, bool noImplicitWait = true)
         {
@@ -326,7 +341,70 @@ namespace IFB
 
         #endregion FindElements
 
+        #region SnapShoot
+
+        private Timer snapShotTimer;
+        private string timerSnapShootFileNameBase;
+
+        internal void DisableTimerSnapShoot()
+        {
+            _logger.LogTrace("DisableTimerSnapShoot()");
+            snapShotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        internal void EnableTimerSnapShoot(string filenamePath, int timerMs)
+        {
+            _logger.LogTrace("EnableTimerSnapShoot({0})", filenamePath);
+            timerSnapShootFileNameBase = string.Concat(filenamePath, ".SnapShoot.");
+            snapShotTimer = new Timer(TimerSnapShoot, null, 0, timerMs);
+        }
+
+        internal void SafeDumpCurrentHtml(string fileName)
+        {
+            _logger.LogTrace("SafeDumpCurrentHtml({0})", fileName);
+            try
+            {
+                _logger.LogInformation("Dumping current page {0} as {1}.html", WebDriver.Url, fileName);
+                string html = JsDriver.ExecuteScript("return document.documentElement.innerHTML").ToString()
+                    .Replace("href=\"/", "href=\"https://www.instagram.com/");
+                File.WriteAllText(fileName, html);
+            }
+            catch (WebDriverException ex)
+            {
+                _logger.LogWarning(ex, "Couldn't save html page context {0}", ex.GetBaseException().Message);
+            }
+        }
+
+        internal void SafeDumpCurrentPng(string fileName)
+        {
+            _logger.LogTrace("SafeDumpCurrentPng({0})", fileName);
+            try
+            {
+                Screenshot ss = ((ITakesScreenshot)WebDriver).GetScreenshot();
+                ss.SaveAsFile(fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Couldn't save Screenshot of the page {0}", ex.GetBaseException().Message);
+            }
+        }
+
+        private void TimerSnapShoot(object stateInfo)
+        {
+            string fileName = string.Concat(timerSnapShootFileNameBase, DateTime.Now.ToString("yyyyMMdd-HHmmss.ff"), ".png");
+            SafeDumpCurrentPng(fileName);
+        }
+
+        #endregion SnapShoot
+
         #region IDisposable Support
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
 
         protected virtual void Dispose(bool disposing)
         {
@@ -335,30 +413,32 @@ namespace IFB
             {
                 if (disposing)
                 {
-                    try
+                    if (snapShotTimer != null)
                     {
-                        WebDriver.Quit();
+                        snapShotTimer.Dispose();
                     }
-                    catch
+                    if (WebDriver != null)
                     {
-                        // disposing
+                        try
+                        {
+                            WebDriver.Quit();
+                        }
+                        catch
+                        {
+                            // disposing
+                        }
+                        WebDriver.Dispose();
                     }
-                    WebDriver.Dispose();
                 }
 
                 // set large fields to null
+                snapShotTimer = null;
                 JsDriver = null;
                 WebDriver = null;
 
+                // report work done
                 disposedValue = true;
             }
-        }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
         }
 
         #endregion IDisposable Support

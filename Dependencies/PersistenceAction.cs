@@ -14,6 +14,54 @@ namespace IFB
         private readonly PersistenceOptions _persistenceOptions;
         private readonly SeleniumWrapper _seleniumWrapper;
 
+        private PersistenceData _Session = null;
+
+        #region FileName Management
+
+        private string _sessionBaseFileName = null; // private at GetSessionBaseFileName(string userName)
+
+        private string SessionJsonFile;
+
+        internal string GetSessionBaseFileName(string userName)
+        {
+            if (string.IsNullOrEmpty(_sessionBaseFileName))
+            {
+                _logger.LogTrace("GetSessionBaseFileName({0})", userName);
+
+                // generate the filename base for the .json (session), .png (snapshoot every x sec), or .png and .html (crash dump)
+                string tmpUserName = userName;
+                string tmpSessionBaseFileName = _persistenceOptions.SaveFolder;
+                if (!string.IsNullOrWhiteSpace(tmpSessionBaseFileName) && !Directory.Exists(tmpSessionBaseFileName))
+                {
+                    _logger.LogDebug("Create session directory {0}", tmpSessionBaseFileName);
+                    try
+                    {
+                        Directory.CreateDirectory(tmpSessionBaseFileName);
+                    }
+                    catch (IOException ex)
+                    {
+                        _logger.LogError(ex, "Coundn't create directory {0}, fallback to executable directory", tmpSessionBaseFileName);
+                        tmpSessionBaseFileName = null;
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(tmpSessionBaseFileName))
+                {
+                    tmpSessionBaseFileName = Files.ExecutablePath;
+                    tmpUserName = string.Concat("PersistenceData_", tmpUserName);
+                }
+                _sessionBaseFileName = Path.Combine(tmpSessionBaseFileName, tmpUserName);
+            }
+            return _sessionBaseFileName;
+        }
+
+        // initied by GetSessionBaseFileName(string userName)
+        internal void InitSessionJsonFile(string userName)
+        {
+            SessionJsonFile = string.Concat(GetSessionBaseFileName(userName), ".json");
+        }
+
+        #endregion FileName Management
+
         public PersistenceAction(ILogger<PersistenceAction> logger, IOptions<PersistenceOptions> persistenceOptions, SeleniumWrapper seleniumWrapper) // DI : constructor must be public
 
         {
@@ -21,121 +69,6 @@ namespace IFB
             _logger.LogTrace("new PersistenceAction()");
             _persistenceOptions = persistenceOptions?.Value ?? throw new ArgumentNullException(nameof(persistenceOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
-        }
-
-        private string _SessionFile;
-        private PersistenceData _Session = null;
-
-        internal async Task<PersistenceData> GetSessionAsync(string userName)
-        {
-            _logger.LogTrace("GetSession()");
-            if (_persistenceOptions.UsePersistence)
-            {
-                // get base path
-                if (!string.IsNullOrWhiteSpace(_persistenceOptions.SaveFolder))
-                {
-                    if (!Directory.Exists(_persistenceOptions.SaveFolder))
-                    {
-                        _logger.LogDebug("Create session directory {0}", _persistenceOptions.SaveFolder);
-                        try
-                        {
-                            Directory.CreateDirectory(_persistenceOptions.SaveFolder);
-                        }
-                        catch (IOException ex)
-                        {
-                            _logger.LogError(ex, "Coundn't create directory {0}", _persistenceOptions.SaveFolder);
-                            throw;
-                        }
-                    }
-                    _SessionFile = Path.Combine(_persistenceOptions.SaveFolder, userName + ".json");
-                }
-                else
-                {
-                    _SessionFile = Path.Combine(Files.ExecutablePath, "PersistenceData_" + userName + ".json");
-                }
-
-                if (File.Exists(_SessionFile))
-                {
-                    await LoadSessionFile();
-                }
-                else
-                {
-                    _logger.LogDebug("No existing session to load : {0}", _SessionFile);
-                }
-            }
-            else
-            {
-                _logger.LogDebug("Persistence disabled");
-            }
-            return _Session;
-        }
-
-        private async Task LoadSessionFile()
-        {
-            // read raw file
-            string content;
-            try
-            {
-                content = await File.ReadAllTextAsync(_SessionFile, Encoding.UTF8);
-            }
-            catch (IOException ex)
-            {
-                _logger.LogError(ex, "Fail to read persistence session data {0} :", _SessionFile, ex.GetBaseException().Message);
-                throw;
-            }
-
-            // deserialize file
-            PersistenceData dataTmp;
-            try
-            {
-                dataTmp = JsonConvert.DeserializeObject<PersistenceData>(content);
-            }
-            catch (JsonException ex)
-            {
-                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", _SessionFile, ex.GetBaseException().Message);
-                throw;
-            }
-
-            // check file
-            if (_persistenceOptions.UsePersistenceLimitHours <= 0
-                || DateTime.UtcNow < dataTmp.CookiesInitDate.Value.AddHours(_persistenceOptions.UsePersistenceLimitHours))
-            {
-                _logger.LogDebug("User session loaded.");
-                _Session = dataTmp;
-            }
-            else
-            {
-                _logger.LogWarning("Persistence limit reached, starting a new session");
-            }
-        }
-
-        internal PersistenceData SetNewSession(string userContactUrl)
-        {
-            _Session = new PersistenceData()
-            {
-                UserContactUrl = userContactUrl
-            };
-            return _Session;
-        }
-
-        private void UpdateSessionFromSelenium()
-        {
-            // get updated selenium session data
-            if (!_Session.CookiesInitDate.HasValue)
-            {
-                _Session.CookiesInitDate = DateTime.UtcNow;
-            }
-            _Session.Cookies = _seleniumWrapper.Cookies;
-            _Session.LocalStorage = _seleniumWrapper.LocalStorage;
-            _Session.SessionStorage = _seleniumWrapper.SessionStorage;
-        }
-
-        internal void UpdateSeleniumFromSession()
-        {
-            // set session
-            _seleniumWrapper.Cookies = _Session.Cookies; // need to have loaded the page 1st
-            _seleniumWrapper.SessionStorage = _Session.SessionStorage; // need to have loaded the page 1st
-            _seleniumWrapper.LocalStorage = _Session.LocalStorage; // need to have loaded the page 1st
         }
 
         /// <summary>
@@ -151,6 +84,103 @@ namespace IFB
                 await SaveSessionFile();
 
                 _logger.LogDebug("User session saved");
+            }
+        }
+
+        #region Dumping
+
+        internal void DumpCurrentPageIfRequired(string userName)
+        {
+            _logger.LogTrace("DumpCurrentPageIfRequired()");
+
+            // do the dump requested
+            if (_persistenceOptions.DumpBrowserContextOnCrash)
+            {
+                string fileNameBase = string.Concat(GetSessionBaseFileName(userName), ".CrashDump.", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+
+                _seleniumWrapper.SafeDumpCurrentHtml(string.Concat(fileNameBase, ".html"));
+
+                _seleniumWrapper.SafeDumpCurrentPng(string.Concat(fileNameBase, ".png"));
+            }
+        }
+
+        #endregion Dumping
+
+        internal async Task<PersistenceData> GetSessionAsync()
+        {
+            _logger.LogTrace("GetSessionAsync()");
+            if (_persistenceOptions.UsePersistence)
+            {
+                if (File.Exists(SessionJsonFile))
+                {
+                    await LoadSessionFile();
+                }
+                else
+                {
+                    _logger.LogDebug("No existing session to load : {0}", SessionJsonFile);
+                }
+            }
+            else
+            {
+                _logger.LogDebug("Persistence disabled");
+            }
+            return _Session;
+        }
+
+        internal PersistenceData SetNewSession(string userContactUrl)
+        {
+            _logger.LogTrace("SetNewSession()");
+            _Session = new PersistenceData()
+            {
+                UserContactUrl = userContactUrl
+            };
+            return _Session;
+        }
+
+        internal void UpdateSeleniumFromSession()
+        {
+            // set session
+            _seleniumWrapper.Cookies = _Session.Cookies; // need to have loaded the page 1st
+            _seleniumWrapper.SessionStorage = _Session.SessionStorage; // need to have loaded the page 1st
+            _seleniumWrapper.LocalStorage = _Session.LocalStorage; // need to have loaded the page 1st
+        }
+
+        private async Task LoadSessionFile()
+        {
+            // read raw file
+            string content;
+            try
+            {
+                content = await File.ReadAllTextAsync(SessionJsonFile, Encoding.UTF8);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogError(ex, "Fail to read persistence session data {0} :", SessionJsonFile, ex.GetBaseException().Message);
+                throw;
+            }
+
+            // deserialize file
+            PersistenceData dataTmp;
+            try
+            {
+                dataTmp = JsonConvert.DeserializeObject<PersistenceData>(content);
+            }
+            catch (JsonException ex)
+            {
+                _logger.LogError(ex, "Fail to deserialize persistence session data {0} : ", SessionJsonFile, ex.GetBaseException().Message);
+                throw;
+            }
+
+            // check file
+            if (_persistenceOptions.UsePersistenceLimitHours <= 0
+                || DateTime.UtcNow < dataTmp.CookiesInitDate.Value.AddHours(_persistenceOptions.UsePersistenceLimitHours))
+            {
+                _logger.LogDebug("User session loaded.");
+                _Session = dataTmp;
+            }
+            else
+            {
+                _logger.LogWarning("Persistence limit reached, starting a new session");
             }
         }
 
@@ -171,13 +201,25 @@ namespace IFB
             // write raw file
             try
             {
-                await File.WriteAllTextAsync(_SessionFile, content, Encoding.UTF8);
+                await File.WriteAllTextAsync(SessionJsonFile, content, Encoding.UTF8);
             }
             catch (IOException ex)
             {
-                _logger.LogError(ex, "Fail to write persistence session data {0} :", _SessionFile, ex.GetBaseException().Message);
+                _logger.LogError(ex, "Fail to write persistence session data {0} :", SessionJsonFile, ex.GetBaseException().Message);
                 throw;
             }
+        }
+
+        private void UpdateSessionFromSelenium()
+        {
+            // get updated selenium session data
+            if (!_Session.CookiesInitDate.HasValue)
+            {
+                _Session.CookiesInitDate = DateTime.UtcNow;
+            }
+            _Session.Cookies = _seleniumWrapper.Cookies;
+            _Session.LocalStorage = _seleniumWrapper.LocalStorage;
+            _Session.SessionStorage = _seleniumWrapper.SessionStorage;
         }
     }
 }

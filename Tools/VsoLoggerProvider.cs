@@ -3,14 +3,14 @@ using Microsoft.Extensions.Logging;
 
 namespace IFB
 {
-    internal class ColoredConsoleLoggerProvider : ILoggerProvider
+    internal class VsoLoggerProvider : ILoggerProvider
     {
-        private readonly ConcurrentDictionary<string, ColoredConsoleLogger> _loggers = new ConcurrentDictionary<string, ColoredConsoleLogger>();
+        private readonly ConcurrentDictionary<string, VsoLogger> _loggers = new ConcurrentDictionary<string, VsoLogger>();
         private bool disposedValue;
 
         public ILogger CreateLogger(string categoryName)
         {
-            return _loggers.GetOrAdd(categoryName, name => new ColoredConsoleLogger(categoryName));
+            return _loggers.GetOrAdd(categoryName, name => new VsoLogger(categoryName));
         }
 
         public void Dispose()

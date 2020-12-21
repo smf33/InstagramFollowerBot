@@ -1,12 +1,12 @@
 {
-  "IFB_ExplorePhotosPageActions": {
+  "IFB_ExplorePhotos": {
     "FollowMax": 10,
     "FollowMin": 2,
     "InitScrools": 5,
     "LikeMax": 25,
     "LikeMin": 5
   },
-  "IFB_HomePageActions": {
+  "IFB_HomePage": {
     "InitScrools": 4,
     "LikeMax": 20,
     "LikeMin": 1
@@ -37,12 +37,20 @@
     "CssSuggestedContact": ".FPmhX",
     "UrlRoot": "https://www.instagram.com"
   },
+  "IFB_Logger": {
+    "MinimumLevel": "Debug",
+    "UseAzureDevOpsFormating": false,
+    "UseApplicationInsights": false
+  },
   "IFB_Logging": {
-    "Password": null,
     "User": null
+  },
+  "IFB_LoggingSecret": {
+    "Password": null
   },
   "IFB_Persistence": {
     "CacheMyContacts": true,
+    "DumpBrowserContextOnCrash": true,
     "SaveFolder": null,
     "UsePersistence": true,
     "UsePersistenceLimitHours": -1
@@ -64,6 +72,9 @@
     "SaveOnLoop": true,
     "TaskList": "CHECKACTIVITY,WAIT,DOHOMEPAGELIKE,DOEXPLOREPHOTOSLIKEFOLLOW"
   },
+  "IFB_Snapshoot": {
+    "MakeSnapShootEachSeconds": 2
+  },
   "IFB_Wait": {
     "PostActionStepMaxWaitMs": 8000,
     "PostActionStepMinWaitMs": 3000,
@@ -75,13 +86,5 @@
     "PreLikeMinWaitMs": 25000,
     "WaitTaskMaxWaitMs": 40000,
     "WaitTaskMinWaitMs": 20000
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "IFB": "Debug",
-      "Microsoft": "Warning",
-      "System": "Warning"
-    }
   }
 }

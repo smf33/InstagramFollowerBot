@@ -6,26 +6,28 @@ using OpenQA.Selenium;
 
 namespace IFB
 {
-    internal class HomePageAction : ILikeAction
+    internal class HomeAction : ILikeableAction
     {
-        private readonly ILogger<HomePageAction> _logger;
-        private readonly HomePageActionsOptions _homePageActionsOptions;
+        private readonly HomePageOptions _homePageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
+        private readonly ILogger<HomeAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
 
-        public bool DoLike { get; set; }
-
-        public HomePageAction(ILogger<HomePageAction> logger, IOptions<HomePageActionsOptions> homePageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
+        public HomeAction(ILogger<HomeAction> logger, IOptions<HomePageOptions> homePageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogTrace("new HomePageAction()");
+            _logger.LogTrace("new HomeAction()");
             _homePageActionsOptions = homePageActionsOptions.Value ?? throw new ArgumentNullException(nameof(homePageActionsOptions));
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _waitAction = waitAction ?? throw new ArgumentNullException(nameof(waitAction));
+
+            // default
             DoLike = true;
         }
+
+        public bool DoLike { get; set; }
 
         public async Task RunAsync()
         {
@@ -49,8 +51,10 @@ namespace IFB
                 _logger.LogDebug("Liking");
                 await _waitAction.PreLikeWait();
                 await _seleniumWrapper.ScrollIntoView(element);
+                await _seleniumWrapper.Click(element);
                 _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                 likeDone++;
+
                 // prepare next
                 await _seleniumWrapper.ScrollToBottomAsync();
                 element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike);

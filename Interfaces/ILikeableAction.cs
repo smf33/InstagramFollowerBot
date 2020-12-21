@@ -1,6 +1,6 @@
 ﻿namespace IFB
 {
-    internal interface ILikeAction : IBotAction
+    internal interface ILikeableAction : IBotAction
     {
         public bool DoLike { get; set; }
     }

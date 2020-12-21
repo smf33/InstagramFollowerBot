@@ -1,6 +1,6 @@
 ﻿namespace IFB
 {
-    internal interface IFollowAction : IBotAction
+    internal interface IFollowableAction : IBotAction
     {
         public bool DoFollow { get; set; }
     }

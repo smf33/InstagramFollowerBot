@@ -1,6 +1,6 @@
 ﻿namespace IFB
 {
-    internal interface ILikeableActionOptions
+    internal interface ILikeableOptions
     {
         int LikeMax { get; }
         int LikeMin { get; }

@@ -6,28 +6,30 @@ using OpenQA.Selenium;
 
 namespace IFB
 {
-    internal class ExplorePhotosPageActions : ILikeAction, IFollowAction
+    internal class ExplorePhotosAction : ILikeableAction, IFollowableAction
     {
-        private readonly ILogger<HomePageAction> _logger;
-        private readonly ExplorePhotosPageActionsOptions _explorePhotosPageActionsOptions;
+        private readonly ExplorePhotosOptions _explorePhotosPageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
+        private readonly ILogger<HomeAction> _logger;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly WaitAction _waitAction;
 
-        public bool DoFollow { get; set; }
-        public bool DoLike { get; set; }
-
-        public ExplorePhotosPageActions(ILogger<HomePageAction> logger, IOptions<ExplorePhotosPageActionsOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
+        public ExplorePhotosAction(ILogger<HomeAction> logger, IOptions<ExplorePhotosOptions> explorePhotosPageActionsOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, WaitAction waitAction) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogTrace("new ExplorePhotosPageActions()");
+            _logger.LogTrace("new ExplorePhotosAction()");
             _explorePhotosPageActionsOptions = explorePhotosPageActionsOptions.Value ?? throw new ArgumentNullException(nameof(explorePhotosPageActionsOptions));
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _waitAction = waitAction ?? throw new ArgumentNullException(nameof(waitAction));
+
+            // default
             DoFollow = true;
             DoLike = true;
         }
+
+        public bool DoFollow { get; set; }
+        public bool DoLike { get; set; }
 
         public async Task RunAsync()
         {
@@ -51,16 +53,15 @@ namespace IFB
             {
                 _logger.LogDebug("Opening a post");
                 await _seleniumWrapper.ScrollIntoView(element);
-                element.Click();
-                await _waitAction.PostScroolWait(); // give small time to the popup to open
+                await _seleniumWrapper.Click(element);
+                // TOFIX : In some case, the popup seem to fail to open and then _seleniumWrapper.Click(_instagramOptions.CssPhotoClose); will fail or click on the current customer icon and open user profil, next actions will faild then
 
                 // Follow
                 if (followDone < followTodo && _seleniumWrapper.GetElementIfPresent(_instagramOptions.CssPhotoFollow, out IWebElement btnFollow))
                 {
                     _logger.LogDebug("Following");
                     await _waitAction.PreFollowWait();
-                    btnFollow.Click();
-                    await _waitAction.PostActionsWait();
+                    await _seleniumWrapper.Click(btnFollow);
                     _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                     followDone++;
                 }
@@ -70,8 +71,7 @@ namespace IFB
                 {
                     _logger.LogDebug("Liking");
                     await _waitAction.PreLikeWait();
-                    btnLike.Click();
-                    await _waitAction.PostActionsWait();
+                    await _seleniumWrapper.Click(btnLike);
                     _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                     likeDone++;
                 }
