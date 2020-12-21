@@ -1,6 +1,6 @@
 namespace IFB
 {
-    internal class HomePageOptions : IScrollableActionOptions, ILikeableActionOptions
+    internal class HomePageOptions : IScrollableActionOptions, ILikeableOptions
     {
         internal const string Section = "IFB_HomePage";
 

@@ -11,30 +11,15 @@ namespace IFB
     internal class FollowerService : IBotAction
     {
         private readonly ILogger<FollowerService> _logger;
+        private readonly LoggingOptions _loggingOptions;
         private readonly IServiceProvider _serviceProvider;
 
-        private string _UserName;
-
-        public FollowerService(ILogger<FollowerService> logger, IServiceProvider serviceProvider) // DI : constructor must be public
+        public FollowerService(ILogger<FollowerService> logger, IOptions<LoggingOptions> loggingOptions, IServiceProvider serviceProvider) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new FollowerService()");
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        }
-
-        private string UserName
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_UserName))
-                {
-                    _UserName = _serviceProvider
-                        .GetRequiredService<IOptions<LoggingOptions>>()
-                        .Value
-                        .User;
-                }
-                return _UserName;
-            }
+            _loggingOptions = loggingOptions?.Value ?? throw new ArgumentNullException(nameof(loggingOptions));
         }
 
         public async Task RunAsync()
@@ -78,12 +63,22 @@ namespace IFB
 
                     case "DOEXPLOREPHOTOSLIKE":
                         action = _serviceProvider.GetRequiredService<ExplorePhotosAction>();
-                        ((IFollowAction)action).DoFollow = false;
+                        ((IFollowableAction)action).DoFollow = false;
                         break;
 
                     case "DOEXPLOREPHOTOSFOLLOW":
                         action = _serviceProvider.GetRequiredService<ExplorePhotosAction>();
-                        ((ILikeAction)action).DoLike = false;
+                        ((ILikeableAction)action).DoLike = false;
+                        break;
+
+                    case "BEGINSNAPSHOOT":
+                        action = _serviceProvider.GetRequiredService<SnapshootAction>();
+                        ((ILikeableAction)action).DoLike = false;
+                        break;
+
+                    case "ENDSNAPSHOOT":
+                        action = _serviceProvider.GetRequiredService<SnapshootAction>();
+                        ((IDeactivatableAction)action).EnableTask = false;
                         break;
 
                     case "PAUSE":
@@ -108,7 +103,7 @@ namespace IFB
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(
-                            string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask,
+                            string.Concat(Environment.MachineName, '@', _loggingOptions.User), dtStart, (DateTimeOffset.Now - dtStart), curTask,
                             true);
                     }
                 }
@@ -120,14 +115,14 @@ namespace IFB
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(
-                            string.Concat(Environment.MachineName, '@', UserName), dtStart, (DateTimeOffset.Now - dtStart), curTask,
+                            string.Concat(Environment.MachineName, '@', _loggingOptions.User), dtStart, (DateTimeOffset.Now - dtStart), curTask,
                             false, ex.GetBaseException().Message);
                         telemetryClient.TrackException(ex);
                     }
 
                     // dump png and html if required
                     _serviceProvider.GetRequiredService<PersistenceAction>()
-                        .DumpCurrentPageIfRequired();
+                        .DumpCurrentPageIfRequired(_loggingOptions.User);
 
                     //raise exception
                     throw;

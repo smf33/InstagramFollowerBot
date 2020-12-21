@@ -346,6 +346,12 @@ namespace IFB
         private Timer snapShotTimer;
         private string timerSnapShootFileNameBase;
 
+        internal void DisableTimerSnapShoot()
+        {
+            _logger.LogTrace("DisableTimerSnapShoot()");
+            snapShotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
         internal void EnableTimerSnapShoot(string filenamePath, int timerMs)
         {
             _logger.LogTrace("EnableTimerSnapShoot({0})", filenamePath);

@@ -113,14 +113,17 @@ namespace IFB
                 .AddTransient<FollowerService>() // used once
                 .AddTransient<HomeAction>() // can be used one or more time
                 .AddTransient<LoggingAction>() // used once
+                .AddTransient<SnapshootAction>() // can be used 2 times
                 .AddTransient<TaskLoader>() // used once
                 .AddTransient<WaitAction>() // used few time
                 .Configure<ExplorePhotosOptions>(configuration.GetSection(ExplorePhotosOptions.Section))
                 .Configure<HomePageOptions>(configuration.GetSection(HomePageOptions.Section))
                 .Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.Section))
                 .Configure<LoggingOptions>(configuration.GetSection(LoggingOptions.Section))
+                .Configure<LoggingSecretOptions>(configuration.GetSection(LoggingSecretOptions.Section))
                 .Configure<PersistenceOptions>(configuration.GetSection(PersistenceOptions.Section))
                 .Configure<SeleniumOptions>(configuration.GetSection(SeleniumOptions.Section))
+                .Configure<SnapshootOptions>(configuration.GetSection(SnapshootOptions.Section))
                 .Configure<TaskManagerOptions>(configuration.GetSection(TaskManagerOptions.Section))
                 .Configure<WaitOptions>(configuration.GetSection(WaitOptions.Section))
                 .BuildServiceProvider();

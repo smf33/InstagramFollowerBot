@@ -1,6 +1,6 @@
 namespace IFB
 {
-    internal class ExplorePhotosOptions : IScrollableActionOptions, IFollowableActionOptions, ILikeableActionOptions
+    internal class ExplorePhotosOptions : IScrollableActionOptions, IFollowableOptions, ILikeableOptions
     {
         internal const string Section = "IFB_ExplorePhotos";
 

@@ -43,9 +43,10 @@
     "UseApplicationInsights": false
   },
   "IFB_Logging": {
-    "Password": null,
-    "User": null,
-    "MakeSnapShootEachSeconds": 2
+    "User": null
+  },
+  "IFB_LoggingSecret": {
+    "Password": null
   },
   "IFB_Persistence": {
     "CacheMyContacts": true,
@@ -70,6 +71,9 @@
     "SaveOnEnd": true,
     "SaveOnLoop": true,
     "TaskList": "CHECKACTIVITY,WAIT,DOHOMEPAGELIKE,DOEXPLOREPHOTOSLIKEFOLLOW"
+  },
+  "IFB_Snapshoot": {
+    "MakeSnapShootEachSeconds": 2
   },
   "IFB_Wait": {
     "PostActionStepMaxWaitMs": 8000,

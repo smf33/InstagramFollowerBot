@@ -6,7 +6,7 @@ using OpenQA.Selenium;
 
 namespace IFB
 {
-    internal class ExplorePhotosAction : ILikeAction, IFollowAction
+    internal class ExplorePhotosAction : ILikeableAction, IFollowableAction
     {
         private readonly ExplorePhotosOptions _explorePhotosPageActionsOptions;
         private readonly InstagramOptions _instagramOptions;
@@ -22,6 +22,8 @@ namespace IFB
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _waitAction = waitAction ?? throw new ArgumentNullException(nameof(waitAction));
+
+            // default
             DoFollow = true;
             DoLike = true;
         }

@@ -9,20 +9,22 @@ namespace IFB
     internal class TaskLoader
     {
         private readonly ILogger<TaskLoader> _logger;
+        private readonly SnapshootOptions _snapshootOptions;
         private readonly TaskManagerOptions _taskManagerOptions;
 
-        public TaskLoader(ILogger<TaskLoader> logger, IOptions<TaskManagerOptions> taskManagerOptions) // DI : constructor must be public
+        public TaskLoader(ILogger<TaskLoader> logger, IOptions<TaskManagerOptions> taskManagerOptions, IOptions<SnapshootOptions> snapshootOptions) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new TaskLoader()");
             _taskManagerOptions = taskManagerOptions?.Value ?? throw new ArgumentNullException(nameof(taskManagerOptions));
+            _snapshootOptions = snapshootOptions?.Value ?? throw new ArgumentNullException(nameof(snapshootOptions));
 
             // config check
             if (string.IsNullOrWhiteSpace(_taskManagerOptions.TaskList))
             {
                 throw new ArgumentNullException(nameof(taskManagerOptions), "TaskList is empty !");
             }
-            else if (_taskManagerOptions.LoopTaskLimit <= 0 && _taskManagerOptions.TaskList.Contains(",LOOP"))
+            else if (_taskManagerOptions.LoopTaskLimit <= 0 && _taskManagerOptions.TaskList.Contains(",LOOP", StringComparison.OrdinalIgnoreCase))
             {
                 throw new ArgumentOutOfRangeException(nameof(taskManagerOptions), "LoopTaskLimit must be greater than 0 when LOOP task is used !");
             }
@@ -86,8 +88,15 @@ namespace IFB
                 computedTasks = tasks.ToString(); // resolve
             }
 
-            // add internal task at the begin
-            computedTasks = string.Concat("LOADING,LOGGING,SAVE,", computedTasks);
+            // is BEGINSNAPSHOOT and ENDSNAPSHOOT usefull and not already set manually ?
+            if (_snapshootOptions.MakeSnapShootEachSeconds <= 0 || computedTasks.Contains("SNAPSHOOT,", StringComparison.Ordinal))
+            {
+                computedTasks = string.Concat("LOADING,LOGGING,SAVE,", computedTasks);
+            }
+            else
+            {
+                computedTasks = string.Concat("LOADING,BEGINSNAPSHOOT,LOGGING,SAVE,", computedTasks, ",ENDSNAPSHOOT");
+            }
 
             _logger.LogDebug("Task list : {0}", computedTasks);
             return computedTasks

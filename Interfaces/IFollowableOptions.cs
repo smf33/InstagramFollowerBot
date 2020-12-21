@@ -1,6 +1,6 @@
 ﻿namespace IFB
 {
-    internal interface IFollowableActionOptions
+    internal interface IFollowableOptions
     {
         int FollowMax { get; }
         int FollowMin { get; }

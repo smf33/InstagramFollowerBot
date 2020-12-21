@@ -10,14 +10,16 @@ namespace IFB
         private readonly InstagramOptions _instagramOptions;
         private readonly ILogger<LoggingAction> _logger;
         private readonly LoggingOptions _loggingOptions;
+        private readonly LoggingSecretOptions _loggingSecretOptions;
         private readonly PersistenceAction _persistenceAction;
         private readonly SeleniumWrapper _seleniumWrapper;
 
-        public LoggingAction(ILogger<LoggingAction> logger, IOptions<LoggingOptions> loggingOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, PersistenceAction persistenceAction) // DI : constructor must be public
+        public LoggingAction(ILogger<LoggingAction> logger, IOptions<LoggingOptions> loggingOptions, IOptions<LoggingSecretOptions> loggingSecretOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, PersistenceAction persistenceAction) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new LoggingAction()");
             _loggingOptions = loggingOptions?.Value ?? throw new ArgumentNullException(nameof(loggingOptions));
+            _loggingSecretOptions = loggingSecretOptions?.Value ?? throw new ArgumentNullException(nameof(loggingSecretOptions));
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _persistenceAction = persistenceAction ?? throw new ArgumentNullException(nameof(persistenceAction));
@@ -32,12 +34,6 @@ namespace IFB
         public async Task RunAsync()
         {
             _logger.LogTrace("RunAsync()");
-
-            if (_loggingOptions.MakeSnapShootEachSeconds > 0)
-            {
-                string baseFileName = _persistenceAction.GetSessionBaseFileName(_loggingOptions.User);
-                _seleniumWrapper.EnableTimerSnapShoot(baseFileName, _loggingOptions.MakeSnapShootEachSeconds * 1000);
-            }
 
             // load page (pre requis for setting cookie)
             await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
@@ -63,9 +59,9 @@ namespace IFB
 
             await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginEmail, _loggingOptions.User);
 
-            if (!string.IsNullOrWhiteSpace(_loggingOptions.Password))
+            if (!string.IsNullOrWhiteSpace(_loggingSecretOptions.Password))
             {
-                await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginPassword, _loggingOptions.Password);
+                await _seleniumWrapper.InputWriteAsync(_instagramOptions.CssLoginPassword, _loggingSecretOptions.Password);
                 await _seleniumWrapper.EnterKeyAsync(_instagramOptions.CssLoginPassword);
             }
             else

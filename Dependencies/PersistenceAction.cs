@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -61,11 +60,6 @@ namespace IFB
             SessionJsonFile = string.Concat(GetSessionBaseFileName(userName), ".json");
         }
 
-        private string GetSessionBaseFileName()
-        {
-            return GetSessionBaseFileName(string.Concat("Tread", Thread.CurrentThread.ManagedThreadId.ToString()));
-        }
-
         #endregion FileName Management
 
         public PersistenceAction(ILogger<PersistenceAction> logger, IOptions<PersistenceOptions> persistenceOptions, SeleniumWrapper seleniumWrapper) // DI : constructor must be public
@@ -95,14 +89,14 @@ namespace IFB
 
         #region Dumping
 
-        internal void DumpCurrentPageIfRequired()
+        internal void DumpCurrentPageIfRequired(string userName)
         {
             _logger.LogTrace("DumpCurrentPageIfRequired()");
 
             // do the dump requested
             if (_persistenceOptions.DumpBrowserContextOnCrash)
             {
-                string fileNameBase = string.Concat(GetSessionBaseFileName(), ".CrashDump.", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+                string fileNameBase = string.Concat(GetSessionBaseFileName(userName), ".CrashDump.", DateTime.Now.ToString("yyyyMMdd-HHmmss"));
 
                 _seleniumWrapper.SafeDumpCurrentHtml(string.Concat(fileNameBase, ".html"));
 

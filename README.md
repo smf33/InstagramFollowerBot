@@ -32,7 +32,7 @@ dotnet run
 
 - On a daily base, unfollow users whose doesn't follow you :
 ```
-dotnet run IFB_TaskManager__TaskList=DetectContactsUnfollowBack,DoContactsUnfollow IFB_Logging__User=you@dom.com IFB_Logging__Password=Passw0rd
+dotnet run IFB_TaskManager__TaskList=DetectContactsUnfollowBack,DoContactsUnfollow IFB_Logging__User=you@dom.com IFB_LoggingSecret__Password=Passw0rd
 ```
 
 ### Docker run
@@ -43,7 +43,7 @@ Exemple with Z:\InstagramFollowerBot as the source path, on a Windows system
 ```
 docker build -f Z:\InstagramFollowerBot\Dockerfile -t instagramfollowerbot Z:\InstagramFollowerBot
 docker run --name seleniumContainer --detach --publish 4444:4444 selenium/standalone-chrome --volume /dev/shm:/dev/shm
-docker run --link seleniumContainer:seleniumhost instagramfollowerbot IFB_Logging__User=you@dom.com IFB_Logging__Password=Passw0rd IFB_Selenium__RemoteServer=http://seleniumhost:4444/wd/hub
+docker run --link seleniumContainer:seleniumhost instagramfollowerbot IFB_Logging__User=you@dom.com IFB_LoggingSecret__Password=Passw0rd IFB_Selenium__RemoteServer=http://seleniumhost:4444/wd/hub
 ```
 
 ### Docker Compose run
@@ -59,14 +59,14 @@ docker-compose up
 ## Configuration
 - Main settings :
 Settings may be read in command line parameter, else in environnement variable, else in InstagramFollowerBot.json.
-Only IFB_Logging__User and IFB_Logging__Password won't have default working values from the initial configuration file.
-IFB_Logging__Password may be set to null in debug mode (the user will be able to insert the password himself)
+Only IFB_Logging__User and IFB_LoggingSecret__Password won't have default working values from the initial configuration file.
+IFB_LoggingSecret__Password may be set to null in debug mode (the user will be able to insert the password himself)
 
 | Parameter | Description |
 | :-------- | :---------- |
 | IFB_Logger_UseApplicationInsights | Enable Microsoft Azure ApplicationInsights, you must define the environnement variable APPINSIGHTS_INSTRUMENTATIONKEY with your key |
 | IFB_Logger_UseAzureDevOpsFormating | Use a VSO log format instead of the default colored output, enable it if you run your bot through Azure DevOps pipeline |
-| IFB_Logging__Password | Password for auto-login, may be set to null if session file already created |
+| IFB_LoggingSecret__Password | Password for auto-login, may be set to null if session file already created |
 | IFB_Logging__User | Email or UserName for login and filename for the session file |
 | IFB_Persistence__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
 | IFB_Persistence__SaveFolder | Where user informations (like cookie) are stored |
@@ -98,3 +98,4 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
 ## TODO :
 - Enable more functions already working on the Flickr version of this bot
+- Reduce diret link between the 2 singletons class (persistance and selenium)
