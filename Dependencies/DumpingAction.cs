@@ -33,6 +33,10 @@ namespace IFB
 
                 _seleniumWrapper.SafeDumpCurrentPng(string.Concat(fileNameBase, ".png"));
             }
+            else
+            {
+                _logger.LogDebug("DumpBrowserContextOnCrash is disabled");
+            }
         }
     }
 }

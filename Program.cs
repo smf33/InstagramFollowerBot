@@ -113,9 +113,9 @@ namespace IFB
                 .AddSingleton<PersistenceManager>() // must be singleton
                 .AddSingleton<SeleniumWrapper>() // must be singleton
                 .AddTransient<ActivityAction>() // can be used one or more time
+                .AddTransient<DumpingAction>() // can be used one
                 .AddTransient<ExplorePhotosAction>() // can be used one or more time
                 .AddTransient<FollowerService>() // used once
-                .AddTransient<DumpingAction>() // can be used one
                 .AddTransient<HomeAction>() // can be used one or more time
                 .AddTransient<LoadingAction>() // used once
                 .AddTransient<LoggingAction>() // used once
@@ -123,6 +123,7 @@ namespace IFB
                 .AddTransient<SnapshootAction>() // can be used 2 times
                 .AddTransient<TaskLoader>() // used once
                 .AddTransient<WaitAction>() // used few time
+                .Configure<DumpingOptions>(configuration.GetSection(DumpingOptions.Section))
                 .Configure<ExplorePhotosOptions>(configuration.GetSection(ExplorePhotosOptions.Section))
                 .Configure<HomePageOptions>(configuration.GetSection(HomePageOptions.Section))
                 .Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.Section))

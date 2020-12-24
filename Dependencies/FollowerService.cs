@@ -112,7 +112,7 @@ namespace IFB
                 {
                     _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
 
-                    // ApplicationInsight
+                    // ApplicationInsight ?
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(

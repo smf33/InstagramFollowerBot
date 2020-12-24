@@ -20,6 +20,9 @@ namespace IFB
             _logger.LogTrace("new PersistenceManager()");
             _persistenceOptions = persistenceOptions?.Value ?? throw new ArgumentNullException(nameof(persistenceOptions));
             _loggingOptions = loggingOptions?.Value ?? throw new ArgumentNullException(nameof(loggingOptions));
+
+            // defaut in cas a crash occure before InitFileName() finish and a DumpBrowserContextOnCrash is required
+            BaseFileName = Path.Combine(Program.ExecutablePath, "Temp");
         }
 
         internal string BaseFileName { get; private set; }
