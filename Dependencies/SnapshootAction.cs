@@ -30,16 +30,16 @@ namespace IFB
         {
             _logger.LogTrace("RunAsync()");
 
-            if (EnableTask)
+            if (_snapshootOptions.MakeSnapShootEachSeconds > 0)
             {
-                if (_snapshootOptions.MakeSnapShootEachSeconds > 0)
+                if (EnableTask)
                 {
                     _seleniumWrapper.EnableTimerSnapShoot(_persistenceManager.BaseFileName, _snapshootOptions.MakeSnapShootEachSeconds * 1000);
                 }
-            }
-            else
-            {
-                _seleniumWrapper.DisableTimerSnapShoot();
+                else
+                {
+                    _seleniumWrapper.DisableTimerSnapShoot();
+                }
             }
 
             await Task.CompletedTask; // fake await since no awaitable action here

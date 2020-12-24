@@ -33,6 +33,9 @@ namespace IFB
             // just do it
             while (taskQueue.TryDequeue(out string curTask))
             {
+                _logger.LogInformation("{0}", curTask);
+
+                // identify task
                 IBotAction action;
                 switch (curTask)
                 {
@@ -90,8 +93,7 @@ namespace IFB
                         continue;
                 }
 
-                _logger.LogInformation("{0}", curTask);
-
+                // run it
                 DateTimeOffset dtStart = DateTimeOffset.Now;
                 try
                 {
