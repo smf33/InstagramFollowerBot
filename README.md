@@ -68,7 +68,7 @@ IFB_LoggingSecret__Password may be set to null in debug mode (the user will be a
 | IFB_Logger_UseAzureDevOpsFormating | Use a VSO log format instead of the default colored output, enable it if you run your bot through Azure DevOps pipeline |
 | IFB_LoggingSecret__Password | Password for auto-login, may be set to null if session file already created |
 | IFB_Logging__User | Email or UserName for login and filename for the session file |
-| IFB_Persistence__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
+| IFB_Dumping__DumpBrowserContextOnCrash | In case of bot crash, generate a dump of the Chrome browser as .html for the html source and .png for the current view |
 | IFB_Persistence__SaveFolder | Where user informations (like cookie) are stored |
 | IFB_Persistence__UsePersistence | Will create a file for the user session and cookies |
 | IFB_Selenium__RemoteServer | Url of the Selenium Hub web service |
@@ -98,4 +98,3 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 - About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
 ## TODO :
 - Enable more functions already working on the Flickr version of this bot
-- Reduce diret link between the 2 singletons class (persistance and selenium)

@@ -37,7 +37,7 @@ namespace IFB
                 switch (curTask)
                 {
                     case "LOADING":
-                        action = _serviceProvider.GetRequiredService<SeleniumWrapper>();
+                        action = _serviceProvider.GetRequiredService<LoadingAction>();
                         break;
 
                     case "LOGGING":
@@ -49,7 +49,7 @@ namespace IFB
                         break;
 
                     case "SAVE":
-                        action = _serviceProvider.GetRequiredService<PersistenceAction>();
+                        action = _serviceProvider.GetRequiredService<SaveAction>();
                         break;
 
                     case "DOHOMEPAGELIKE":
@@ -120,8 +120,8 @@ namespace IFB
                     }
 
                     // dump png and html if required
-                    _serviceProvider.GetRequiredService<PersistenceAction>()
-                        .DumpCurrentPageIfRequired(_loggingOptions.User);
+                    _serviceProvider.GetRequiredService<DumpingAction>()
+                        .Run();
 
                     //raise exception
                     throw;

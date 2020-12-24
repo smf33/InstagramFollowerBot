@@ -8,19 +8,17 @@ namespace IFB
     internal class SnapshootAction : IDeactivatableAction
     {
         private readonly ILogger<SnapshootAction> _logger;
-        private readonly LoggingOptions _loggingOptions;
-        private readonly PersistenceAction _persistenceAction;
+        private readonly PersistenceManager _persistenceManager;
         private readonly SeleniumWrapper _seleniumWrapper;
         private readonly SnapshootOptions _snapshootOptions;
 
-        public SnapshootAction(ILogger<SnapshootAction> logger, IOptions<SnapshootOptions> snapshootOptions, IOptions<LoggingOptions> loggingOptions, PersistenceAction persistenceAction, SeleniumWrapper seleniumWrapper) // DI : constructor must be public
+        public SnapshootAction(ILogger<SnapshootAction> logger, IOptions<SnapshootOptions> snapshootOptions, PersistenceManager persistenceManager, SeleniumWrapper seleniumWrapper) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new SnapshootAction()");
             _snapshootOptions = snapshootOptions.Value ?? throw new ArgumentNullException(nameof(snapshootOptions));
-            _loggingOptions = loggingOptions.Value ?? throw new ArgumentNullException(nameof(loggingOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
-            _persistenceAction = persistenceAction ?? throw new ArgumentNullException(nameof(persistenceAction));
+            _persistenceManager = persistenceManager ?? throw new ArgumentNullException(nameof(persistenceManager));
 
             // default
             EnableTask = true;
@@ -36,8 +34,7 @@ namespace IFB
             {
                 if (_snapshootOptions.MakeSnapShootEachSeconds > 0)
                 {
-                    string baseFileName = _persistenceAction.GetSessionBaseFileName(_loggingOptions.User);
-                    _seleniumWrapper.EnableTimerSnapShoot(baseFileName, _snapshootOptions.MakeSnapShootEachSeconds * 1000);
+                    _seleniumWrapper.EnableTimerSnapShoot(_persistenceManager.BaseFileName, _snapshootOptions.MakeSnapShootEachSeconds * 1000);
                 }
             }
             else

@@ -16,7 +16,7 @@ using OpenQA.Selenium.Remote;
 
 namespace IFB
 {
-    internal class SeleniumWrapper : IBotAction, IDisposable
+    internal class SeleniumWrapper : IDisposable
     {
         private readonly ILogger<SeleniumWrapper> _logger;
         private readonly SeleniumOptions _seleniumOptions;
@@ -40,9 +40,9 @@ namespace IFB
         /// <summary>
         /// Load selenium action
         /// </summary>
-        public async Task RunAsync()
+        internal async Task LoadSelenium()
         {
-            _logger.LogTrace("RunAsync()");
+            _logger.LogTrace("LoadSelenium()");
             // Set Options
             ChromeOptions options = new ChromeOptions
             {
@@ -376,7 +376,7 @@ namespace IFB
                     .Replace("href=\"/", "href=\"https://www.instagram.com/");
                 File.WriteAllText(fileName, html);
             }
-            catch (WebDriverException ex)
+            catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Couldn't save html page context {0}", ex.GetBaseException().Message);
             }

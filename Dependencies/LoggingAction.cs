@@ -11,10 +11,10 @@ namespace IFB
         private readonly ILogger<LoggingAction> _logger;
         private readonly LoggingOptions _loggingOptions;
         private readonly LoggingSecretOptions _loggingSecretOptions;
-        private readonly PersistenceAction _persistenceAction;
+        private readonly PersistenceManager _persistenceManager;
         private readonly SeleniumWrapper _seleniumWrapper;
 
-        public LoggingAction(ILogger<LoggingAction> logger, IOptions<LoggingOptions> loggingOptions, IOptions<LoggingSecretOptions> loggingSecretOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, PersistenceAction persistenceAction) // DI : constructor must be public
+        public LoggingAction(ILogger<LoggingAction> logger, IOptions<LoggingOptions> loggingOptions, IOptions<LoggingSecretOptions> loggingSecretOptions, IOptions<InstagramOptions> instagramOptions, SeleniumWrapper seleniumWrapper, PersistenceManager persistenceManager) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _logger.LogTrace("new LoggingAction()");
@@ -22,7 +22,7 @@ namespace IFB
             _loggingSecretOptions = loggingSecretOptions?.Value ?? throw new ArgumentNullException(nameof(loggingSecretOptions));
             _instagramOptions = instagramOptions.Value ?? throw new ArgumentNullException(nameof(instagramOptions));
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
-            _persistenceAction = persistenceAction ?? throw new ArgumentNullException(nameof(persistenceAction));
+            _persistenceManager = persistenceManager ?? throw new ArgumentNullException(nameof(persistenceManager));
 
             // config check
             if (string.IsNullOrWhiteSpace(_loggingOptions.User))
@@ -39,18 +39,16 @@ namespace IFB
             await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot);
 
             //Auth from Cookies
-            PersistenceData data = await TryAuthCookiesAsync();
-
-            // else auth from login/password
-            if (data == null)
+            if (!await TryAuthCookiesAsync())
             {
-                data = await AuthLoginAsync();
+                // else auth from login/password
+                await AuthLoginAsync();
             }
 
-            _logger.LogDebug("Logged user :  {0}", data.UserContactUrl);
+            _logger.LogDebug("Logged user :  {0}", _persistenceManager.Session.UserContactUrl);
         }
 
-        private async Task<PersistenceData> AuthLoginAsync()
+        private async Task AuthLoginAsync()
         {
             _logger.LogTrace("AuthLoginAsync()");
 
@@ -84,19 +82,18 @@ namespace IFB
             await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself); // must be here, else the auth have failed
 
             // new session with user URL
-            return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
+            _persistenceManager.SetNewSession(_seleniumWrapper.CurrentUrl);
         }
 
-        private async Task<PersistenceData> TryAuthCookiesAsync()
+        private async Task<bool> TryAuthCookiesAsync()
         {
             _logger.LogTrace("TryAuthCookiesAsync()");
 
-            _persistenceAction.InitSessionJsonFile(_loggingOptions.User);
-
-            PersistenceData data = await _persistenceAction.GetSessionAsync();
-            if (data?.UserContactUrl != null)
+            if (_persistenceManager.Session?.UserContactUrl != null)
             {
-                _persistenceAction.UpdateSeleniumFromSession();
+                _seleniumWrapper.Cookies = _persistenceManager.Session.Cookies; // need to have loaded the page 1st
+                _seleniumWrapper.SessionStorage = _persistenceManager.Session.SessionStorage; // need to have loaded the page 1st
+                _seleniumWrapper.LocalStorage = _persistenceManager.Session.LocalStorage; // need to have loaded the page 1st
 
                 // reload page (using cookie this time)
                 await _seleniumWrapper.MoveToAsync(_instagramOptions.UrlRoot, true);
@@ -111,28 +108,28 @@ namespace IFB
                 if (await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself, canBeMissing: true, noImplicitWait: false))
                 {
                     string curUserContactUrl = _seleniumWrapper.CurrentUrl;
-                    if (data.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
+                    if (_persistenceManager.Session.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
                     {
                         _logger.LogDebug("User {0} authentified from cookie", _loggingOptions.User);
-                        return data;
                     }
                     else
                     {
-                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, erasing previous session data", data.UserContactUrl, curUserContactUrl);
-                        // get new Session
-                        return _persistenceAction.SetNewSession(_seleniumWrapper.CurrentUrl);
+                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, erasing previous session data", _persistenceManager.Session.UserContactUrl, curUserContactUrl);
+                        // set new Session
+                        _persistenceManager.SetNewSession(_seleniumWrapper.CurrentUrl);
                     }
+                    return true;
                 }
                 else // not present = not identified
                 {
                     _logger.LogWarning("Cookie authentification failed");
-                    return null;
+                    return false;
                 }
             }
             else
             {
                 _logger.LogDebug("Cookie authentification not used");
-                return null;
+                return false;
             }
         }
     }

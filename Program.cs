@@ -110,13 +110,16 @@ namespace IFB
             // Add the applications services
             return services
                 .AddOptions()
-                .AddSingleton<PersistenceAction>() // must be singleton
+                .AddSingleton<PersistenceManager>() // must be singleton
                 .AddSingleton<SeleniumWrapper>() // must be singleton
                 .AddTransient<ActivityAction>() // can be used one or more time
                 .AddTransient<ExplorePhotosAction>() // can be used one or more time
                 .AddTransient<FollowerService>() // used once
+                .AddTransient<DumpingAction>() // can be used one
                 .AddTransient<HomeAction>() // can be used one or more time
+                .AddTransient<LoadingAction>() // used once
                 .AddTransient<LoggingAction>() // used once
+                .AddTransient<SaveAction>() // used multiple time
                 .AddTransient<SnapshootAction>() // can be used 2 times
                 .AddTransient<TaskLoader>() // used once
                 .AddTransient<WaitAction>() // used few time

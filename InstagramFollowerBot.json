@@ -1,4 +1,7 @@
 {
+  "IFB_Dumping": {
+    "DumpBrowserContextOnCrash": false
+  },
   "IFB_ExplorePhotos": {
     "FollowMax": 10,
     "FollowMin": 2,
@@ -50,7 +53,6 @@
   },
   "IFB_Persistence": {
     "CacheMyContacts": true,
-    "DumpBrowserContextOnCrash": false,
     "SaveFolder": null,
     "UsePersistence": true,
     "UsePersistenceLimitHours": -1
@@ -65,15 +67,15 @@
     "WindowMinH": 900,
     "WindowMinW": 1000
   },
+  "IFB_Snapshoot": {
+    "MakeSnapShootEachSeconds": -1
+  },
   "IFB_TaskManager": {
     "LoopTaskLimit": 5,
     "SaveAfterEachAction": false,
     "SaveOnEnd": true,
     "SaveOnLoop": true,
     "TaskList": "CHECKACTIVITY,WAIT,DOHOMEPAGELIKE,DOEXPLOREPHOTOSLIKEFOLLOW"
-  },
-  "IFB_Snapshoot": {
-    "MakeSnapShootEachSeconds": -1
   },
   "IFB_Wait": {
     "PostActionStepMaxWaitMs": 8000,
