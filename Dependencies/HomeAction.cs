@@ -36,7 +36,7 @@ namespace IFB
             await _seleniumWrapper.ScrollToTopAsync();
 
             // open
-            await _seleniumWrapper.Click(_instagramOptions.CssHeaderButtonHome); // TOFIX : sometime it seem there is a miss here...
+            await _seleniumWrapper.Click(_instagramOptions.CssHeaderButtonHome);
 
             // scrools
             await _seleniumWrapper.ScrollToBottomAsync(_homePageActionsOptions.InitScrools);

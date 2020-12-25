@@ -29,9 +29,13 @@ namespace IFB
             {
                 string fileNameBase = string.Concat(_persistenceManager.BaseFileName, ".", DateTime.Now.ToString("yyyyMMdd-HHmmss")); // no fraction of second, so no conflit with the beginshapshoot task
 
-                _seleniumWrapper.SafeDumpCurrentHtml(string.Concat(fileNameBase, ".html"));
+                _seleniumWrapper.DisableTimerSnapShoot(true);
 
+                // first is screenshot, almost immediat
                 _seleniumWrapper.SafeDumpCurrentPng(string.Concat(fileNameBase, ".png"));
+
+                // then is dumping html, it can take a few second
+                _seleniumWrapper.SafeDumpCurrentHtml(string.Concat(fileNameBase, ".html"));
             }
             else
             {

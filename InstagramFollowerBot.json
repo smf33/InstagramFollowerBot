@@ -9,6 +9,13 @@
     "LikeMax": 25,
     "LikeMin": 5
   },
+  "IFB_Followers": {
+    "CacheFollowingHours": 48,
+    "FollowbackMax": 10,
+    "FollowbackMin": 2,
+    "UnfollowUnfollowerMax": 10,
+    "UnfollowUnfollowerMin": 2
+  },
   "IFB_HomePage": {
     "InitScrools": 4,
     "LikeMax": 20,
@@ -24,7 +31,8 @@
     "CssContactUnfollowButtonAlt": "button._8A5w5:not(.fAR91)",
     "CssContactUnfollowConfirm": "button.-Cab_",
     "CssCookiesWarning": ".bIiDR",
-    "CssExplorePhotos": ".QzzMF>a", // other parent candidate : NUiEW
+    "CssExploreLoading": ".By4nA",
+    "CssExplorePhotos": ".QzzMF>a",
     "CssHeaderButtonActivity": ".Fifk5>a[href='/accounts/activity/']",
     "CssHeaderButtonExplore": ".Fifk5>a[href='/explore/']",
     "CssHeaderButtonHome": ".Fifk5>div>a[href='/']",

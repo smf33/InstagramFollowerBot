@@ -15,6 +15,7 @@ namespace IFB
         public string CssContactUnfollowButtonAlt { get; set; }
         public string CssContactUnfollowConfirm { get; set; }
         public string CssCookiesWarning { get; set; }
+        public string CssExploreLoading { get; set; }
         public string CssExplorePhotos { get; set; }
         public string CssHeaderButtonActivity { get; set; }
         public string CssHeaderButtonExplore { get; set; }

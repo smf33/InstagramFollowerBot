@@ -40,6 +40,9 @@ namespace IFB
             // open
             await _seleniumWrapper.Click(_instagramOptions.CssHeaderButtonExplore);
 
+            // Wait loading if required
+            await _seleniumWrapper.WaitLoader(_instagramOptions.CssExploreLoadging);
+
             // scrools
             await _seleniumWrapper.ScrollToBottomAsync(_explorePhotosPageActionsOptions.InitScrools);
 

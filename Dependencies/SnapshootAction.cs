@@ -20,6 +20,12 @@ namespace IFB
             _seleniumWrapper = seleniumWrapper ?? throw new ArgumentNullException(nameof(seleniumWrapper));
             _persistenceManager = persistenceManager ?? throw new ArgumentNullException(nameof(persistenceManager));
 
+            // config check
+            if (_snapshootOptions.MakeSnapShootEachSeconds <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(snapshootOptions), "MakeSnapShootEachSeconds must be greater than 0 when SNAPSHOOT tasks are used !");
+            }
+
             // default
             EnableTask = true;
         }

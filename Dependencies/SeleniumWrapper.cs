@@ -153,6 +153,29 @@ namespace IFB
             }
         }
 
+        internal async Task WaitLoader(string cssSelector)
+        {
+            _logger.LogTrace("WaitLoader({0})", cssSelector);
+
+            IWebElement element = GetElement(cssSelector, canBeMissing: true);
+            if (element != null)
+            {
+                _logger.LogDebug("Wait until loading end");
+                DateTime timeout = DateTime.UtcNow.Add(NormalWaiter); // timeout
+                do
+                {
+                    await _waitAction.PostScroolWait(); // small waiter
+                    element = GetElement(cssSelector, canBeMissing: true);
+                }
+                while (element != null && DateTime.UtcNow < timeout);
+                // has hit timeout ?
+                if (element != null)
+                {
+                    throw new TimeoutException("Loading take too much time...");
+                }
+            }
+        }
+
         #region Click
 
         internal async Task<bool> Click(string cssSelector, bool canBeMissing = false, bool noImplicitWait = true, bool thenWait = true)
@@ -353,10 +376,17 @@ namespace IFB
         private Timer snapShotTimer;
         private string timerSnapShootFileNameBase;
 
-        internal void DisableTimerSnapShoot()
+        internal void DisableTimerSnapShoot(bool canBeInvalid = false)
         {
             _logger.LogTrace("DisableTimerSnapShoot()");
-            snapShotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            if (snapShotTimer != null)
+            {
+                snapShotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            }
+            else if (!canBeInvalid) // called from crashdump
+            {
+                throw new InvalidOperationException("Snapshoot haven't been enabled !");
+            }
         }
 
         internal void EnableTimerSnapShoot(string filenamePath, int timerMs)
