@@ -31,7 +31,7 @@
     "CssContactUnfollowButtonAlt": "button._8A5w5:not(.fAR91)",
     "CssContactUnfollowConfirm": "button.-Cab_",
     "CssCookiesWarning": ".bIiDR",
-    "CssExploreLoading": ".By4nA",
+    "CssExploreLoading": ".u33W3>div>.By4nA",
     "CssExplorePhotos": ".QzzMF>a",
     "CssHeaderButtonActivity": ".Fifk5>a[href='/accounts/activity/']",
     "CssHeaderButtonExplore": ".Fifk5>a[href='/explore/']",
