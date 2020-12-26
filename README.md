@@ -4,6 +4,8 @@ Bot for Instagram, in .Net Core, using Chrome and Selenium for actions.
 
 Main functions :
 - Follow&Like with Insta Photos Explore
+- Unfollow people not following you
+- Follow back people following you
 - Like on Insta home page
 - Can work with a remote Selenium grid and/or in docker
 - Colored console trace or VSO format for Azure DevOps execition
@@ -16,7 +18,16 @@ Main functions :
 - Windows, Linux or Mac
 - .Net SDK 5.0 : https://dotnet.microsoft.com/download
 - Chrome (not Chromium), or a Selenium server with Chrome clients
-*If you use Chrome (not Selenium server so), the ChromeDriver of this bot version must match your Chrome version.*
+
+## Notes
+
+- Selenium Chrome Driver must have the same version than your Chrome (change the lib version in the project if required)
+- Don't be evil, else Instagram will delete your spamming account
+- The solution is micro-service oriented, but Instagram will detected the spamming account if the bot is too fast
+- If you want to publish without remote Selenium, add _PUBLISH_CHROMEDRIVER in the DefineConstants of the .csproj
+- The account should follow at last one account, else the bot will fail to detect this
+- About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
+- Settings set by command line need to use : instead of __ depending on OS. Exemple : IFB_Logging:User
 
 ## Usage
 
@@ -81,20 +92,12 @@ A lot of settings in order to randomize or limit the batch, in the Bot.Json
 | Name | Description |
 | :--- | :---------- |
 | CHECKACTIVITY | Open/Close the Activity popup |
-| DOHOMEPAGELIKE | Like post in the home screen, like between IFB_HomePage__LikeMin and IFB_HomePage__LikeMax post |
 | DOEXPLOREPHOTOSFOLLOW | Follow only of the DOEXPLOREPHOTOSFOLLOWLIKE, follow between IFB_ExplorePhotos__FollowMin and IFB_ExplorePhotos__FollowMax post |
-| DOEXPLOREPHOTOSLIKE | Like only of the DOEXPLOREPHOTOSFOLLOWLIKE, like between IFB_ExplorePhotos__LikeMin and IFB_ExplorePhotos__LikeMax post |
 | DOEXPLOREPHOTOSFOLLOWLIKE | Follow and Like of the DOEXPLOREPHOTOSFOLLOWLIKE |
+| DOEXPLOREPHOTOSLIKE | Like only of the DOEXPLOREPHOTOSFOLLOWLIKE, like between IFB_ExplorePhotos__LikeMin and IFB_ExplorePhotos__LikeMax post |
+| DOFOLLOWBACK | Follow back your follower that you are not already following |
+| DOHOMEPAGELIKE | Like post in the home screen, like between IFB_HomePage__LikeMin and IFB_HomePage__LikeMax post |
+| DOUNFOLLOWUNFOLLOWERS | Unfollow users not following you |
+| LOOP | Restart from first task (or BEGINLOOP if present), loop for IFB_TaskManager__LoopTaskLimit times |
 | SAVE | Save the user session file, including cookie, allowing session to be resumed next application launch |
 | WAIT | Pause the worker |
-| LOOP | Restart from first task (or BEGINLOOP if present), loop for IFB_TaskManager__LoopTaskLimit times |
-
-## Notes
-- Selenium Chrome Driver must have the same version than your Chrome (change the lib version in the project if required)
-- Don't be evil, else Instagram will delete your spamming account
-- The solution is micro-service oriented, but Instagram will detected the spamming account if the bot is too fast
-- If you want to publish without remote Selenium, add _PUBLISH_CHROMEDRIVER in the DefineConstants of the .csproj
-- The account should follow at last one account, else the bot will fail to detect this
-- About "Unusual Login Attempt Detected" : If the bot connect from a location, OS, Browser that you never used before, you will get this email code chalenge. Pass it before lauching the bot again. You can change the OS/Browser (Chrome/Windows 10 by default) with the --user-agent in the SeleniumBrowserArguments setting.
-## TODO :
-- Enable more functions already working on the Flickr version of this bot

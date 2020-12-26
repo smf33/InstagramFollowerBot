@@ -44,8 +44,6 @@ namespace IFB
                 // else auth from login/password
                 await AuthLoginAsync();
             }
-
-            _logger.LogDebug("Logged user :  {0}", _persistenceManager.Session.UserContactUrl);
         }
 
         private async Task AuthLoginAsync()
@@ -79,10 +77,13 @@ namespace IFB
             await _seleniumWrapper.Click(_instagramOptions.CssLoginWarning, canBeMissing: true);
 
             // who am i ?
-            await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself); // must be here, else the auth have failed
+            await _seleniumWrapper.Click(_instagramOptions.CssHeaderMyself); // must be here, else the auth have failed
+            await _seleniumWrapper.Click(_instagramOptions.CssHeaderMyselfProfile); // must be here, else the auth have failed
 
             // new session with user URL
             _persistenceManager.SetNewSession(_seleniumWrapper.CurrentUrl);
+
+            _logger.LogDebug("User {0} authentified from password : {1}", _loggingOptions.User, _persistenceManager.Session.UserContactUrl);
         }
 
         private async Task<bool> TryAuthCookiesAsync()
@@ -105,16 +106,17 @@ namespace IFB
                 await _seleniumWrapper.Click(_instagramOptions.CssCookiesWarning, canBeMissing: true);
 
                 ////check cookie auth OK :  who am i ?
-                if (await _seleniumWrapper.Click(_instagramOptions.CssLoginMyself, canBeMissing: true, noImplicitWait: false))
+                if (await _seleniumWrapper.Click(_instagramOptions.CssHeaderMyself, canBeMissing: true, noImplicitWait: false)
+                    && await _seleniumWrapper.Click(_instagramOptions.CssHeaderMyselfProfile, canBeMissing: true, noImplicitWait: false))
                 {
                     string curUserContactUrl = _seleniumWrapper.CurrentUrl;
                     if (_persistenceManager.Session.UserContactUrl.Equals(curUserContactUrl, StringComparison.OrdinalIgnoreCase))
                     {
-                        _logger.LogDebug("User {0} authentified from cookie", _loggingOptions.User);
+                        _logger.LogDebug("User {0} authentified from cookie : {1}", _loggingOptions.User, _persistenceManager.Session.UserContactUrl);
                     }
                     else
                     {
-                        _logger.LogWarning("Cookie authentification not matching : expecting {0} but getting {1}, erasing previous session data", _persistenceManager.Session.UserContactUrl, curUserContactUrl);
+                        _logger.LogWarning("User {0} cookie authentification not matching : expecting {1} but getting {2}, erasing previous session data", _loggingOptions.User, _persistenceManager.Session.UserContactUrl, curUserContactUrl);
                         // set new Session
                         _persistenceManager.SetNewSession(_seleniumWrapper.CurrentUrl);
                     }

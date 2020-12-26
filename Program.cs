@@ -31,9 +31,9 @@ namespace IFB
                 // Setup
                 serviceProvider = ConfigureServices(args);
 
-                // Run
+                // Run service
                 await serviceProvider
-                    .GetRequiredService<FollowerService>()
+                    .GetRequiredService<BotService>()
                     .RunAsync();
 
                 ret = 0;
@@ -53,22 +53,12 @@ namespace IFB
             return ret;
         }
 
-        private static IServiceProvider ConfigureServices(string[] args)
+        private static IServiceCollection ConfigureLogger(LoggerOptions loggerOptions)
         {
-            // setup config
-            IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(ExecutablePath)
-                .AddJsonFile("InstagramFollowerBot.json", optional: false, reloadOnChange: false) // priority 4
-                .AddEnvironmentVariables() // priority 2 prefix: "IFB_"
-                .AddCommandLine(args) // priority 1
-                .Build();
-
-            // init services
+            // init a new blank service collection
             IServiceCollection services = new ServiceCollection();
 
-            // Setup Logging
-            LoggerOptions loggerOptions = new LoggerOptions();
-            configuration.GetSection(LoggerOptions.Section).Bind(loggerOptions);
+            // manage ApplicationInsights
             if (loggerOptions.UseApplicationInsights)
             {
                 services.AddApplicationInsightsTelemetryWorkerService(new ApplicationInsightsServiceOptions()
@@ -89,7 +79,9 @@ namespace IFB
                     services.Remove(module);
                 }
             }
-            services.AddLogging(configure =>
+
+            // manage classic logging
+            return services.AddLogging(configure =>
             {
                 configure.SetMinimumLevel(loggerOptions.MinimumLevel);
                 if (!loggerOptions.UseAzureDevOpsFormating)
@@ -106,25 +98,52 @@ namespace IFB
                         .AddFilter<ApplicationInsightsLoggerProvider>(string.Empty, loggerOptions.MinimumLevel); // else Information by default
                 }
             });
+        }
 
-            // Add the applications services
-            return services
-                .AddOptions()
+        private static IServiceProvider ConfigureServices(string[] args)
+        {
+            // init a new blank service collection
+            return ConfigureSettings(args)
+                // Add the applications services
                 .AddSingleton<PersistenceManager>() // must be singleton
                 .AddSingleton<SeleniumWrapper>() // must be singleton
                 .AddTransient<ActivityAction>() // can be used one or more time
+                .AddTransient<BotService>() // used once
                 .AddTransient<DumpingAction>() // can be used one
                 .AddTransient<ExplorePhotosAction>() // can be used one or more time
-                .AddTransient<FollowerService>() // used once
+                .AddTransient<FollowBackAction>() // can be used one or more time
                 .AddTransient<HomeAction>() // can be used one or more time
                 .AddTransient<LoadingAction>() // used once
                 .AddTransient<LoggingAction>() // used once
                 .AddTransient<SaveAction>() // used multiple time
                 .AddTransient<SnapshootAction>() // can be used 2 times
                 .AddTransient<TaskLoader>() // used once
+                .AddTransient<UnfollowUnfollowersAction>() // can be used one or more time
                 .AddTransient<WaitAction>() // used few time
+                .BuildServiceProvider();
+        }
+
+        private static IServiceCollection ConfigureSettings(string[] args)
+        {
+            // setup config
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(ExecutablePath)
+                .AddJsonFile("InstagramFollowerBot.json", optional: false, reloadOnChange: false) // priority 4
+                .AddEnvironmentVariables() // priority 2 prefix: "IFB_"
+                .AddCommandLine(args) // priority 1
+                .Build();
+
+            // generate loader specific settings for logger
+            LoggerOptions loggerOptions = new LoggerOptions();
+            configuration.GetSection(LoggerOptions.Section).Bind(loggerOptions);
+
+            // INIT service collection with logger
+            return ConfigureLogger(loggerOptions)
+                // add settings as IOptions
+                .AddOptions()
                 .Configure<DumpingOptions>(configuration.GetSection(DumpingOptions.Section))
                 .Configure<ExplorePhotosOptions>(configuration.GetSection(ExplorePhotosOptions.Section))
+                .Configure<FollowBackOptions>(configuration.GetSection(FollowBackOptions.Section))
                 .Configure<HomePageOptions>(configuration.GetSection(HomePageOptions.Section))
                 .Configure<InstagramOptions>(configuration.GetSection(InstagramOptions.Section))
                 .Configure<LoggingOptions>(configuration.GetSection(LoggingOptions.Section))
@@ -133,8 +152,8 @@ namespace IFB
                 .Configure<SeleniumOptions>(configuration.GetSection(SeleniumOptions.Section))
                 .Configure<SnapshootOptions>(configuration.GetSection(SnapshootOptions.Section))
                 .Configure<TaskManagerOptions>(configuration.GetSection(TaskManagerOptions.Section))
-                .Configure<WaitOptions>(configuration.GetSection(WaitOptions.Section))
-                .BuildServiceProvider();
+                .Configure<UnfollowUnfollowersOptions>(configuration.GetSection(UnfollowUnfollowersOptions.Section))
+                .Configure<WaitOptions>(configuration.GetSection(WaitOptions.Section));
         }
     }
 }

@@ -8,16 +8,16 @@ using Microsoft.Extensions.Options;
 
 namespace IFB
 {
-    internal class FollowerService : IBotAction
+    internal class BotService : IBotAction
     {
-        private readonly ILogger<FollowerService> _logger;
+        private readonly ILogger<BotService> _logger;
         private readonly LoggingOptions _loggingOptions;
         private readonly IServiceProvider _serviceProvider;
 
-        public FollowerService(ILogger<FollowerService> logger, IOptions<LoggingOptions> loggingOptions, IServiceProvider serviceProvider) // DI : constructor must be public
+        public BotService(ILogger<BotService> logger, IOptions<LoggingOptions> loggingOptions, IServiceProvider serviceProvider) // DI : constructor must be public
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _logger.LogTrace("new FollowerService()");
+            _logger.LogTrace("new BotService()");
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             _loggingOptions = loggingOptions?.Value ?? throw new ArgumentNullException(nameof(loggingOptions));
         }
@@ -53,6 +53,14 @@ namespace IFB
 
                     case "SAVE":
                         action = _serviceProvider.GetRequiredService<SaveAction>();
+                        break;
+
+                    case "DOFOLLOWBACK":
+                        action = _serviceProvider.GetRequiredService<FollowBackAction>();
+                        break;
+
+                    case "DOUNFOLLOWUNFOLLOWERS":
+                        action = _serviceProvider.GetRequiredService<UnfollowUnfollowersAction>();
                         break;
 
                     case "DOHOMEPAGELIKE":

@@ -280,6 +280,21 @@ namespace IFB
             }
         }
 
+        internal async Task ScrollToBottomAsync(string divNameLooped)
+        {
+            _logger.LogTrace("ScrollToBottomAsync({0})", divNameLooped);
+            string oldScrollTop, newScrollTop = null;
+            do
+            {
+                oldScrollTop = newScrollTop;
+
+                await JsScrollAsync("let containerEl=document.getElementsByClassName('" + divNameLooped + "')[0];containerEl.scrollTop=containerEl.scrollTop==0?200:(containerEl.scrollHeight-containerEl.offsetHeight>containerEl.scrollTop+200?containerEl.scrollTop+200:containerEl.scrollHeight-containerEl.offsetHeight);", true);
+
+                newScrollTop = JsDriver.ExecuteScript("let containerEl=document.getElementsByClassName('" + divNameLooped + "')[0];;return containerEl.scrollTop;").ToString();
+            }
+            while (oldScrollTop != newScrollTop);
+        }
+
         internal async Task ScrollToTopAsync(bool thenWait = true)
         {
             _logger.LogTrace("ScrollToTopAsync()");
@@ -321,36 +336,25 @@ namespace IFB
             }
         }
 
+        internal IEnumerable<string> GetAttributes(string cssSelector, string attribute = "href", bool noImplicitWait = true)
+        {
+            return GetElements(By.CssSelector(cssSelector), noImplicitWait: noImplicitWait)
+                .Select(x => x.GetAttribute(attribute));
+        }
+
         internal IWebElement GetElement(string cssSelector, bool displayedOnly = true, bool canBeMissing = false, bool noImplicitWait = true)
         {
             _logger.LogTrace("GetElement({0})", cssSelector);
+            return GetElement(By.CssSelector(cssSelector),
+                displayedOnly: displayedOnly, canBeMissing: canBeMissing, noImplicitWait: noImplicitWait);
+        }
 
-            if (noImplicitWait)
-            {
-                WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
-            }
+        internal IWebElement GetElementByXPath(string xPathFormat, string arg0, bool displayedOnly = true, bool canBeMissing = false, bool noImplicitWait = true)
+        {
+            _logger.LogTrace("GetElementByXPath({0})", arg0);
 
-            IWebElement found = WebDriver
-                .FindElements(By.CssSelector(cssSelector))
-                .FirstOrDefault(x => x.Displayed == displayedOnly);
-
-            if (noImplicitWait)
-            {
-                WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
-            }
-
-            if (found != null)
-            {
-                return found;
-            }
-            else if (canBeMissing)
-            {
-                return null;
-            }
-            else
-            {
-                throw new InvalidOperationException("Element not found : " + cssSelector);
-            }
+            return GetElement(By.XPath(string.Format(xPathFormat, arg0)),
+                displayedOnly: displayedOnly, canBeMissing: canBeMissing, noImplicitWait: noImplicitWait);
         }
 
         internal bool GetElementIfPresent(string cssSelector, out IWebElement element, bool noImplicitWait = true)
@@ -367,6 +371,43 @@ namespace IFB
             {
                 return false;
             }
+        }
+
+        private IWebElement GetElement(By by, bool displayedOnly = true, bool canBeMissing = false, bool noImplicitWait = true)
+        {
+            IWebElement found = GetElements(by, noImplicitWait: noImplicitWait)
+                .FirstOrDefault(x => x.Displayed == displayedOnly);
+
+            if (found != null)
+            {
+                return found;
+            }
+            else if (canBeMissing)
+            {
+                return null;
+            }
+            else
+            {
+                throw new InvalidOperationException("Element not found : " + by.ToString());
+            }
+        }
+
+        private IReadOnlyCollection<IWebElement> GetElements(By by, bool noImplicitWait)
+        {
+            if (noImplicitWait)
+            {
+                WebDriver.Manage().Timeouts().ImplicitWait = TimeSpan.Zero;
+            }
+
+            IReadOnlyCollection<IWebElement> found = WebDriver
+                .FindElements(by);
+
+            if (noImplicitWait)
+            {
+                WebDriver.Manage().Timeouts().ImplicitWait = NormalWaiter;
+            }
+
+            return found;
         }
 
         #endregion FindElements

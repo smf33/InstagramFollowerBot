@@ -9,12 +9,9 @@
     "LikeMax": 25,
     "LikeMin": 5
   },
-  "IFB_Followers": {
-    "CacheFollowingHours": 48,
-    "FollowbackMax": 10,
-    "FollowbackMin": 2,
-    "UnfollowUnfollowerMax": 10,
-    "UnfollowUnfollowerMin": 2
+  "IFB_FollowBack": {
+    "FollowMax": 10,
+    "FollowMin": 2
   },
   "IFB_HomePage": {
     "InitScrools": 4,
@@ -23,21 +20,22 @@
   },
   "IFB_Instagram": {
     "CssActionWarning": ".mt3GC>button.aOOlW.bIiDR",
-    "CssContactFollow": "button._5f5mN._6VtSN:not(.-fzfL)",
+    "CssContactsClose": ".WaOAr>button",
     "CssContactsFollowers": "a[href*=\"/followers/\"]",
     "CssContactsFollowing": "a[href*=\"/following/\"]",
     "CssContactsListScrollable": "isgrP",
-    "CssContactUnfollowButton": "button.-fzfL._6VtSN",
-    "CssContactUnfollowButtonAlt": "button._8A5w5:not(.fAR91)",
     "CssContactUnfollowConfirm": "button.-Cab_",
+    "CssContactUrl": "a.FPmhX",
     "CssCookiesWarning": ".bIiDR",
     "CssExploreLoading": ".u33W3>div>.By4nA",
     "CssExplorePhotos": ".QzzMF>a",
+    "CssFollowerFollowable": ".y3zKF",
     "CssHeaderButtonActivity": ".Fifk5>a[href='/accounts/activity/']",
     "CssHeaderButtonExplore": ".Fifk5>a[href='/explore/']",
     "CssHeaderButtonHome": ".Fifk5>div>a[href='/']",
+    "CssHeaderMyself": ".Fifk5:last-child>span",
+    "CssHeaderMyselfProfile": ".-qQT3",
     "CssLoginEmail": "input[name=\"username\"]",
-    "CssLoginMyself": ".gmFkV",
     "CssLoginPassword": "input[name=\"password\"]",
     "CssLoginSageInfo": "button.L3NKy",
     "CssLoginUnusual": ".jIbKX",
@@ -45,8 +43,8 @@
     "CssPhotoClose": ".BI4qX>button", // other parent candidate : qJPeX fm1AK TxciK yiMZG
     "CssPhotoFollow": ".bY2yH>.y3zKF",
     "CssPhotoLike": ".fr66n>button.wpO6b>div>span>[aria-label='Like']",
-    "CssSuggestedContact": ".FPmhX",
-    "UrlRoot": "https://www.instagram.com"
+    "UrlRoot": "https://www.instagram.com",
+    "XPathFollowingPopupGetFollowingButtonFromUser": "//a[@href='{0}']//ancestor::div[4]//child::button[contains(@class,'_8A5w5')]"
   },
   "IFB_Logger": {
     "MinimumLevel": "Debug",
@@ -84,6 +82,11 @@
     "SaveOnEnd": true,
     "SaveOnLoop": true,
     "TaskList": "CHECKACTIVITY,WAIT,DOHOMEPAGELIKE,DOEXPLOREPHOTOSLIKEFOLLOW"
+  },
+  "IFB_UnfollowUnfollowers": {
+    "CacheFollowersDetectionHours": 48,
+    "UnfollowMax": 10,
+    "UnfollowMin": 2
   },
   "IFB_Wait": {
     "PostActionStepMaxWaitMs": 8000,

@@ -49,8 +49,8 @@ namespace IFB
             {
                 // like
                 _logger.LogDebug("Liking");
+                await _seleniumWrapper.ScrollIntoView(element, thenWait: false); // bigger waiter alredy present after
                 await _waitAction.PreLikeWait();
-                await _seleniumWrapper.ScrollIntoView(element);
                 await _seleniumWrapper.Click(element);
                 _seleniumWrapper.CrashIfPresent(_instagramOptions.CssActionWarning, InstagramOptions.CssActionWarningErrorMessage);
                 likeDone++;
