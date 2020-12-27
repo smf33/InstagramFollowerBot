@@ -120,18 +120,21 @@ namespace IFB
                 {
                     _logger.LogError(ex, "{0} EXCEPTION : {1}", curTask, ex.GetBaseException().Message);
 
+                    // dump png and html if required
+                    _serviceProvider.GetRequiredService<DumpingAction>()
+                        .Run();
+
                     // ApplicationInsight ?
                     if (telemetryClient != null)
                     {
                         telemetryClient.TrackAvailability(
                             string.Concat(Environment.MachineName, '@', _loggingOptions.User), dtStart, (DateTimeOffset.Now - dtStart), curTask,
                             false, ex.GetBaseException().Message);
-                        telemetryClient.TrackException(ex);
+                        telemetryClient.TrackException(ex); // TOFIX : this seems to not report anything on my test ???
+                        // flush final telemetry on exception
+                        telemetryClient.Flush();
+                        await Task.Delay(5000);
                     }
-
-                    // dump png and html if required
-                    _serviceProvider.GetRequiredService<DumpingAction>()
-                        .Run();
 
                     //raise exception
                     throw;
@@ -141,7 +144,7 @@ namespace IFB
             // ApplicationInsight
             if (telemetryClient != null)
             {
-                // flush telemetry
+                // flush final normal telemetry
                 telemetryClient.Flush();
                 await Task.Delay(5000);
             }
