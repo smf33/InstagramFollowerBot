@@ -38,7 +38,7 @@ namespace IFB
             // find
             int followDone = 0;
             int followTodo = PseudoRandom.Next(_followBackOptions.FollowMin, _followBackOptions.FollowMax);
-            IWebElement element = _seleniumWrapper.GetElement(_instagramOptions.CssFollowerFollowable);
+            IWebElement element = _seleniumWrapper.GetElement(_instagramOptions.CssFollowerFollowable, canBeMissing: true);
             while (element != null && followDone < followTodo)
             {
                 // like
@@ -50,7 +50,7 @@ namespace IFB
                 followDone++;
 
                 // prepare next
-                element = _seleniumWrapper.GetElement(_instagramOptions.CssFollowerFollowable);
+                element = _seleniumWrapper.GetElement(_instagramOptions.CssFollowerFollowable, canBeMissing: true);
             }
             if (followDone == followTodo)
             {
@@ -58,7 +58,7 @@ namespace IFB
             }
             else
             {
-                _logger.LogDebug("Follow back actions : {0}/{1} follow (not all done, seem not any more user to follow back)", followDone, followTodo);
+                _logger.LogInformation("Follow back actions : {0}/{1} follow (not all done, seem not any more user to follow back)", followDone, followTodo);
             }
 
             // close the popup

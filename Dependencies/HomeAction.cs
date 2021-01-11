@@ -44,7 +44,7 @@ namespace IFB
             // find
             int likeDone = 0;
             int likeTodo = DoLike ? PseudoRandom.Next(_homePageActionsOptions.LikeMin, _homePageActionsOptions.LikeMax) : 0;
-            IWebElement element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike);
+            IWebElement element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike, canBeMissing: true);
             while (element != null && likeDone < likeTodo)
             {
                 // like
@@ -57,7 +57,7 @@ namespace IFB
 
                 // prepare next
                 await _seleniumWrapper.ScrollToBottomAsync();
-                element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike);
+                element = _seleniumWrapper.GetElement(_instagramOptions.CssPhotoLike, canBeMissing: true);
             }
             if (likeDone == likeTodo)
             {
